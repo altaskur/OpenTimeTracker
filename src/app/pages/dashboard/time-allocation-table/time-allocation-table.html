@@ -1,0 +1,34 @@
+<div class="field mt-6">
+  <h3 class="text-900 font-bold mb-6">Asignación de tiempo de hoy</h3>
+  <div class="flex justify-content-center">
+    <p-table
+      [value]="todayTimeAllocation"
+      styleClass="p-datatable-striped border-1 border-300"
+      class="w-full max-w-50rem"
+      sortMode="single">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="p-4" pSortableColumn="project">
+            Proyecto
+            <p-sortIcon field="project" />
+          </th>
+          <th class="p-4" pSortableColumn="timeAllocated">
+            Tiempo asignado
+            <p-sortIcon field="timeAllocated" />
+          </th>
+          <th class="p-4" pSortableColumn="percentage">
+            Porcentaje
+            <p-sortIcon field="percentage" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td class="p-4">{{ item.project }}</td>
+          <td class="p-4">{{ item.timeAllocated }}</td>
+          <td class="p-4"><p-progressbar [value]="item.percentage" /></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

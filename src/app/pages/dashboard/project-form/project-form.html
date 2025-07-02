@@ -1,0 +1,12 @@
+<form [formGroup]="projectForm" (ngSubmit)="onSubmitForm()">
+  <div class="field mb-5">
+    <label for="project" class="block text-900 font-bold mb-3">Selecciona un proyecto</label>
+    <p-select
+      id="project"
+      [options]="projectList"
+      formControlName="selectedProject"
+      optionLabel="name"
+      placeholder="Selecciona un proyecto"
+      class="w-full md:w-20rem" />
+  </div>
+</form>
