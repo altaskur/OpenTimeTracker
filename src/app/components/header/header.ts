@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -20,6 +20,7 @@ import { MenubarModule } from 'primeng/menubar';
 })
 export class Header implements OnInit {
   items: MenuItem[] | undefined;
+  iconSelected = signal(PrimeIcons.MOON);
 
   ngOnInit(): void {
     this.items = [
@@ -47,6 +48,14 @@ export class Header implements OnInit {
   }
 
   handleToggleDarkMode() {
-    document.querySelector('html')?.classList.toggle('my-app-dark');
+    const html = document.querySelector('html');
+    html?.classList.toggle('my-app-dark');
+
+    if (html?.classList.contains('my-app-dark')) {
+      this.iconSelected.set(PrimeIcons.SUN);
+      return;
+    }
+
+    this.iconSelected.set(PrimeIcons.MOON);
   }
 }

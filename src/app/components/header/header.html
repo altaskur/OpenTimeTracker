@@ -12,7 +12,8 @@
     <div class="flex items-center gap-2">
       <a pRipple class="flex items-center p-menubar-item-link">
         <i
-          class="p-menubar-item-icon pi pi-sun"
+          class="p-menubar-item-icon"
+          [ngClass]="iconSelected()"
           (click)="handleToggleDarkMode()"
         ></i>
       </a>
