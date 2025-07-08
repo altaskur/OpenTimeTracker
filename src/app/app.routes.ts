@@ -1,24 +1,17 @@
 import { Routes } from '@angular/router';
-import { Dashboard } from './pages/dashboard/dashboard';
-import { Projects } from './pages/projects/projects';
-import { Reports } from './pages/reports/reports';
-import { Config } from './pages/config/config';
 
 export const routes: Routes = [
   {
     path: '',
-    component: Dashboard,
+    loadComponent: () => import('./pages/home/home').then((m) => m.Home),
   },
   {
-    path: 'projects',
-    component: Projects,
+    path: 'examples',
+    loadComponent: () =>
+      import('./pages/examples/examples').then((m) => m.Examples),
   },
   {
-    path: 'reports',
-    component: Reports,
-  },
-  {
-    path: 'config',
-    component: Config,
+    path: '**',
+    redirectTo: '',
   },
 ];

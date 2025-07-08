@@ -1,59 +1,47 @@
 # OpenTimeTracker
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.5.
+Base moderna para aplicaciones de escritorio con Angular + Electron + PrimeNG 20.
 
-## Development server
+## 📚 Documentación
 
-To start a local development server, run:
+Para documentación completa y guías detalladas, visita la carpeta [`docs/`](./docs/):
 
-```bash
-ng serve
-```
+- **[📖 Índice General](./docs/README.md)** - Documentación completa del proyecto
+- **[🏗️ Arquitectura](./docs/architecture.md)** - Estructura y stack tecnológico
+- **[🚀 Guía de Desarrollo](./docs/development-guide.md)** - Comandos y mejores prácticas
+- **[🎨 Guía del Tema](./docs/theme-guide.md)** - Tema Aura Black personalizado
+- **[🧭 Navigation Handler](./docs/navigation-handler.md)** - Módulo de navegación
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## ⚡ Inicio Rápido
 
 ```bash
-ng generate component component-name
+# Instalar dependencias
+npm install
+
+# Desarrollo con Electron (recomendado)
+npm run dev
+
+# Solo Angular en navegador
+npm start
+
+# Build completo (producción)
+npm run build
+
+# Ejecutar Electron (requiere build previo)
+npm run electron
+
+# Tests
+npm test
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## ✅ Estado del Proyecto
 
-```bash
-ng generate --help
-```
+El proyecto está **completamente listo** para desarrollo con:
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- ✅ **Angular 20** con componentes standalone
+- ✅ **Electron** con navegación robusta y reload funcional  
+- ✅ **PrimeNG 20** con tema Aura Black personalizado
+- ✅ **Base de datos SQLite** operativa con ejemplos
+- ✅ **IPC seguro** entre Angular y Electron
+- ✅ **Build system** optimizado con scripts simplificados
+- ✅ **Documentación completa** y código limpio

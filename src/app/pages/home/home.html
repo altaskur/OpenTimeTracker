@@ -1,0 +1,37 @@
+<div class="container">
+  <p-card class="welcome-card">
+    <h1>OpenTimeTracker</h1>
+    <p>Bienvenido a OpenTimeTracker</p>
+
+    <div class="ping-section">
+      <p-button
+        label="Ping Electron"
+        icon="pi pi-bolt"
+        (click)="testPing()"
+        [loading]="loading()">
+      </p-button>
+
+      @if (response()) {
+        <div class="response">
+          <strong>Respuesta:</strong> {{ response() }}
+        </div>
+      }
+    </div>
+
+    <div class="navigation">
+      <p-button
+        label="Ver Ejemplos"
+        icon="pi pi-list"
+        severity="secondary"
+        (click)="goToExamples()">
+      </p-button>
+
+      <p-button
+        label="Alternar Tema"
+        icon="pi pi-moon"
+        severity="help"
+        (click)="toggleDarkMode()">
+      </p-button>
+    </div>
+  </p-card>
+</div>

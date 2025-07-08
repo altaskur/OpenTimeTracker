@@ -6,3 +6,23 @@
   padding: 0;
   font-family: "Roboto", sans-serif;
 }
+
+html {
+  font-size: 14px;
+}
+
+html.my-app-dark {
+  background-color: var(--p-surface-900);
+  color: var(--p-surface-0);
+}
+
+body {
+  background-color: var(--p-surface-ground);
+  color: var(--p-text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.p-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

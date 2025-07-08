@@ -1,0 +1,28 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.welcome-card {
+  text-align: center;
+}
+
+.ping-section {
+  margin: 20px 0;
+}
+
+.response {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: var(--p-surface-hover);
+  border-radius: 4px;
+}
+
+.navigation {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
