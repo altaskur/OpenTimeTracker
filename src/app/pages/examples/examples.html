@@ -1,0 +1,65 @@
+<div class="container">
+  <p-card class="examples-card">
+    <div class="header">
+      <h2>Ejemplos de IPC</h2>
+      <p-button
+        label="Volver al Inicio"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        (click)="goHome()">
+      </p-button>
+    </div>
+
+    <div class="add-section">
+      <div class="input-group">
+        <input
+          pInputText
+          [(ngModel)]="newMessage"
+          placeholder="Escribe un mensaje..."
+          (keyup.enter)="addExample()" />
+        <p-button
+          label="Agregar"
+          icon="pi pi-plus"
+          (click)="addExample()"
+          [loading]="adding()">
+        </p-button>
+      </div>
+    </div>
+
+    <div class="examples-list">
+      <p-button
+        label="Cargar Ejemplos"
+        icon="pi pi-refresh"
+        (click)="loadExamples()"
+        [loading]="loading()">
+      </p-button>
+
+      @if (examples().length > 0) {
+        <p-table
+          [value]="examples()"
+          styleClass="p-datatable-sm">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID</th>
+              <th>Mensaje</th>
+              <th>Fecha</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-example>
+            <tr>
+              <td>{{ example.id }}</td>
+              <td>{{ example.message }}</td>
+              <td>{{ example.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+
+      @if (examples().length === 0 && !loading()) {
+        <div class="no-data">
+          No hay ejemplos disponibles
+        </div>
+      }
+    </div>
+  </p-card>
+</div>
