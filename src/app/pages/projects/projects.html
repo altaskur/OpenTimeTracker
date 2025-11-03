@@ -1,0 +1,92 @@
+<div class="container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="header-content">
+        <h2>Proyectos</h2>
+        <p-button
+          label="Nuevo Proyecto"
+          icon="pi pi-plus"
+          (click)="openNewDialog()"
+          (keydown.enter)="openNewDialog()">
+        </p-button>
+      </div>
+    </ng-template>
+
+    <p-table
+      [value]="projects()"
+      [loading]="loading()"
+     >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Descripción</th>
+          <th scope="col">Fecha Creación</th>
+          <th scope="col" style="width: 150px">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-project>
+        <tr>
+          <td>{{ project.name }}</td>
+          <td>{{ project.description }}</td>
+          <td>{{ project.created_at }}</td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              severity="secondary"
+              (click)="openEditDialog(project)"
+              (keydown.enter)="openEditDialog(project)">
+            </p-button>
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              severity="danger"
+              (click)="deleteProject(project.id)"
+              (keydown.enter)="deleteProject(project.id)">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <p-dialog
+    header="Proyecto"
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [style]="{ width: '500px' }">
+    <div class="field">
+      <label for="name">Nombre*</label>
+      <input
+        id="name"
+        type="text"
+        pInputText
+        [(ngModel)]="projectForm.name"
+        class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="description">Descripción</label>
+      <textarea
+        id="description"
+        pInputText
+        [(ngModel)]="projectForm.description"
+        rows="4"
+        class="w-full"></textarea>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        (click)="dialogVisible.set(false)"
+        (keydown.enter)="dialogVisible.set(false)">
+      </p-button>
+      <p-button
+        label="Guardar"
+        (click)="saveProject()"
+        (keydown.enter)="saveProject()">
+      </p-button>
+    </ng-template>
+  </p-dialog>
+</div>

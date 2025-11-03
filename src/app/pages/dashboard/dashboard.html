@@ -1,0 +1,49 @@
+<div class="container">
+  <div class="grid">
+    <div class="col-12 md:col-6 lg:col-3">
+      <p-card>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="pi pi-clock"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ totalHours() }}</h3>
+            <p>Horas Totales</p>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <p-card header="Entradas de Tiempo Recientes">
+    <p-table
+      [value]="timeEntries()"
+      [loading]="loading()"
+      [rows]="10"
+  >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Proyecto</th>
+          <th scope="col">Tarea</th>
+          <th scope="col">Horas</th>
+          <th scope="col">Notas</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-entry>
+        <tr>
+          <td>{{ entry.date }}</td>
+          <td>{{ entry.project_name || '-' }}</td>
+          <td>{{ entry.task_name || 'Sin asignar' }}</td>
+          <td>{{ entry.hours }}</td>
+          <td>{{ entry.notes || '-' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center">No hay entradas de tiempo registradas</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

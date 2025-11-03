@@ -1,29 +1,21 @@
 <div class="container">
   <p-card class="welcome-card">
     <h1>OpenTimeTracker</h1>
-    <p>Bienvenido a OpenTimeTracker</p>
-
-    <div class="ping-section">
-      <p-button
-        label="Ping Electron"
-        icon="pi pi-bolt"
-        (click)="testPing()"
-        [loading]="loading()">
-      </p-button>
-
-      @if (response()) {
-        <div class="response">
-          <strong>Respuesta:</strong> {{ response() }}
-        </div>
-      }
-    </div>
+    <p>Sistema de seguimiento de tiempo para proyectos y tareas</p>
 
     <div class="navigation">
       <p-button
-        label="Ver Ejemplos"
-        icon="pi pi-list"
+        label="Dashboard"
+        icon="pi pi-chart-line"
+        severity="primary"
+        (click)="goToDashboard()">
+      </p-button>
+
+      <p-button
+        label="Proyectos"
+        icon="pi pi-folder"
         severity="secondary"
-        (click)="goToExamples()">
+        (click)="goToProjects()">
       </p-button>
 
       <p-button

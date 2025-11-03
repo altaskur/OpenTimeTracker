@@ -2,10 +2,12 @@ import { BrowserWindow } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { NavigationHandler } from '../services/navigation/navigation-handler';
+import { MenuManager } from '../services/menu/menu-manager';
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null;
   private navigationHandler: NavigationHandler | null = null;
+  private menuManager: MenuManager | null = null;
 
   /**
    * Creates the main application window
@@ -24,6 +26,7 @@ export class WindowManager {
     });
 
     await this.loadApplication();
+    this.setupMenu();
     this.setupDevTools();
     this.setupEventListeners();
   }
@@ -42,17 +45,28 @@ export class WindowManager {
       'browser',
       'index.html'
     );
-    
+
     console.log('Loading index.html from:', indexPath);
 
     if (fs.existsSync(indexPath)) {
       this.navigationHandler = new NavigationHandler(this.mainWindow!);
       this.navigationHandler.setupNavigationHandlers();
-      
+
       console.log('Loading URL:', this.navigationHandler.getIndexUrl());
       this.navigationHandler.loadIndex();
     } else {
       console.error('index.html not found at:', indexPath);
+    }
+  }
+
+  /**
+   * Sets up the application menu
+   */
+  private setupMenu(): void {
+    if (this.mainWindow) {
+      this.menuManager = new MenuManager(this.mainWindow);
+      this.menuManager.setupMenu();
+      console.log('Menu configured successfully');
     }
   }
 
@@ -72,6 +86,7 @@ export class WindowManager {
     this.mainWindow?.on('closed', () => {
       this.mainWindow = null;
       this.navigationHandler = null;
+      this.menuManager = null;
     });
   }
 
