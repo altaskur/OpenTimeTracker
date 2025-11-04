@@ -5,12 +5,8 @@ fi
 
 echo "🔍 Running SonarQube analysis..."
 
-# Use cmd to run npm on Windows (Git Bash compatibility)
-if command -v npm.cmd &> /dev/null; then
-  npm.cmd run sonar:check
-else
-  npm run sonar:check
-fi
+# Run npm using cmd.exe for better Windows compatibility
+cmd.exe /c "npm run sonar:check"
 
 if [ $? -ne 0 ]; then
   echo "❌ Push rejected: SonarQube analysis failed"
