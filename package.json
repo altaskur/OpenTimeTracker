@@ -7,7 +7,13 @@
     "build": "ng build && tsc --project electron/build/tsconfig.json",
     "dev": "ng build --configuration=development && tsc --project electron/build/tsconfig.json && electron .",
     "test": "ng test",
-    "electron": "electron ."
+    "test:coverage": "ng test --code-coverage --watch=false --browsers=ChromeHeadless",
+    "test:electron": "jest --config jest.config.js",
+    "test:electron:coverage": "jest --config jest.config.js --coverage",
+    "electron": "electron .",
+    "sonar": "node scripts/run-sonar.js",
+    "sonar:check": "npm run test:coverage && npm run test:electron:coverage && npm run sonar && node scripts/check-sonar-quality-gate.mjs",
+    "prepare": "husky"
   },
   "prettier": {
     "overrides": [
@@ -28,7 +34,7 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@primeuix/themes": "^1.2.0",
-    "better-sqlite3": "^12.2.0",
+    "@prisma/client": "^6.18.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.0.0-rc.1",
@@ -41,16 +47,39 @@
     "@angular/build": "^20.0.5",
     "@angular/cli": "^20.0.5",
     "@angular/compiler-cli": "^20.0.0",
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/jasmine": "~5.1.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
+    "dotenv": "^17.2.3",
     "electron": "^37.1.0",
+    "husky": "^9.1.7",
     "jasmine-core": "~5.7.0",
+    "jest": "^30.2.0",
+    "jest-mock-extended": "^4.0.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
+    "prisma": "^6.18.0",
+    "sonarqube-scanner": "^4.3.2",
+    "ts-jest": "^29.4.5",
     "typescript": "~5.8.2"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "prettier --write"
+    ],
+    "*.html": [
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

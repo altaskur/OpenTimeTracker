@@ -1,0 +1,24 @@
+module.exports = {
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/electron"],
+  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+  testPathIgnorePatterns: ["/node_modules/"],
+  moduleFileExtensions: ["ts", "js", "json"],
+  collectCoverageFrom: [
+    "electron/src/**/*.ts",
+    "!electron/src/**/*.d.ts",
+    "!electron/src/**/types.ts",
+    "!electron/src/**/index.ts",
+  ],
+  coverageDirectory: "coverage/electron",
+  coverageReporters: ["text", "lcov", "html"],
+  coverageThreshold: {
+    global: {
+      branches: 0.5,
+      functions: 2,
+      lines: 5,
+      statements: 5,
+    },
+  },
+};

@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrl: './home.scss',
 })
 export class Home {
-  constructor(private router: Router) {}
+  constructor(private readonly router: Router) {}
 
   goToDashboard() {
     this.router.navigate(['/dashboard']);

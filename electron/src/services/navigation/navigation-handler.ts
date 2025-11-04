@@ -2,12 +2,12 @@ import { BrowserWindow } from 'electron';
 import * as path from 'path';
 
 export class NavigationHandler {
-  private mainWindow: BrowserWindow;
-  private indexUrl: string;
+  private readonly mainWindow: BrowserWindow;
+  private readonly indexUrl: string;
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
-    
+
     const indexPath = path.resolve(
       __dirname,
       '..',
@@ -17,7 +17,7 @@ export class NavigationHandler {
       'dist',
       'OpenTimeTracker',
       'browser',
-      'index.html'
+      'index.html',
     );
     this.indexUrl = `file://${indexPath.replace(/\\/g, '/')}`;
   }
@@ -36,7 +36,10 @@ export class NavigationHandler {
    */
   private setupNavigationInterceptor(): void {
     this.mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
-      if (navigationUrl.startsWith('file://') && !navigationUrl.endsWith('index.html')) {
+      if (
+        navigationUrl.startsWith('file://') &&
+        !navigationUrl.endsWith('index.html')
+      ) {
         event.preventDefault();
         console.log('Redirecting navigation to index.html:', navigationUrl);
         this.loadIndex();
@@ -48,12 +51,18 @@ export class NavigationHandler {
    * Handles load errors (when reload fails)
    */
   private setupFailedLoadHandler(): void {
-    this.mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-      if (validatedURL.startsWith('file://') && errorCode === -6) {
-        console.log('Failed to load URL, redirecting to index.html:', validatedURL);
-        this.loadIndex();
-      }
-    });
+    this.mainWindow.webContents.on(
+      'did-fail-load',
+      (event, errorCode, errorDescription, validatedURL) => {
+        if (validatedURL.startsWith('file://') && errorCode === -6) {
+          console.log(
+            'Failed to load URL, redirecting to index.html:',
+            validatedURL,
+          );
+          this.loadIndex();
+        }
+      },
+    );
   }
 
   /**

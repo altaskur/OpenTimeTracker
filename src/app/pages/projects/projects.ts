@@ -61,7 +61,7 @@ export class Projects implements OnInit {
     this.projectForm = {
       id: project.id,
       name: project.name,
-      description: project.description || '',
+      description: project.description ?? '',
     };
     this.dialogVisible.set(true);
   }
@@ -72,12 +72,12 @@ export class Projects implements OnInit {
         await this.dbService.updateProject(
           this.projectForm.id,
           this.projectForm.name,
-          this.projectForm.description
+          this.projectForm.description,
         );
       } else {
         await this.dbService.createProject(
           this.projectForm.name,
-          this.projectForm.description
+          this.projectForm.description,
         );
       }
       this.dialogVisible.set(false);

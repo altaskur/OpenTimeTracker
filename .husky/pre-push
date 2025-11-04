@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+# Load environment variables from .env
+if [ -f .env ]; then
+  export $(cat .env | grep -v '^#' | xargs)
+fi
+
+echo "🔍 Running SonarQube analysis..."
+npm run sonar:check
+
+if [ $? -ne 0 ]; then
+  echo "❌ Push rejected: SonarQube analysis failed"
+  exit 1
+fi
+
+echo "✅ SonarQube Quality Gate passed - proceeding with push"

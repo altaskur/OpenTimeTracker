@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../dist/data/timetracker.db"
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  tasks       Task[]
+
+  @@map("projects")
+}
+
+model TaskStatus {
+  id    String @id @default(uuid())
+  name  String @unique
+  tasks Task[]
+
+  @@map("task_status")
+}
+
+model Task {
+  id             String      @id @default(uuid())
+  projectId      String      @map("project_id")
+  name           String
+  description    String?
+  estimatedHours Float?      @map("estimated_hours")
+  statusId       String?     @map("status_id")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  project        Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status         TaskStatus? @relation(fields: [statusId], references: [id])
+  tags           TaskTag[]
+  timeEntries    TimeEntry[]
+
+  @@map("tasks")
+}
+
+model Tag {
+  id    String    @id @default(uuid())
+  name  String    @unique
+  tasks TaskTag[]
+
+  @@map("tags")
+}
+
+model TaskTag {
+  taskId String @map("task_id")
+  tagId  String @map("tag_id")
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+  @@map("task_tags")
+}
+
+model TimeEntry {
+  id        String   @id @default(uuid())
+  taskId    String?  @map("task_id")
+  date      String
+  hours     Float
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@map("time_entries")
+}
+
+model WorkPeriod {
+  id           String   @id @default(uuid())
+  year         Int
+  month        Int
+  plannedHours Float    @map("planned_hours")
+  note         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([year, month])
+  @@map("work_periods")
+}
