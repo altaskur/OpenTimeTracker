@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -8,8 +9,10 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
+import { MessageService } from 'primeng/api';
 
 import { AuraBlack } from './themes/aura-black.preset';
+import { GlobalErrorHandler } from './services/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,5 +30,7 @@ export const appConfig: ApplicationConfig = {
       inputVariant: 'outlined',
       ripple: true,
     }),
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    MessageService,
   ],
 };

@@ -6,6 +6,9 @@
     "start": "ng serve",
     "build": "ng build && tsc --project electron/build/tsconfig.json",
     "dev": "ng build --configuration=development && tsc --project electron/build/tsconfig.json && electron .",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:studio": "prisma studio",
     "test": "ng test",
     "test:coverage": "ng test --code-coverage --watch=false --browsers=ChromeHeadless",
     "test:electron": "jest --config jest.config.js",
@@ -13,7 +16,9 @@
     "electron": "electron .",
     "sonar": "node scripts/run-sonar.js",
     "sonar:check": "npm run test:coverage && npm run test:electron:coverage && npm run sonar && node scripts/check-sonar-quality-gate.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix"
   },
   "prettier": {
     "overrides": [
@@ -53,8 +58,10 @@
     "@types/jasmine": "~5.1.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
+    "angular-eslint": "21.0.1",
     "dotenv": "^17.2.3",
     "electron": "^37.1.0",
+    "eslint": "^9.39.1",
     "husky": "^9.1.7",
     "jasmine-core": "~5.7.0",
     "jest": "^30.2.0",
@@ -66,16 +73,19 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
-    "prisma": "^6.18.0",
-    "sonarqube-scanner": "^4.3.2",
+    "prisma": "^6.19.0",
+    "sonarqube-scanner": "^4.3.0",
     "ts-jest": "^29.4.5",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.2",
+    "typescript-eslint": "8.46.4"
   },
   "lint-staged": {
     "*.{ts,js}": [
+      "eslint --fix",
       "prettier --write"
     ],
     "*.html": [
+      "eslint --fix",
       "prettier --write"
     ],
     "*.{json,md}": [
