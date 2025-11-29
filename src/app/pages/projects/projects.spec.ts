@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Projects } from './projects';
 import { DatabaseService } from '../../services/database.service';
-import { signal } from '@angular/core';
 
 describe('Projects', () => {
   let component: Projects;

@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ElectronNavigationService {
-  constructor(private readonly router: Router) {
+  private readonly router = inject(Router);
+
+  constructor() {
     this.setupNavigationListener();
   }
 

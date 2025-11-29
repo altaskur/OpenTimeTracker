@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -12,7 +12,6 @@ import { Project } from '../../../types/electron';
 @Component({
   selector: 'app-projects',
   imports: [
-    CommonModule,
     CardModule,
     TableModule,
     ButtonModule,
@@ -24,6 +23,8 @@ import { Project } from '../../../types/electron';
   styleUrl: './projects.scss',
 })
 export class Projects implements OnInit {
+  private readonly dbService = inject(DatabaseService);
+
   projects = signal<Project[]>([]);
   loading = signal(false);
   dialogVisible = signal(false);
@@ -34,13 +35,11 @@ export class Projects implements OnInit {
     description: '',
   };
 
-  constructor(private readonly dbService: DatabaseService) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     void this.loadProjects();
   }
 
-  async loadProjects() {
+  async loadProjects(): Promise<void> {
     this.loading.set(true);
     try {
       const data = await this.dbService.getProjects();
@@ -52,12 +51,12 @@ export class Projects implements OnInit {
     }
   }
 
-  openNewDialog() {
+  openNewDialog(): void {
     this.projectForm = { id: '', name: '', description: '' };
     this.dialogVisible.set(true);
   }
 
-  openEditDialog(project: Project) {
+  openEditDialog(project: Project): void {
     this.projectForm = {
       id: project.id,
       name: project.name,
@@ -66,7 +65,7 @@ export class Projects implements OnInit {
     this.dialogVisible.set(true);
   }
 
-  async saveProject() {
+  async saveProject(): Promise<void> {
     try {
       if (this.projectForm.id) {
         await this.dbService.updateProject(
@@ -87,7 +86,7 @@ export class Projects implements OnInit {
     }
   }
 
-  async deleteProject(id: string) {
+  async deleteProject(id: string): Promise<void> {
     if (confirm('¿Está seguro de eliminar este proyecto?')) {
       try {
         await this.dbService.deleteProject(id);

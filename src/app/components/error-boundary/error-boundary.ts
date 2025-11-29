@@ -1,5 +1,5 @@
 import { Component, input, output, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ButtonModule } from 'primeng/button';
 
 /**
@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
  */
 @Component({
   selector: 'app-error-boundary',
-  imports: [CommonModule, ButtonModule],
+  imports: [ButtonModule],
   template: `
     @if (hasError()) {
       <section class="error-boundary" role="alert" aria-live="assertive">
