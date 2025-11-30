@@ -49,7 +49,6 @@ export class MenuManager {
             accelerator: 'CmdOrCtrl+N',
             click: () => {
               this.navigateTo('/dashboard');
-              // TODO: Abrir modal de nueva entrada
             },
           },
           {
@@ -57,7 +56,6 @@ export class MenuManager {
             accelerator: 'CmdOrCtrl+Shift+N',
             click: () => {
               this.navigateTo('/projects');
-              // TODO: Abrir modal de nuevo proyecto
             },
           },
           { type: 'separator' },
@@ -265,7 +263,7 @@ export class MenuManager {
       type: 'info',
       title: 'Acerca de OpenTimeTracker',
       message: 'OpenTimeTracker',
-      detail: `Versión: 1.0.0\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 20 + Electron + SQLite\n\n© 2025 Isaac Julián`,
+      detail: `Versión: 1.0.0\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 21 + Electron + Prisma\n\n© 2025 Isaac Julián`,
       buttons: ['OK'],
     });
   }

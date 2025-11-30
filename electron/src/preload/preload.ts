@@ -1,75 +1,84 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import {
+  DeleteResult,
+  Project,
+  Task,
+  TaskStatus,
+  TimeEntry,
+  WorkPeriod,
+} from '../interfaces/database.interfaces';
 
 const electronAPI = {
   // Projects
-  getProjects: (): Promise<any[]> => ipcRenderer.invoke('get-projects'),
-  createProject: (name: string, description?: string): Promise<any> =>
+  getProjects: (): Promise<Project[]> => ipcRenderer.invoke('get-projects'),
+  createProject: (name: string, description?: string): Promise<Project> =>
     ipcRenderer.invoke('create-project', name, description),
   updateProject: (
     id: string,
     name: string,
-    description?: string
-  ): Promise<any> =>
+    description?: string,
+  ): Promise<Project> =>
     ipcRenderer.invoke('update-project', id, name, description),
-  deleteProject: (id: string): Promise<any> =>
+  deleteProject: (id: string): Promise<DeleteResult> =>
     ipcRenderer.invoke('delete-project', id),
 
   // Tasks
-  getTasks: (projectId?: string): Promise<any[]> =>
+  getTasks: (projectId?: string): Promise<Task[]> =>
     ipcRenderer.invoke('get-tasks', projectId),
   createTask: (
     projectId: string,
     name: string,
     description?: string,
     estimatedHours?: number,
-    statusId?: string
-  ): Promise<any> =>
+    statusId?: string,
+  ): Promise<Task> =>
     ipcRenderer.invoke(
       'create-task',
       projectId,
       name,
       description,
       estimatedHours,
-      statusId
+      statusId,
     ),
-  updateTask: (id: string, data: any): Promise<any> =>
+  updateTask: (id: string, data: Partial<Task>): Promise<Task> =>
     ipcRenderer.invoke('update-task', id, data),
-  deleteTask: (id: string): Promise<any> =>
+  deleteTask: (id: string): Promise<DeleteResult> =>
     ipcRenderer.invoke('delete-task', id),
 
   // Task Statuses
-  getTaskStatuses: (): Promise<any[]> =>
+  getTaskStatuses: (): Promise<TaskStatus[]> =>
     ipcRenderer.invoke('get-task-statuses'),
 
   // Time Entries
-  getTimeEntries: (taskId?: string): Promise<any[]> =>
+  getTimeEntries: (taskId?: string): Promise<TimeEntry[]> =>
     ipcRenderer.invoke('get-time-entries', taskId),
-  getPendingTimeEntries: (): Promise<any[]> =>
+  getPendingTimeEntries: (): Promise<TimeEntry[]> =>
     ipcRenderer.invoke('get-pending-time-entries'),
   createTimeEntry: (
     date: string,
     hours: number,
     taskId?: string,
-    notes?: string
-  ): Promise<any> =>
+    notes?: string,
+  ): Promise<TimeEntry> =>
     ipcRenderer.invoke('create-time-entry', date, hours, taskId, notes),
-  updateTimeEntry: (id: string, data: any): Promise<any> =>
+  updateTimeEntry: (id: string, data: Partial<TimeEntry>): Promise<TimeEntry> =>
     ipcRenderer.invoke('update-time-entry', id, data),
-  deleteTimeEntry: (id: string): Promise<any> =>
+  deleteTimeEntry: (id: string): Promise<DeleteResult> =>
     ipcRenderer.invoke('delete-time-entry', id),
 
   // Work Periods
-  getWorkPeriods: (): Promise<any[]> => ipcRenderer.invoke('get-work-periods'),
+  getWorkPeriods: (): Promise<WorkPeriod[]> =>
+    ipcRenderer.invoke('get-work-periods'),
   createWorkPeriod: (
     year: number,
     month: number,
     plannedHours: number,
-    note?: string
-  ): Promise<any> =>
+    note?: string,
+  ): Promise<WorkPeriod> =>
     ipcRenderer.invoke('create-work-period', year, month, plannedHours, note),
 
   // Navigation - Listen for navigation events from Electron
-  onNavigate: (callback: (route: string) => void) => {
+  onNavigate: (callback: (route: string) => void): void => {
     ipcRenderer.on('navigate-to', (_event, route) => callback(route));
   },
 };

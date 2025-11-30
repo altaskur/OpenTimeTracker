@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import {
+  DeleteResult,
   Project,
   Task,
   TaskStatus,
@@ -74,7 +75,7 @@ export class DatabaseService {
     });
   }
 
-  async deleteProject(id: string): Promise<Project> {
+  async deleteProject(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete project', async () => {
       return globalThis.window.electronAPI!.deleteProject(id);
     });
@@ -112,7 +113,7 @@ export class DatabaseService {
     });
   }
 
-  async deleteTask(id: string): Promise<Task> {
+  async deleteTask(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete task', async () => {
       return globalThis.window.electronAPI!.deleteTask(id);
     });
@@ -168,7 +169,7 @@ export class DatabaseService {
     });
   }
 
-  async deleteTimeEntry(id: string): Promise<TimeEntry> {
+  async deleteTimeEntry(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete time entry', async () => {
       return globalThis.window.electronAPI!.deleteTimeEntry(id);
     });

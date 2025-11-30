@@ -55,18 +55,22 @@ export interface WorkPeriod {
 
 // ==================== ELECTRON API ====================
 
+export interface DeleteResult {
+  success: boolean;
+}
+
 declare global {
   interface Window {
     electronAPI: {
       // Projects
       getProjects: () => Promise<Project[]>;
-      createProject: (name: string, description?: string) => Promise<any>;
+      createProject: (name: string, description?: string) => Promise<Project>;
       updateProject: (
         id: string,
         name: string,
-        description?: string
-      ) => Promise<any>;
-      deleteProject: (id: string) => Promise<any>;
+        description?: string,
+      ) => Promise<Project>;
+      deleteProject: (id: string) => Promise<DeleteResult>;
 
       // Tasks
       getTasks: (projectId?: string) => Promise<Task[]>;
@@ -75,10 +79,10 @@ declare global {
         name: string,
         description?: string,
         estimatedHours?: number,
-        statusId?: string
-      ) => Promise<any>;
-      updateTask: (id: string, data: Partial<Task>) => Promise<any>;
-      deleteTask: (id: string) => Promise<any>;
+        statusId?: string,
+      ) => Promise<Task>;
+      updateTask: (id: string, data: Partial<Task>) => Promise<Task>;
+      deleteTask: (id: string) => Promise<DeleteResult>;
 
       // Task Statuses
       getTaskStatuses: () => Promise<TaskStatus[]>;
@@ -90,10 +94,13 @@ declare global {
         date: string,
         hours: number,
         taskId?: string,
-        notes?: string
-      ) => Promise<any>;
-      updateTimeEntry: (id: string, data: Partial<TimeEntry>) => Promise<any>;
-      deleteTimeEntry: (id: string) => Promise<any>;
+        notes?: string,
+      ) => Promise<TimeEntry>;
+      updateTimeEntry: (
+        id: string,
+        data: Partial<TimeEntry>,
+      ) => Promise<TimeEntry>;
+      deleteTimeEntry: (id: string) => Promise<DeleteResult>;
 
       // Work Periods
       getWorkPeriods: () => Promise<WorkPeriod[]>;
@@ -101,8 +108,8 @@ declare global {
         year: number,
         month: number,
         plannedHours: number,
-        note?: string
-      ) => Promise<any>;
+        note?: string,
+      ) => Promise<WorkPeriod>;
 
       // Navigation
       onNavigate: (callback: (route: string) => void) => void;
