@@ -81,6 +81,17 @@ const electronAPI = {
   onNavigate: (callback: (route: string) => void): void => {
     ipcRenderer.on('navigate-to', (_event, route) => callback(route));
   },
+
+  // Theme - Dark/Light mode
+  getTheme: (): Promise<boolean> => ipcRenderer.invoke('get-theme'),
+
+  toggleTheme: (): void => {
+    ipcRenderer.send('toggle-theme');
+  },
+
+  onThemeChange: (callback: (isDark: boolean) => void): void => {
+    ipcRenderer.on('theme-changed', (_event, isDark) => callback(isDark));
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

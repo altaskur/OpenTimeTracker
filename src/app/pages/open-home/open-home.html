@@ -1,0 +1,34 @@
+<app-open-layout>
+  <section class="tasks-section" aria-labelledby="tasks-heading">
+    <h1 id="tasks-heading">Tareas Pendientes</h1>
+
+    @if (loading()) {
+      <p class="loading-text">Cargando tareas...</p>
+    } @else if (pendingTasks().length === 0) {
+      <p-card class="empty-state">
+        <div class="empty-content">
+          <i class="pi pi-check-circle" aria-hidden="true"></i>
+          <p>No hay tareas pendientes</p>
+        </div>
+      </p-card>
+    } @else {
+      <ul class="tasks-grid" role="list">
+        @for (task of pendingTasks(); track task.id) {
+          <li>
+            <article class="task-card">
+              <p-card>
+                <span class="project-name">{{
+                  task.project_name || "Sin proyecto"
+                }}</span>
+                <h2 class="task-name">{{ task.name }}</h2>
+                @if (task.description) {
+                  <p class="task-description">{{ task.description }}</p>
+                }
+              </p-card>
+            </article>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</app-open-layout>

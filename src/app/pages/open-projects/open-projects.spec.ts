@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Projects } from './projects';
+import { OpenProjects } from './open-projects';
 import { DatabaseService } from '../../services/database.service';
 
-describe('Projects', () => {
-  let component: Projects;
-  let fixture: ComponentFixture<Projects>;
+describe('OpenProjects', () => {
+  let component: OpenProjects;
+  let fixture: ComponentFixture<OpenProjects>;
   let mockDatabaseService: jasmine.SpyObj<DatabaseService>;
 
   beforeEach(async () => {
@@ -16,11 +16,11 @@ describe('Projects', () => {
     ]);
 
     await TestBed.configureTestingModule({
-      imports: [Projects],
+      imports: [OpenProjects],
       providers: [{ provide: DatabaseService, useValue: mockDatabaseService }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Projects);
+    fixture = TestBed.createComponent(OpenProjects);
     component = fixture.componentInstance;
   });
 

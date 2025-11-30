@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Dashboard } from './dashboard';
+import { OpenRemainingTime } from './open-remaining-time';
 import { DatabaseService } from '../../services/database.service';
 
-describe('Dashboard', () => {
-  let component: Dashboard;
-  let fixture: ComponentFixture<Dashboard>;
+describe('OpenRemainingTime', () => {
+  let component: OpenRemainingTime;
+  let fixture: ComponentFixture<OpenRemainingTime>;
   let mockDatabaseService: jasmine.SpyObj<DatabaseService>;
 
   beforeEach(async () => {
@@ -13,11 +13,11 @@ describe('Dashboard', () => {
     ]);
 
     await TestBed.configureTestingModule({
-      imports: [Dashboard],
+      imports: [OpenRemainingTime],
       providers: [{ provide: DatabaseService, useValue: mockDatabaseService }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Dashboard);
+    fixture = TestBed.createComponent(OpenRemainingTime);
     component = fixture.componentInstance;
   });
 

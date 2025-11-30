@@ -333,6 +333,14 @@ export class DatabaseManager {
   public async close() {
     await this.prisma.$disconnect();
   }
+
+  /**
+   * Gets the Prisma client instance for direct access.
+   * Use with caution - prefer using DatabaseManager methods.
+   */
+  public getPrisma(): PrismaClient {
+    return this.prisma;
+  }
 }
 
 // Reset singleton para testing

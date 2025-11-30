@@ -113,6 +113,11 @@ declare global {
 
       // Navigation
       onNavigate: (callback: (route: string) => void) => void;
+
+      // Theme
+      getTheme: () => Promise<boolean>;
+      toggleTheme: () => void;
+      onThemeChange: (callback: (isDark: boolean) => void) => void;
     };
   }
 }

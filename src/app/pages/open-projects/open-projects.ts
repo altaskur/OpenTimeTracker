@@ -8,9 +8,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { DatabaseService } from '../../services/database.service';
 import { Project } from '../../../types/electron';
+import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 
+/**
+ * Projects management page component
+ */
 @Component({
-  selector: 'app-projects',
+  selector: 'app-open-projects',
   imports: [
     CardModule,
     TableModule,
@@ -18,10 +22,11 @@ import { Project } from '../../../types/electron';
     DialogModule,
     InputTextModule,
     FormsModule,
+    OpenLayoutComponent,
   ],
-  templateUrl: './projects.html',
+  templateUrl: './open-projects.html',
 })
-export class Projects implements OnInit {
+export class OpenProjects implements OnInit {
   private readonly dbService = inject(DatabaseService);
 
   projects = signal<Project[]>([]);

@@ -3,17 +3,20 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/home/home').then((m) => m.Home),
+    loadComponent: () =>
+      import('./pages/open-home/open-home').then((m) => m.OpenHome),
   },
   {
-    path: 'dashboard',
+    path: 'remaining-time',
     loadComponent: () =>
-      import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
+      import('./pages/open-remaining-time/open-remaining-time').then(
+        (m) => m.OpenRemainingTime,
+      ),
   },
   {
     path: 'projects',
     loadComponent: () =>
-      import('./pages/projects/projects').then((m) => m.Projects),
+      import('./pages/open-projects/open-projects').then((m) => m.OpenProjects),
   },
   {
     path: '**',
