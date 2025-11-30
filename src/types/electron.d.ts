@@ -118,6 +118,11 @@ declare global {
       getTheme: () => Promise<boolean>;
       toggleTheme: () => void;
       onThemeChange: (callback: (isDark: boolean) => void) => void;
+
+      // Language
+      getLanguage: () => Promise<string>;
+      setLanguage: (lang: string) => void;
+      onLanguageChange: (callback: (lang: string) => void) => void;
     };
   }
 }

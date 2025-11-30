@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatabaseService } from '../../services/database.service';
 import { Project } from '../../../types/electron';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
@@ -23,11 +24,13 @@ import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
     InputTextModule,
     FormsModule,
     OpenLayoutComponent,
+    TranslateModule,
   ],
   templateUrl: './open-projects.html',
 })
 export class OpenProjects implements OnInit {
   private readonly dbService = inject(DatabaseService);
+  private readonly translateService = inject(TranslateService);
 
   projects = signal<Project[]>([]);
   loading = signal(false);
@@ -48,8 +51,6 @@ export class OpenProjects implements OnInit {
     try {
       const data = await this.dbService.getProjects();
       this.projects.set(data);
-    } catch (error) {
-      console.error('Error loading projects:', error);
     } finally {
       this.loading.set(false);
     }
@@ -70,34 +71,29 @@ export class OpenProjects implements OnInit {
   }
 
   async saveProject(): Promise<void> {
-    try {
-      if (this.projectForm.id) {
-        await this.dbService.updateProject(
-          this.projectForm.id,
-          this.projectForm.name,
-          this.projectForm.description,
-        );
-      } else {
-        await this.dbService.createProject(
-          this.projectForm.name,
-          this.projectForm.description,
-        );
-      }
-      this.dialogVisible.set(false);
-      await this.loadProjects();
-    } catch (error) {
-      console.error('Error saving project:', error);
+    if (this.projectForm.id) {
+      await this.dbService.updateProject(
+        this.projectForm.id,
+        this.projectForm.name,
+        this.projectForm.description,
+      );
+    } else {
+      await this.dbService.createProject(
+        this.projectForm.name,
+        this.projectForm.description,
+      );
     }
+    this.dialogVisible.set(false);
+    await this.loadProjects();
   }
 
   async deleteProject(id: string): Promise<void> {
-    if (confirm('¿Está seguro de eliminar este proyecto?')) {
-      try {
-        await this.dbService.deleteProject(id);
-        await this.loadProjects();
-      } catch (error) {
-        console.error('Error deleting project:', error);
-      }
+    const confirmMessage = this.translateService.instant(
+      'dialogs.deleteProject',
+    );
+    if (confirm(confirmMessage)) {
+      await this.dbService.deleteProject(id);
+      await this.loadProjects();
     }
   }
 }

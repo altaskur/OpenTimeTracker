@@ -7,6 +7,7 @@ import {
   shell,
 } from 'electron';
 import { getIsDarkMode, setDarkMode } from '../ipc/theme-handlers';
+import { getCurrentLanguage, setLanguage } from '../ipc/language-handlers';
 
 export class MenuManager {
   private readonly window: BrowserWindow;
@@ -20,6 +21,7 @@ export class MenuManager {
    */
   public setupMenu(): void {
     const isMac = process.platform === 'darwin';
+    const currentLang = getCurrentLanguage();
 
     const template: MenuItemConstructorOptions[] = [
       // App Menu (solo macOS)
@@ -49,21 +51,21 @@ export class MenuManager {
           {
             label: 'Principal',
             accelerator: 'CmdOrCtrl+1',
-            click: () => {
+            click: (): void => {
               this.navigateTo('/');
             },
           },
           {
             label: 'Tiempo Restante',
             accelerator: 'CmdOrCtrl+2',
-            click: () => {
+            click: (): void => {
               this.navigateTo('/remaining-time');
             },
           },
           {
             label: 'Proyectos',
             accelerator: 'CmdOrCtrl+3',
-            click: () => {
+            click: (): void => {
               this.navigateTo('/projects');
             },
           },
@@ -71,9 +73,31 @@ export class MenuManager {
           {
             label: 'Modo Claro/Oscuro',
             accelerator: 'CmdOrCtrl+T',
-            click: () => {
+            click: (): void => {
               void this.toggleTheme();
             },
+          },
+          { type: 'separator' },
+          {
+            label: 'Idioma',
+            submenu: [
+              {
+                label: 'Español',
+                type: 'radio',
+                checked: currentLang === 'es',
+                click: (): void => {
+                  void this.changeLanguage('es');
+                },
+              },
+              {
+                label: 'English',
+                type: 'radio',
+                checked: currentLang === 'en',
+                click: (): void => {
+                  void this.changeLanguage('en');
+                },
+              },
+            ],
           },
           ...(isMac
             ? []
@@ -94,7 +118,7 @@ export class MenuManager {
         submenu: [
           {
             label: 'Documentación',
-            click: () => {
+            click: (): void => {
               void shell.openExternal(
                 'https://github.com/altaskur/OpenTimeTracker',
               );
@@ -103,14 +127,14 @@ export class MenuManager {
           {
             label: 'Atajos de Teclado',
             accelerator: 'CmdOrCtrl+/',
-            click: () => {
+            click: (): void => {
               this.showKeyboardShortcuts();
             },
           },
           { type: 'separator' },
           {
             label: 'Reportar un Problema',
-            click: () => {
+            click: (): void => {
               void shell.openExternal(
                 'https://github.com/altaskur/OpenTimeTracker/issues',
               );
@@ -119,7 +143,7 @@ export class MenuManager {
           { type: 'separator' },
           {
             label: 'Acerca de OpenTimeTracker',
-            click: () => {
+            click: (): void => {
               this.showAboutDialog();
             },
           },
@@ -144,6 +168,14 @@ export class MenuManager {
   private async toggleTheme(): Promise<void> {
     const newDarkMode = !getIsDarkMode();
     await setDarkMode(this.window, newDarkMode);
+  }
+
+  /**
+   * Changes language and rebuilds menu
+   */
+  private async changeLanguage(lang: string): Promise<void> {
+    await setLanguage(this.window, lang);
+    this.setupMenu();
   }
 
   /**

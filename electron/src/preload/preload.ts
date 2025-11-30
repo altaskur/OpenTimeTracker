@@ -92,6 +92,17 @@ const electronAPI = {
   onThemeChange: (callback: (isDark: boolean) => void): void => {
     ipcRenderer.on('theme-changed', (_event, isDark) => callback(isDark));
   },
+
+  // Language - i18n
+  getLanguage: (): Promise<string> => ipcRenderer.invoke('get-language'),
+
+  setLanguage: (lang: string): void => {
+    ipcRenderer.send('set-language', lang);
+  },
+
+  onLanguageChange: (callback: (lang: string) => void): void => {
+    ipcRenderer.on('language-changed', (_event, lang) => callback(lang));
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

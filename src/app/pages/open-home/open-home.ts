@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 import { DatabaseService } from '../../services/database.service';
 import { Task } from '../../../types/electron';
@@ -13,7 +14,7 @@ import { ThemeService } from '../../services/theme.service';
  */
 @Component({
   selector: 'app-open-home',
-  imports: [CardModule, ButtonModule, OpenLayoutComponent],
+  imports: [CardModule, ButtonModule, OpenLayoutComponent, TranslateModule],
   templateUrl: './open-home.html',
   styleUrl: './open-home.scss',
 })
@@ -37,8 +38,6 @@ export class OpenHome implements OnInit {
     try {
       const tasks = await this.dbService.getTasks();
       this.pendingTasks.set(tasks);
-    } catch (error) {
-      console.error('Error loading tasks:', error);
     } finally {
       this.loading.set(false);
     }

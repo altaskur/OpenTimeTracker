@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { ElectronNavigationService } from './services/electron-navigation.service';
 import { ThemeService } from './services/theme.service';
+import { TranslationService } from './services/translation.service';
 
 @Component({
   selector: 'app-root',
@@ -15,4 +16,5 @@ export class App {
 
   private readonly navigationService = inject(ElectronNavigationService);
   private readonly themeService = inject(ThemeService);
+  private readonly translationService = inject(TranslationService);
 }

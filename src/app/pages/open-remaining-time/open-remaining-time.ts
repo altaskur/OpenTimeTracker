@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
+import { TranslateModule } from '@ngx-translate/core';
 import { DatabaseService } from '../../services/database.service';
 import { TimeEntry } from '../../../types/electron';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
@@ -11,7 +12,7 @@ import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
  */
 @Component({
   selector: 'app-open-remaining-time',
-  imports: [CardModule, TableModule, OpenLayoutComponent],
+  imports: [CardModule, TableModule, OpenLayoutComponent, TranslateModule],
   templateUrl: './open-remaining-time.html',
   styleUrl: './open-remaining-time.scss',
 })
@@ -34,8 +35,6 @@ export class OpenRemainingTime implements OnInit {
 
       const total = data.reduce((sum, entry) => sum + entry.hours, 0);
       this.totalHours.set(total);
-    } catch (error) {
-      console.error('Error loading time entries:', error);
     } finally {
       this.loading.set(false);
     }

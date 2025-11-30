@@ -1,0 +1,77 @@
+{
+  "menu": {
+    "start": "Start",
+    "home": "Home",
+    "remainingTime": "Remaining Time",
+    "projects": "Projects",
+    "themeToggle": "Light/Dark Mode",
+    "exit": "Exit",
+    "help": "Help",
+    "documentation": "Documentation",
+    "shortcuts": "Keyboard Shortcuts",
+    "reportIssue": "Report an Issue",
+    "about": "About OpenTimeTracker",
+    "language": "Language",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "home": {
+    "title": "Pending Tasks",
+    "loading": "Loading tasks...",
+    "empty": "No pending tasks",
+    "noProject": "No project"
+  },
+  "remainingTime": {
+    "title": "Remaining Time",
+    "totalHours": "Total Hours",
+    "empty": "No time entries recorded"
+  },
+  "projects": {
+    "title": "Projects",
+    "new": "New Project",
+    "dialog": {
+      "title": "Project",
+      "namePlaceholder": "Name*",
+      "descriptionPlaceholder": "Description"
+    }
+  },
+  "table": {
+    "date": "Date",
+    "project": "Project",
+    "task": "Task",
+    "hours": "Hours",
+    "notes": "Notes",
+    "name": "Name",
+    "description": "Description",
+    "createdAt": "Created Date",
+    "actions": "Actions",
+    "unassigned": "Unassigned",
+    "noData": "-"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "dialogs": {
+    "deleteProject": "Are you sure you want to delete this project?",
+    "about": {
+      "version": "Version",
+      "description": "Time tracking system for projects and tasks.",
+      "builtWith": "Built with Angular 21 + Electron + Prisma",
+      "copyright": "© 2025 Isaac Julián"
+    },
+    "shortcuts": {
+      "title": "Available Keyboard Shortcuts",
+      "navigation": "Navigation",
+      "goToHome": "Go to Home",
+      "goToRemainingTime": "Go to Remaining Time",
+      "goToProjects": "Go to Projects",
+      "toggleTheme": "Light/Dark Mode"
+    }
+  }
+}

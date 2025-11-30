@@ -1,0 +1,77 @@
+{
+  "menu": {
+    "start": "Inicio",
+    "home": "Principal",
+    "remainingTime": "Tiempo Restante",
+    "projects": "Proyectos",
+    "themeToggle": "Modo Claro/Oscuro",
+    "exit": "Salir",
+    "help": "Ayuda",
+    "documentation": "Documentación",
+    "shortcuts": "Atajos de Teclado",
+    "reportIssue": "Reportar un Problema",
+    "about": "Acerca de OpenTimeTracker",
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "home": {
+    "title": "Tareas Pendientes",
+    "loading": "Cargando tareas...",
+    "empty": "No hay tareas pendientes",
+    "noProject": "Sin proyecto"
+  },
+  "remainingTime": {
+    "title": "Tiempo Restante",
+    "totalHours": "Horas Totales",
+    "empty": "No hay entradas de tiempo registradas"
+  },
+  "projects": {
+    "title": "Proyectos",
+    "new": "Nuevo Proyecto",
+    "dialog": {
+      "title": "Proyecto",
+      "namePlaceholder": "Nombre*",
+      "descriptionPlaceholder": "Descripción"
+    }
+  },
+  "table": {
+    "date": "Fecha",
+    "project": "Proyecto",
+    "task": "Tarea",
+    "hours": "Horas",
+    "notes": "Notas",
+    "name": "Nombre",
+    "description": "Descripción",
+    "createdAt": "Fecha Creación",
+    "actions": "Acciones",
+    "unassigned": "Sin asignar",
+    "noData": "-"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "dialogs": {
+    "deleteProject": "¿Está seguro de eliminar este proyecto?",
+    "about": {
+      "version": "Versión",
+      "description": "Sistema de seguimiento de tiempo para proyectos y tareas.",
+      "builtWith": "Desarrollado con Angular 21 + Electron + Prisma",
+      "copyright": "© 2025 Isaac Julián"
+    },
+    "shortcuts": {
+      "title": "Atajos de Teclado Disponibles",
+      "navigation": "Navegación",
+      "goToHome": "Ir a Principal",
+      "goToRemainingTime": "Ir a Tiempo Restante",
+      "goToProjects": "Ir a Proyectos",
+      "toggleTheme": "Modo Claro/Oscuro"
+    }
+  }
+}

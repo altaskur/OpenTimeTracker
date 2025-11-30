@@ -114,8 +114,14 @@ describe('OpenProjects', () => {
   });
 
   it('should create new project when id is empty', async () => {
+    const mockProject = {
+      id: 'new-id',
+      name: 'New Project',
+      description: 'New Desc',
+      created_at: '2025-01-01',
+    };
     mockDatabaseService.createProject.and.returnValue(
-      Promise.resolve({ changes: 1 }),
+      Promise.resolve(mockProject),
     );
     mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
 
@@ -135,8 +141,14 @@ describe('OpenProjects', () => {
   });
 
   it('should update existing project when id is provided', async () => {
+    const mockProject = {
+      id: '1',
+      name: 'Updated',
+      description: 'Updated Desc',
+      created_at: '2025-01-01',
+    };
     mockDatabaseService.updateProject.and.returnValue(
-      Promise.resolve({ changes: 1 }),
+      Promise.resolve(mockProject),
     );
     mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
 
@@ -174,7 +186,7 @@ describe('OpenProjects', () => {
   it('should delete project after confirmation', async () => {
     spyOn(window, 'confirm').and.returnValue(true);
     mockDatabaseService.deleteProject.and.returnValue(
-      Promise.resolve({ changes: 1 }),
+      Promise.resolve({ success: true }),
     );
     mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
 

@@ -2,9 +2,9 @@
   <p-card>
     <ng-template pTemplate="header">
       <div class="header-content">
-        <h2>Proyectos</h2>
+        <h2>{{ "projects.title" | translate }}</h2>
         <p-button
-          label="Nuevo Proyecto"
+          [label]="'projects.new' | translate"
           icon="pi pi-plus"
           (click)="openNewDialog()"
           (keydown.enter)="openNewDialog()"
@@ -16,10 +16,12 @@
     <p-table [value]="projects()" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
-          <th scope="col">Nombre</th>
-          <th scope="col">Descripción</th>
-          <th scope="col">Fecha Creación</th>
-          <th scope="col" style="width: 150px">Acciones</th>
+          <th scope="col">{{ "table.name" | translate }}</th>
+          <th scope="col">{{ "table.description" | translate }}</th>
+          <th scope="col">{{ "table.createdAt" | translate }}</th>
+          <th scope="col" style="width: 150px">
+            {{ "table.actions" | translate }}
+          </th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-project>
@@ -51,13 +53,15 @@
   </p-card>
 
   <p-dialog
-    header="Proyecto"
+    [header]="'projects.dialog.title' | translate"
     [(visible)]="dialogVisible"
     [modal]="true"
     [style]="{ width: '500px' }"
   >
     <div class="field">
-      <label for="name">Nombre*</label>
+      <label for="name">{{
+        "projects.dialog.namePlaceholder" | translate
+      }}</label>
       <input
         id="name"
         type="text"
@@ -68,7 +72,9 @@
     </div>
 
     <div class="field">
-      <label for="description">Descripción</label>
+      <label for="description">{{
+        "projects.dialog.descriptionPlaceholder" | translate
+      }}</label>
       <textarea
         id="description"
         pInputText
@@ -80,14 +86,14 @@
 
     <ng-template pTemplate="footer">
       <p-button
-        label="Cancelar"
+        [label]="'common.cancel' | translate"
         severity="secondary"
         (click)="dialogVisible.set(false)"
         (keydown.enter)="dialogVisible.set(false)"
       >
       </p-button>
       <p-button
-        label="Guardar"
+        [label]="'common.save' | translate"
         (click)="saveProject()"
         (keydown.enter)="saveProject()"
       >
