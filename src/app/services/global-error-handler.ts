@@ -14,8 +14,6 @@ export class GlobalErrorHandler implements ErrorHandler {
     this.zone.run(() => {
       const errorMessage = this.extractErrorMessage(error);
 
-      console.error('🎄 Global Error caught by Santa:', error);
-
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
