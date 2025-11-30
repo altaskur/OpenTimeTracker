@@ -32,6 +32,8 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^21.0.1",
+    "@angular/cdk": "^21.0.1",
     "@angular/common": "^21.0.1",
     "@angular/compiler": "^21.0.1",
     "@angular/core": "^21.0.1",
@@ -42,9 +44,8 @@
     "@prisma/client": "^6.18.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
-    "primeng": "^20.0.0-rc.1",
+    "primeng": "^20.3.0",
     "rxjs": "~7.8.0",
-    "sqlite3": "^5.1.7",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
@@ -54,7 +55,6 @@
     "@angular/compiler-cli": "^21.0.1",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/jasmine": "~5.1.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",

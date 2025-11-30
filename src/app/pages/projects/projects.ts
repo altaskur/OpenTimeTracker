@@ -20,7 +20,6 @@ import { Project } from '../../../types/electron';
     FormsModule,
   ],
   templateUrl: './projects.html',
-  styleUrl: './projects.scss',
 })
 export class Projects implements OnInit {
   private readonly dbService = inject(DatabaseService);
