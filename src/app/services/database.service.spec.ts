@@ -51,12 +51,23 @@ describe('DatabaseService', () => {
       getWorkPeriods: jasmine
         .createSpy('getWorkPeriods')
         .and.returnValue(Promise.resolve([])),
-      startWorkPeriod: jasmine
-        .createSpy('startWorkPeriod')
+      createWorkPeriod: jasmine
+        .createSpy('createWorkPeriod')
         .and.returnValue(Promise.resolve({ changes: 1 })),
-      endWorkPeriod: jasmine
-        .createSpy('endWorkPeriod')
-        .and.returnValue(Promise.resolve({ changes: 1 })),
+      getPendingTimeEntries: jasmine
+        .createSpy('getPendingTimeEntries')
+        .and.returnValue(Promise.resolve([])),
+      onNavigate: jasmine.createSpy('onNavigate'),
+      getTheme: jasmine
+        .createSpy('getTheme')
+        .and.returnValue(Promise.resolve(false)),
+      toggleTheme: jasmine.createSpy('toggleTheme'),
+      onThemeChange: jasmine.createSpy('onThemeChange'),
+      getLanguage: jasmine
+        .createSpy('getLanguage')
+        .and.returnValue(Promise.resolve('es')),
+      setLanguage: jasmine.createSpy('setLanguage'),
+      onLanguageChange: jasmine.createSpy('onLanguageChange'),
     };
 
     // Save original and set up global window mock
