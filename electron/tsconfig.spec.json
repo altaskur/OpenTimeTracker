@@ -1,0 +1,11 @@
+{
+  "extends": "./build/tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "jest"],
+    "esModuleInterop": true,
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.spec.ts", "src/**/*.ts"]
+}

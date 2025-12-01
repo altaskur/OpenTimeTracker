@@ -3,6 +3,11 @@ module.exports = {
   testEnvironment: "node",
   roots: ["<rootDir>/electron"],
   testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+  globals: {
+    "ts-jest": {
+      tsconfig: "electron/tsconfig.spec.json",
+    },
+  },
   testPathIgnorePatterns: ["/node_modules/"],
   moduleFileExtensions: ["ts", "js", "json"],
   collectCoverageFrom: [

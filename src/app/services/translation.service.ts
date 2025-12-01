@@ -10,16 +10,12 @@ import { TranslateService } from '@ngx-translate/core';
 export class TranslationService {
   private readonly translate = inject(TranslateService);
 
-  constructor() {
-    this.initializeLanguage();
-  }
-
   /**
    * Initializes language from Electron preferences
    */
-  private async initializeLanguage(): Promise<void> {
+  async init(): Promise<void> {
     this.translate.addLangs(['es', 'en']);
-    this.translate.setDefaultLang('es');
+    this.translate.setFallbackLang('es');
 
     if (typeof window !== 'undefined' && window.electronAPI) {
       try {
@@ -41,7 +37,7 @@ export class TranslationService {
    * Gets the current language
    */
   getCurrentLanguage(): string {
-    return this.translate.currentLang || 'es';
+    return this.translate.getCurrentLang() || 'es';
   }
 
   /**

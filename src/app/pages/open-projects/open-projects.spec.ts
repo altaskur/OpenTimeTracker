@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OpenProjects } from './open-projects';
 import { DatabaseService } from '../../services/database.service';
+import { provideTranslateTestingModule } from '../../testing/test-utils';
 
 describe('OpenProjects', () => {
   let component: OpenProjects;
@@ -17,7 +18,10 @@ describe('OpenProjects', () => {
 
     await TestBed.configureTestingModule({
       imports: [OpenProjects],
-      providers: [{ provide: DatabaseService, useValue: mockDatabaseService }],
+      providers: [
+        { provide: DatabaseService, useValue: mockDatabaseService },
+        ...provideTranslateTestingModule(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OpenProjects);
@@ -59,15 +63,11 @@ describe('OpenProjects', () => {
   });
 
   it('should handle error when loading projects', async () => {
-    spyOn(console, 'error');
-    mockDatabaseService.getProjects.and.returnValue(Promise.reject('Error'));
-
-    await component.loadProjects();
-
-    expect(console.error).toHaveBeenCalledWith(
-      'Error loading projects:',
-      'Error',
+    mockDatabaseService.getProjects.and.returnValue(
+      Promise.reject(new Error('Error')),
     );
+
+    await expectAsync(component.loadProjects()).toBeRejectedWithError('Error');
     expect(component.loading()).toBe(false);
   });
 
@@ -169,16 +169,12 @@ describe('OpenProjects', () => {
   });
 
   it('should handle error when saving project', async () => {
-    spyOn(console, 'error');
     mockDatabaseService.createProject.and.returnValue(
-      Promise.reject('Save error'),
+      Promise.reject(new Error('Save error')),
     );
 
     component.projectForm = { id: '', name: 'New', description: '' };
-    await component.saveProject();
-
-    expect(console.error).toHaveBeenCalledWith(
-      'Error saving project:',
+    await expectAsync(component.saveProject()).toBeRejectedWithError(
       'Save error',
     );
   });
@@ -192,9 +188,7 @@ describe('OpenProjects', () => {
 
     await component.deleteProject('1');
 
-    expect(window.confirm).toHaveBeenCalledWith(
-      '¿Está seguro de eliminar este proyecto?',
-    );
+    expect(window.confirm).toHaveBeenCalledWith('dialogs.deleteProject');
     expect(mockDatabaseService.deleteProject).toHaveBeenCalledWith('1');
     expect(mockDatabaseService.getProjects).toHaveBeenCalled();
   });
@@ -209,15 +203,11 @@ describe('OpenProjects', () => {
 
   it('should handle error when deleting project', async () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    spyOn(console, 'error');
     mockDatabaseService.deleteProject.and.returnValue(
-      Promise.reject('Delete error'),
+      Promise.reject(new Error('Delete error')),
     );
 
-    await component.deleteProject('1');
-
-    expect(console.error).toHaveBeenCalledWith(
-      'Error deleting project:',
+    await expectAsync(component.deleteProject('1')).toBeRejectedWithError(
       'Delete error',
     );
   });

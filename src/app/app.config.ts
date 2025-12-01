@@ -1,6 +1,8 @@
 import {
   ApplicationConfig,
   ErrorHandler,
+  inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -10,19 +12,22 @@ import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
-import { provideAnimations } from '@angular/platform-browser/animations';
+
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 
 import { AuraBlack } from './themes/aura-black.preset';
 import { GlobalErrorHandler } from './services/global-error-handler';
+import { ThemeService } from './services/theme.service';
+import { TranslationService } from './services/translation.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideAnimations(),
+    provideAnimationsAsync(),
     provideHttpClient(),
     TranslateModule.forRoot({
       defaultLanguage: 'es',
@@ -42,6 +47,8 @@ export const appConfig: ApplicationConfig = {
       ripple: true,
     }),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    provideAppInitializer(() => inject(ThemeService).init()),
+    provideAppInitializer(() => inject(TranslationService).init()),
     MessageService,
   ],
 };

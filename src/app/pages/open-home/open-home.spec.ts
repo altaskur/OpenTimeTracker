@@ -1,18 +1,56 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OpenHome } from './open-home';
 import { Router } from '@angular/router';
+import { provideTranslateTestingModule } from '../../testing/test-utils';
+import { ThemeService } from '../../services/theme.service';
+import { DatabaseService } from '../../services/database.service';
+import { Task } from '../../../types/electron';
 
 describe('OpenHome', () => {
   let component: OpenHome;
   let fixture: ComponentFixture<OpenHome>;
   let mockRouter: jasmine.SpyObj<Router>;
+  let mockThemeService: jasmine.SpyObj<ThemeService>;
+  let mockDbService: jasmine.SpyObj<DatabaseService>;
+
+  const mockTasks: Task[] = [
+    {
+      id: '1',
+      name: 'Task 1',
+      project_id: 'p1',
+      status_id: 's1',
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: '2',
+      name: 'Task 2',
+      project_id: 'p1',
+      status_id: 's1',
+      created_at: new Date().toISOString(),
+    },
+  ];
 
   beforeEach(async () => {
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+    mockThemeService = jasmine.createSpyObj('ThemeService', [
+      'toggleTheme',
+      'getThemeLabel',
+      'getThemeIcon',
+    ]);
+    mockDbService = jasmine.createSpyObj('DatabaseService', ['getTasks']);
+
+    mockThemeService.getThemeLabel.and.returnValue('Light Mode');
+    mockThemeService.getThemeIcon.and.returnValue('pi pi-sun');
+    mockDbService.getTasks.and.returnValue(Promise.resolve([]));
 
     await TestBed.configureTestingModule({
       imports: [OpenHome],
-      providers: [{ provide: Router, useValue: mockRouter }],
+      providers: [
+        { provide: Router, useValue: mockRouter },
+        { provide: ThemeService, useValue: mockThemeService },
+        { provide: DatabaseService, useValue: mockDbService },
+        ...provideTranslateTestingModule(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OpenHome);
@@ -23,35 +61,96 @@ describe('OpenHome', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should navigate to remaining time', () => {
-    component.goToRemainingTime();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/remaining-time']);
+  describe('ngOnInit', () => {
+    it('should load pending tasks on init', async () => {
+      mockDbService.getTasks.and.returnValue(Promise.resolve(mockTasks));
+
+      component.ngOnInit();
+      await component.loadPendingTasks();
+
+      expect(mockDbService.getTasks).toHaveBeenCalled();
+      expect(component.pendingTasks()).toEqual(mockTasks);
+    });
+
+    it('should set loading to false after tasks loaded', async () => {
+      mockDbService.getTasks.and.returnValue(Promise.resolve([]));
+
+      await component.loadPendingTasks();
+
+      expect(component.loading()).toBe(false);
+    });
   });
 
-  it('should navigate to projects', () => {
-    component.goToProjects();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/projects']);
+  describe('loadPendingTasks', () => {
+    it('should set loading to true while loading', async () => {
+      let resolvePromise: (value: Task[]) => void;
+      const pendingPromise = new Promise<Task[]>((resolve) => {
+        resolvePromise = resolve;
+      });
+      mockDbService.getTasks.and.returnValue(pendingPromise);
+
+      const loadPromise = component.loadPendingTasks();
+      expect(component.loading()).toBe(true);
+
+      resolvePromise!(mockTasks);
+      await loadPromise;
+
+      expect(component.loading()).toBe(false);
+    });
+
+    it('should set loading to false even on error', async () => {
+      mockDbService.getTasks.and.returnValue(
+        Promise.reject(new Error('DB Error')),
+      );
+
+      try {
+        await component.loadPendingTasks();
+      } catch {
+        // Expected error
+      }
+
+      expect(component.loading()).toBe(false);
+    });
+
+    it('should populate pendingTasks signal with data', async () => {
+      mockDbService.getTasks.and.returnValue(Promise.resolve(mockTasks));
+
+      await component.loadPendingTasks();
+
+      expect(component.pendingTasks()).toEqual(mockTasks);
+    });
   });
 
-  it('should toggle dark mode by adding class', () => {
-    const htmlElement = document.querySelector('html');
-    const initialHasClass = htmlElement?.classList.contains('my-app-dark');
+  describe('navigation', () => {
+    it('should navigate to remaining time', () => {
+      component.goToRemainingTime();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/remaining-time']);
+    });
 
-    component.toggleDarkMode();
-
-    const afterToggle = htmlElement?.classList.contains('my-app-dark');
-    expect(afterToggle).toBe(!initialHasClass);
+    it('should navigate to projects', () => {
+      component.goToProjects();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/projects']);
+    });
   });
 
-  it('should toggle dark mode on and off', () => {
-    const htmlElement = document.querySelector('html');
+  describe('theme', () => {
+    it('should toggle dark mode via ThemeService', () => {
+      component.toggleDarkMode();
+      expect(mockThemeService.toggleTheme).toHaveBeenCalled();
+    });
 
-    htmlElement?.classList.remove('my-app-dark');
+    it('should call toggleTheme multiple times', () => {
+      component.toggleDarkMode();
+      component.toggleDarkMode();
+      expect(mockThemeService.toggleTheme).toHaveBeenCalledTimes(2);
+    });
 
-    component.toggleDarkMode();
-    expect(htmlElement?.classList.contains('my-app-dark')).toBe(true);
+    it('should return theme label from computed', () => {
+      expect(component.themeLabel()).toBe('Light Mode');
+    });
 
-    component.toggleDarkMode();
-    expect(htmlElement?.classList.contains('my-app-dark')).toBe(false);
+    it('should return theme icon from computed', () => {
+      expect(component.themeIcon()).toBe('pi pi-sun');
+    });
   });
 });

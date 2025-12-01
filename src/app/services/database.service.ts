@@ -51,13 +51,13 @@ export class DatabaseService {
 
   async getProjects(): Promise<Project[]> {
     return this.executeWithErrorHandling('get projects', async () => {
-      return globalThis.window.electronAPI!.getProjects();
+      return globalThis.window.electronAPI.getProjects();
     });
   }
 
   async createProject(name: string, description?: string): Promise<Project> {
     return this.executeWithErrorHandling('create project', async () => {
-      return globalThis.window.electronAPI!.createProject(name, description);
+      return globalThis.window.electronAPI.createProject(name, description);
     });
   }
 
@@ -67,17 +67,13 @@ export class DatabaseService {
     description?: string,
   ): Promise<Project> {
     return this.executeWithErrorHandling('update project', async () => {
-      return globalThis.window.electronAPI!.updateProject(
-        id,
-        name,
-        description,
-      );
+      return globalThis.window.electronAPI.updateProject(id, name, description);
     });
   }
 
   async deleteProject(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete project', async () => {
-      return globalThis.window.electronAPI!.deleteProject(id);
+      return globalThis.window.electronAPI.deleteProject(id);
     });
   }
 
@@ -85,7 +81,7 @@ export class DatabaseService {
 
   async getTasks(projectId?: string): Promise<Task[]> {
     return this.executeWithErrorHandling('get tasks', async () => {
-      return globalThis.window.electronAPI!.getTasks(projectId);
+      return globalThis.window.electronAPI.getTasks(projectId);
     });
   }
 
@@ -97,7 +93,7 @@ export class DatabaseService {
     statusId?: string,
   ): Promise<Task> {
     return this.executeWithErrorHandling('create task', async () => {
-      return globalThis.window.electronAPI!.createTask(
+      return globalThis.window.electronAPI.createTask(
         projectId,
         name,
         description,
@@ -109,13 +105,13 @@ export class DatabaseService {
 
   async updateTask(id: string, data: Partial<Task>): Promise<Task> {
     return this.executeWithErrorHandling('update task', async () => {
-      return globalThis.window.electronAPI!.updateTask(id, data);
+      return globalThis.window.electronAPI.updateTask(id, data);
     });
   }
 
   async deleteTask(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete task', async () => {
-      return globalThis.window.electronAPI!.deleteTask(id);
+      return globalThis.window.electronAPI.deleteTask(id);
     });
   }
 
@@ -123,7 +119,7 @@ export class DatabaseService {
 
   async getTaskStatuses(): Promise<TaskStatus[]> {
     return this.executeWithErrorHandling('get task statuses', async () => {
-      return globalThis.window.electronAPI!.getTaskStatuses();
+      return globalThis.window.electronAPI.getTaskStatuses();
     });
   }
 
@@ -131,7 +127,7 @@ export class DatabaseService {
 
   async getTimeEntries(taskId?: string): Promise<TimeEntry[]> {
     return this.executeWithErrorHandling('get time entries', async () => {
-      return globalThis.window.electronAPI!.getTimeEntries(taskId);
+      return globalThis.window.electronAPI.getTimeEntries(taskId);
     });
   }
 
@@ -139,7 +135,7 @@ export class DatabaseService {
     return this.executeWithErrorHandling(
       'get pending time entries',
       async () => {
-        return globalThis.window.electronAPI!.getPendingTimeEntries();
+        return globalThis.window.electronAPI.getPendingTimeEntries();
       },
     );
   }
@@ -151,7 +147,7 @@ export class DatabaseService {
     notes?: string,
   ): Promise<TimeEntry> {
     return this.executeWithErrorHandling('create time entry', async () => {
-      return globalThis.window.electronAPI!.createTimeEntry(
+      return globalThis.window.electronAPI.createTimeEntry(
         date,
         hours,
         taskId,
@@ -165,13 +161,13 @@ export class DatabaseService {
     data: Partial<TimeEntry>,
   ): Promise<TimeEntry> {
     return this.executeWithErrorHandling('update time entry', async () => {
-      return globalThis.window.electronAPI!.updateTimeEntry(id, data);
+      return globalThis.window.electronAPI.updateTimeEntry(id, data);
     });
   }
 
   async deleteTimeEntry(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete time entry', async () => {
-      return globalThis.window.electronAPI!.deleteTimeEntry(id);
+      return globalThis.window.electronAPI.deleteTimeEntry(id);
     });
   }
 
@@ -179,7 +175,7 @@ export class DatabaseService {
 
   async getWorkPeriods(): Promise<WorkPeriod[]> {
     return this.executeWithErrorHandling('get work periods', async () => {
-      return globalThis.window.electronAPI!.getWorkPeriods();
+      return globalThis.window.electronAPI.getWorkPeriods();
     });
   }
 
@@ -190,7 +186,7 @@ export class DatabaseService {
     note?: string,
   ): Promise<WorkPeriod> {
     return this.executeWithErrorHandling('create work period', async () => {
-      return globalThis.window.electronAPI!.createWorkPeriod(
+      return globalThis.window.electronAPI.createWorkPeriod(
         year,
         month,
         plannedHours,

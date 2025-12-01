@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OpenRemainingTime } from './open-remaining-time';
 import { DatabaseService } from '../../services/database.service';
+import { provideTranslateTestingModule } from '../../testing/test-utils';
 
 describe('OpenRemainingTime', () => {
   let component: OpenRemainingTime;
@@ -14,7 +15,10 @@ describe('OpenRemainingTime', () => {
 
     await TestBed.configureTestingModule({
       imports: [OpenRemainingTime],
-      providers: [{ provide: DatabaseService, useValue: mockDatabaseService }],
+      providers: [
+        { provide: DatabaseService, useValue: mockDatabaseService },
+        ...provideTranslateTestingModule(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OpenRemainingTime);
@@ -112,17 +116,12 @@ describe('OpenRemainingTime', () => {
   });
 
   it('should handle error when loading time entries', async () => {
-    spyOn(console, 'error');
     mockDatabaseService.getTimeEntries.and.returnValue(
-      Promise.reject('Load error'),
+      Promise.reject(new Error('Load error')),
     );
 
-    await component.loadTimeEntries();
-
-    expect(console.error).toHaveBeenCalledWith(
-      'Error loading time entries:',
+    await expectAsync(component.loadTimeEntries()).toBeRejectedWithError(
       'Load error',
     );
-    expect(component.loading()).toBe(false);
   });
 });

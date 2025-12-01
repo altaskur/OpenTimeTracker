@@ -3,8 +3,8 @@ import { DatabaseService } from './database.service';
 
 describe('DatabaseService', () => {
   let service: DatabaseService;
-  let originalElectronAPI: any;
-  let mockElectronAPI: any;
+  let originalElectronAPI: typeof window.electronAPI;
+  let mockElectronAPI: Partial<typeof window.electronAPI>;
 
   beforeEach(() => {
     // Mock electronAPI
@@ -60,7 +60,7 @@ describe('DatabaseService', () => {
     };
 
     // Save original and set up global window mock
-    originalElectronAPI = (window as any).electronAPI;
+    originalElectronAPI = window.electronAPI;
     Object.defineProperty(window, 'electronAPI', {
       writable: true,
       configurable: true,
@@ -80,7 +80,8 @@ describe('DatabaseService', () => {
         value: originalElectronAPI,
       });
     } else {
-      delete (window as any).electronAPI;
+      delete (window as { electronAPI?: typeof window.electronAPI })
+        .electronAPI;
     }
   });
 
@@ -231,97 +232,104 @@ describe('DatabaseService', () => {
   describe('Error handling when electronAPI is not available', () => {
     beforeEach(() => {
       // Remove electronAPI to test error paths
-      delete (window as any).electronAPI;
+      delete (window as { electronAPI?: typeof window.electronAPI })
+        .electronAPI;
     });
 
-    it('should return empty array when getProjects and electronAPI is undefined', async () => {
-      const result = await service.getProjects();
-      expect(result).toEqual([]);
+    it('should throw ElectronApiError when getProjects and electronAPI is undefined', async () => {
+      await expectAsync(service.getProjects()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
     });
 
-    it('should return empty array when getTasks and electronAPI is undefined', async () => {
-      const result = await service.getTasks();
-      expect(result).toEqual([]);
+    it('should throw ElectronApiError when getTasks and electronAPI is undefined', async () => {
+      await expectAsync(service.getTasks()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
     });
 
-    it('should return empty array when getTaskStatuses and electronAPI is undefined', async () => {
-      const result = await service.getTaskStatuses();
-      expect(result).toEqual([]);
+    it('should throw ElectronApiError when getTaskStatuses and electronAPI is undefined', async () => {
+      await expectAsync(service.getTaskStatuses()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
     });
 
-    it('should return empty array when getTimeEntries and electronAPI is undefined', async () => {
-      const result = await service.getTimeEntries();
-      expect(result).toEqual([]);
+    it('should throw ElectronApiError when getTimeEntries and electronAPI is undefined', async () => {
+      await expectAsync(service.getTimeEntries()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
     });
 
-    it('should return empty array when getPendingTimeEntries and electronAPI is undefined', async () => {
-      const result = await service.getPendingTimeEntries();
-      expect(result).toEqual([]);
+    it('should throw ElectronApiError when getPendingTimeEntries and electronAPI is undefined', async () => {
+      await expectAsync(service.getPendingTimeEntries()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
     });
 
-    it('should return empty array when getWorkPeriods and electronAPI is undefined', async () => {
-      const result = await service.getWorkPeriods();
-      expect(result).toEqual([]);
+    it('should throw ElectronApiError when getWorkPeriods and electronAPI is undefined', async () => {
+      await expectAsync(service.getWorkPeriods()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
     });
 
-    it('should throw error when createProject and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when createProject and electronAPI is undefined', async () => {
       await expectAsync(
         service.createProject('Test', 'Desc'),
-      ).toBeRejectedWithError('Electron API not available');
+      ).toBeRejectedWithError(/Electron API not available/);
     });
 
-    it('should throw error when updateProject and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when updateProject and electronAPI is undefined', async () => {
       await expectAsync(
         service.updateProject('1', 'Test', 'Desc'),
-      ).toBeRejectedWithError('Electron API not available');
+      ).toBeRejectedWithError(/Electron API not available/);
     });
 
-    it('should throw error when deleteProject and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when deleteProject and electronAPI is undefined', async () => {
       await expectAsync(service.deleteProject('1')).toBeRejectedWithError(
-        'Electron API not available',
+        /Electron API not available/,
       );
     });
 
-    it('should throw error when createTask and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when createTask and electronAPI is undefined', async () => {
       await expectAsync(
         service.createTask('p1', 'Task', 'Desc', 5, 's1'),
-      ).toBeRejectedWithError('Electron API not available');
+      ).toBeRejectedWithError(/Electron API not available/);
     });
 
-    it('should throw error when updateTask and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when updateTask and electronAPI is undefined', async () => {
       await expectAsync(
         service.updateTask('t1', { name: 'Updated' }),
-      ).toBeRejectedWithError('Electron API not available');
+      ).toBeRejectedWithError(/Electron API not available/);
     });
 
-    it('should throw error when deleteTask and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when deleteTask and electronAPI is undefined', async () => {
       await expectAsync(service.deleteTask('t1')).toBeRejectedWithError(
-        'Electron API not available',
+        /Electron API not available/,
       );
     });
 
-    it('should throw error when createTimeEntry and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when createTimeEntry and electronAPI is undefined', async () => {
       await expectAsync(
         service.createTimeEntry('2025-01-01', 60, 't1', 'Notes'),
-      ).toBeRejectedWithError('Electron API not available');
+      ).toBeRejectedWithError(/Electron API not available/);
     });
 
-    it('should throw error when updateTimeEntry and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when updateTimeEntry and electronAPI is undefined', async () => {
       await expectAsync(
         service.updateTimeEntry('e1', { hours: 120 }),
-      ).toBeRejectedWithError('Electron API not available');
+      ).toBeRejectedWithError(/Electron API not available/);
     });
 
-    it('should throw error when deleteTimeEntry and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when deleteTimeEntry and electronAPI is undefined', async () => {
       await expectAsync(service.deleteTimeEntry('e1')).toBeRejectedWithError(
-        'Electron API not available',
+        /Electron API not available/,
       );
     });
 
-    it('should throw error when createWorkPeriod and electronAPI is undefined', async () => {
+    it('should throw ElectronApiError when createWorkPeriod and electronAPI is undefined', async () => {
       await expectAsync(
         service.createWorkPeriod(2025, 11, 160, 'November'),
-      ).toBeRejectedWithError('Electron API not available');
+      ).toBeRejectedWithError(/Electron API not available/);
     });
   });
 });

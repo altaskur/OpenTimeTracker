@@ -10,10 +10,20 @@ import { Injectable, signal } from '@angular/core';
 })
 export class ThemeService {
   readonly isDarkMode = signal(true);
+  private initialized = false;
 
   constructor() {
-    void this.initializeTheme();
     this.listenToElectronThemeChanges();
+  }
+
+  /**
+   * Initializes the theme service.
+   * Should be called from app initialization.
+   */
+  async init(): Promise<void> {
+    if (this.initialized) return;
+    this.initialized = true;
+    await this.initializeTheme();
   }
 
   private async initializeTheme(): Promise<void> {

@@ -332,6 +332,30 @@ describe('DatabaseManager', () => {
       expect(result.name).toBe('Only Name Changed');
     });
 
+    it('should update task using string parameters (legacy format)', async () => {
+      const created = await dbManager.createTask(projectId, 'Original Task');
+      const taskId = created.id;
+
+      const result = await dbManager.updateTask(
+        taskId,
+        'Updated Name',
+        'Updated Description',
+        15,
+        statusId,
+      );
+      expect(result.name).toBe('Updated Name');
+      expect(result.description).toBe('Updated Description');
+      expect(result.estimatedHours).toBe(15);
+    });
+
+    it('should update task with undefined dataOrName', async () => {
+      const created = await dbManager.createTask(projectId, 'Task');
+      const taskId = created.id;
+
+      const result = await dbManager.updateTask(taskId, undefined);
+      expect(result.id).toBe(taskId);
+    });
+
     it('should delete a task', async () => {
       const created = await dbManager.createTask(projectId, 'To Delete Task');
       const taskId = created.id;
@@ -435,6 +459,34 @@ describe('DatabaseManager', () => {
       expect(result.hours).toBe(7);
     });
 
+    it('should update time entry using string parameters (legacy format)', async () => {
+      const created = await dbManager.createTimeEntry('2025-11-04', 8);
+      const entryId = created.id;
+
+      const result = await dbManager.updateTimeEntry(
+        entryId,
+        '2025-11-05',
+        6,
+        'Legacy notes',
+      );
+      expect(result.date).toBe('2025-11-05');
+      expect(result.hours).toBe(6);
+      expect(result.notes).toBe('Legacy notes');
+    });
+
+    it('should update time entry taskId', async () => {
+      const project = await dbManager.createProject('Project');
+      const projectId = project.id;
+      const task = await dbManager.createTask(projectId, 'Task');
+      const taskId = task.id;
+
+      const created = await dbManager.createTimeEntry('2025-11-04', 8);
+      const entryId = created.id;
+
+      const result = await dbManager.updateTimeEntry(entryId, { taskId });
+      expect(result.taskId).toBe(taskId);
+    });
+
     it('should delete a time entry', async () => {
       const created = await dbManager.createTimeEntry('2025-11-04', 8);
       const entryId = created.id;
@@ -493,6 +545,11 @@ describe('DatabaseManager', () => {
   });
 
   describe('Database Connection', () => {
+    it('should get prisma client via getPrisma', () => {
+      const prisma = dbManager.getPrisma();
+      expect(prisma).toBeDefined();
+    });
+
     it('should close database connection', async () => {
       await expect(async () => {
         await dbManager.close();

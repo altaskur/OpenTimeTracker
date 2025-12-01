@@ -1,16 +1,23 @@
-# Load environment variables from .env
-if [ -f .env ]; then
-  export $(cat .env | grep -v '^#' | xargs)
-fi
+#!/bin/sh
 
-echo "🔍 Running SonarQube analysis..."
+echo "🔍 Running tests before push..."
 
-# Run npm using cmd.exe for better Windows compatibility
-cmd.exe /c "npm run sonar:check"
+# Run Angular tests
+npm run test:coverage
+ANGULAR_EXIT=$?
 
-if [ $? -ne 0 ]; then
-  echo "❌ Push rejected: SonarQube analysis failed"
+if [ $ANGULAR_EXIT -ne 0 ]; then
+  echo "❌ Push rejected: Angular tests failed"
   exit 1
 fi
 
-echo "✅ SonarQube Quality Gate passed - proceeding with push"
+# Run Electron tests
+npm run test:electron:coverage
+ELECTRON_EXIT=$?
+
+if [ $ELECTRON_EXIT -ne 0 ]; then
+  echo "❌ Push rejected: Electron tests failed"
+  exit 1
+fi
+
+echo "✅ All tests passed - proceeding with push"
