@@ -1,3 +1,5 @@
+/// <reference types="jasmine" />
+
 import { Provider } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
