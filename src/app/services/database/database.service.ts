@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import {
+  AuditLog,
   DeleteResult,
   Project,
   Tag,
@@ -75,6 +76,27 @@ export class DatabaseService {
   async deleteProject(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete project', async () => {
       return globalThis.window.electronAPI.deleteProject(id);
+    });
+  }
+
+  async canCloseProject(id: string): Promise<boolean> {
+    return this.executeWithErrorHandling(
+      'check if project can close',
+      async () => {
+        return globalThis.window.electronAPI.canCloseProject(id);
+      },
+    );
+  }
+
+  async closeProject(id: string): Promise<Project> {
+    return this.executeWithErrorHandling('close project', async () => {
+      return globalThis.window.electronAPI.closeProject(id);
+    });
+  }
+
+  async reopenProject(id: string): Promise<Project> {
+    return this.executeWithErrorHandling('reopen project', async () => {
+      return globalThis.window.electronAPI.reopenProject(id);
     });
   }
 
@@ -227,6 +249,17 @@ export class DatabaseService {
   async removeTagFromTask(taskId: string, tagId: string): Promise<void> {
     return this.executeWithErrorHandling('remove tag from task', async () => {
       return globalThis.window.electronAPI.removeTagFromTask(taskId, tagId);
+    });
+  }
+
+  // ==================== AUDIT LOGS ====================
+
+  async getAuditLogs(
+    entityType?: string,
+    entityId?: string,
+  ): Promise<AuditLog[]> {
+    return this.executeWithErrorHandling('get audit logs', async () => {
+      return globalThis.window.electronAPI.getAuditLogs(entityType, entityId);
     });
   }
 }

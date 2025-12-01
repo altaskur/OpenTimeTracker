@@ -7,6 +7,7 @@ export interface Project {
   id: string;
   name: string;
   description: string | null;
+  isClosed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,4 +64,16 @@ export interface TaskTag {
 
 export interface DeleteResult {
   success: boolean;
+}
+
+export interface AuditLog {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  changes: string | null;
+  userName: string | null;
+  createdAt: Date;
+  projectId: string | null;
+  taskId: string | null;
 }

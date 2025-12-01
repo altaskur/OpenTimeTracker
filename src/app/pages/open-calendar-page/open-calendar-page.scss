@@ -1,0 +1,16 @@
+.calendar-section {
+  padding: 1rem;
+  height: 100%;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading-text {
+  color: var(--text-color-secondary);
+  font-size: 1.1rem;
+}

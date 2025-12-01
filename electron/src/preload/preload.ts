@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import {
+  AuditLog,
   DeleteResult,
   Project,
   Tag,
@@ -22,6 +23,12 @@ const electronAPI = {
     ipcRenderer.invoke('update-project', id, name, description),
   deleteProject: (id: string): Promise<DeleteResult> =>
     ipcRenderer.invoke('delete-project', id),
+  canCloseProject: (id: string): Promise<boolean> =>
+    ipcRenderer.invoke('can-close-project', id),
+  closeProject: (id: string): Promise<Project> =>
+    ipcRenderer.invoke('close-project', id),
+  reopenProject: (id: string): Promise<Project> =>
+    ipcRenderer.invoke('reopen-project', id),
 
   // Tasks
   getTasks: (projectId?: string): Promise<Task[]> =>
@@ -90,6 +97,10 @@ const electronAPI = {
     ipcRenderer.invoke('add-tag-to-task', taskId, tagId),
   removeTagFromTask: (taskId: string, tagId: string): Promise<void> =>
     ipcRenderer.invoke('remove-tag-from-task', taskId, tagId),
+
+  // Audit Logs
+  getAuditLogs: (entityType?: string, entityId?: string): Promise<AuditLog[]> =>
+    ipcRenderer.invoke('get-audit-logs', entityType, entityId),
 
   // Navigation - Listen for navigation events from Electron
   onNavigate: (callback: (route: string) => void): void => {

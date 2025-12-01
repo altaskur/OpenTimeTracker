@@ -1,0 +1,37 @@
+/* ==================== PROJECT TABLE ==================== */
+.project-table {
+  &__actions-col {
+    width: 180px;
+  }
+
+  &__project-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+
+  &__closed-tag {
+    font-size: 0.7rem;
+  }
+
+  &__project-description {
+    display: block;
+    color: var(--text-color-secondary);
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__no-data {
+    color: var(--text-color-secondary);
+    font-style: italic;
+  }
+
+  &__empty {
+    text-align: center;
+    color: var(--text-color-secondary);
+    padding: 2rem;
+  }
+}

@@ -2,6 +2,7 @@
   "menu": {
     "start": "Inicio",
     "home": "Principal",
+    "calendar": "Calendario",
     "projects": "Proyectos",
     "tasks": "Tareas",
     "themeToggle": "Modo Claro/Oscuro",
@@ -24,8 +25,14 @@
   "projects": {
     "title": "Proyectos",
     "new": "Nuevo Proyecto",
+    "open": "Proyectos Activos",
+    "closed": "Proyectos Cerrados",
     "empty": "No hay proyectos registrados",
+    "emptyOpen": "No hay proyectos activos",
+    "emptyClosed": "No hay proyectos cerrados",
     "search": "Buscar proyectos...",
+    "close": "Cerrar proyecto",
+    "reopen": "Reabrir proyecto",
     "dialog": {
       "title": "Proyecto",
       "namePlaceholder": "Nombre*",
@@ -35,7 +42,11 @@
   "tasks": {
     "title": "Tareas",
     "new": "Nueva Tarea",
+    "pending": "Tareas Pendientes",
+    "completed": "Tareas Completadas",
     "empty": "No hay tareas registradas",
+    "emptyPending": "No hay tareas pendientes",
+    "emptyCompleted": "No hay tareas completadas",
     "filterByProject": "Filtrar por proyecto",
     "dialog": {
       "title": "Tarea",
@@ -82,6 +93,9 @@
     "projectCreated": "Proyecto creado correctamente",
     "projectUpdated": "Proyecto actualizado correctamente",
     "projectDeleted": "Proyecto eliminado correctamente",
+    "projectClosed": "Proyecto cerrado correctamente",
+    "projectReopened": "Proyecto reabierto correctamente",
+    "cannotCloseProject": "No se puede cerrar: hay tareas pendientes",
     "taskCreated": "Tarea creada correctamente",
     "taskUpdated": "Tarea actualizada correctamente",
     "taskDeleted": "Tarea eliminada correctamente",
@@ -108,6 +122,35 @@
       "goToProjects": "Ir a Proyectos",
       "goToTasks": "Ir a Tareas",
       "toggleTheme": "Modo Claro/Oscuro"
+    }
+  },
+  "calendar": {
+    "today": "Hoy",
+    "previousMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "more": "más",
+    "months": {
+      "january": "Enero",
+      "february": "Febrero",
+      "march": "Marzo",
+      "april": "Abril",
+      "may": "Mayo",
+      "june": "Junio",
+      "july": "Julio",
+      "august": "Agosto",
+      "september": "Septiembre",
+      "october": "Octubre",
+      "november": "Noviembre",
+      "december": "Diciembre"
+    },
+    "weekdays": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mié",
+      "thu": "Jue",
+      "fri": "Vie",
+      "sat": "Sáb",
+      "sun": "Dom"
     }
   }
 }

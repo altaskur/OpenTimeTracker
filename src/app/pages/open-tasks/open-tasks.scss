@@ -23,6 +23,19 @@
   }
 }
 
+/* ==================== SECTION TITLE ==================== */
+.tasks-section-title {
+  margin: 1rem 0 0.5rem;
+  padding: 0 1rem;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+
+  &--completed {
+    margin-top: 2rem;
+    color: var(--green-500);
+  }
+}
+
 /* ==================== TASKS TABLE ==================== */
 .tasks-table {
   &__actions-col {

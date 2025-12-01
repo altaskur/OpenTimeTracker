@@ -70,6 +70,33 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
     }
   });
 
+  ipcMain.handle('can-close-project', async (_event, id: string) => {
+    try {
+      return await dbManager.canCloseProject(id);
+    } catch (error) {
+      console.error('Error checking if project can be closed:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('close-project', async (_event, id: string) => {
+    try {
+      return await dbManager.closeProject(id);
+    } catch (error) {
+      console.error('Error closing project:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('reopen-project', async (_event, id: string) => {
+    try {
+      return await dbManager.reopenProject(id);
+    } catch (error) {
+      console.error('Error reopening project:', error);
+      throw error;
+    }
+  });
+
   // ==================== TASKS ====================
 
   ipcMain.handle('get-tasks', async (_event, projectId?: string) => {
@@ -281,6 +308,20 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
         return await dbManager.removeTagFromTask(taskId, tagId);
       } catch (error) {
         console.error('Error removing tag from task:', error);
+        throw error;
+      }
+    },
+  );
+
+  // ==================== AUDIT LOGS ====================
+
+  ipcMain.handle(
+    'get-audit-logs',
+    async (_event, entityType?: string, entityId?: string) => {
+      try {
+        return await dbManager.getAuditLogs(entityType, entityId);
+      } catch (error) {
+        console.error('Error getting audit logs:', error);
         throw error;
       }
     },

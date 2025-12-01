@@ -1,14 +1,11 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
 
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +16,7 @@ import { DatabaseService } from '../../services';
 import { Project } from '../../../types/electron';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 import { OpenConfirmDeleteComponent } from '../../components/open-confirm-delete/open-confirm-delete';
+import { ProjectTableComponent } from './components';
 
 /**
  * Projects management page component
@@ -26,20 +24,18 @@ import { OpenConfirmDeleteComponent } from '../../components/open-confirm-delete
 @Component({
   selector: 'app-open-projects',
   imports: [
-    DatePipe,
     CardModule,
-    TableModule,
     ButtonModule,
     DialogModule,
     InputTextModule,
     TextareaModule,
     ToastModule,
-    TooltipModule,
     IconFieldModule,
     InputIconModule,
     FormsModule,
     OpenLayoutComponent,
     OpenConfirmDeleteComponent,
+    ProjectTableComponent,
     TranslateModule,
   ],
   providers: [MessageService],
@@ -62,14 +58,28 @@ export class OpenProjects implements OnInit {
   /** Search term for filtering projects */
   searchTerm = signal('');
 
-  /** Filtered projects based on search term */
-  filteredProjects = computed(() => {
+  /** Filtered open projects based on search term */
+  filteredOpenProjects = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
-    const allProjects = this.projects();
+    const openProjects = this.projects().filter((p) => !p.isClosed);
     if (!term) {
-      return allProjects;
+      return openProjects;
     }
-    return allProjects.filter(
+    return openProjects.filter(
+      (project) =>
+        project.name.toLowerCase().includes(term) ||
+        project.description?.toLowerCase().includes(term),
+    );
+  });
+
+  /** Filtered closed projects based on search term */
+  filteredClosedProjects = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    const closedProjects = this.projects().filter((p) => p.isClosed);
+    if (!term) {
+      return closedProjects;
+    }
+    return closedProjects.filter(
       (project) =>
         project.name.toLowerCase().includes(term) ||
         project.description?.toLowerCase().includes(term),
@@ -168,6 +178,37 @@ export class OpenProjects implements OnInit {
     try {
       await this.dbService.deleteProject(id);
       this.showSuccess('toast.projectDeleted');
+      await this.loadProjects();
+    } catch {
+      this.showError('toast.error');
+    }
+  }
+
+  /**
+   * Closes a project (only if all tasks are completed)
+   */
+  async closeProject(project: Project): Promise<void> {
+    try {
+      const canClose = await this.dbService.canCloseProject(project.id);
+      if (!canClose) {
+        this.showError('toast.cannotCloseProject');
+        return;
+      }
+      await this.dbService.closeProject(project.id);
+      this.showSuccess('toast.projectClosed');
+      await this.loadProjects();
+    } catch {
+      this.showError('toast.error');
+    }
+  }
+
+  /**
+   * Reopens a closed project
+   */
+  async reopenProject(project: Project): Promise<void> {
+    try {
+      await this.dbService.reopenProject(project.id);
+      this.showSuccess('toast.projectReopened');
       await this.loadProjects();
     } catch {
       this.showError('toast.error');

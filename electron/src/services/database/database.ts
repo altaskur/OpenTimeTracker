@@ -137,6 +137,69 @@ export class DatabaseManager {
     });
   }
 
+  /**
+   * Checks if a project can be closed (all tasks must be completed)
+   */
+  public async canCloseProject(id: string): Promise<boolean> {
+    await this.ensureInitialized();
+    const incompleteTasks = await this.prisma.task.count({
+      where: {
+        projectId: id,
+        status: {
+          name: { not: 'Completada' },
+        },
+      },
+    });
+    return incompleteTasks === 0;
+  }
+
+  /**
+   * Closes a project if all tasks are completed
+   */
+  public async closeProject(id: string, userName?: string) {
+    await this.ensureInitialized();
+    const canClose = await this.canCloseProject(id);
+    if (!canClose) {
+      throw new Error('Cannot close project: some tasks are not completed');
+    }
+
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: { isClosed: true },
+    });
+
+    await this.createAuditLog({
+      entityType: 'Project',
+      entityId: id,
+      action: 'CLOSED',
+      userName,
+      projectId: id,
+    });
+
+    return project;
+  }
+
+  /**
+   * Reopens a closed project
+   */
+  public async reopenProject(id: string, userName?: string) {
+    await this.ensureInitialized();
+    const project = await this.prisma.project.update({
+      where: { id },
+      data: { isClosed: false },
+    });
+
+    await this.createAuditLog({
+      entityType: 'Project',
+      entityId: id,
+      action: 'REOPENED',
+      userName,
+      projectId: id,
+    });
+
+    return project;
+  }
+
   // ==================== TASKS ====================
 
   public async getTasks(projectId?: string) {
@@ -400,6 +463,48 @@ export class DatabaseManager {
       where: {
         taskId_tagId: { taskId, tagId },
       },
+    });
+  }
+
+  // ==================== AUDIT LOGS ====================
+
+  /**
+   * Creates an audit log entry
+   */
+  public async createAuditLog(data: {
+    entityType: string;
+    entityId: string;
+    action: string;
+    changes?: string;
+    userName?: string;
+    projectId?: string;
+    taskId?: string;
+  }) {
+    await this.ensureInitialized();
+    return this.prisma.auditLog.create({
+      data: {
+        entityType: data.entityType,
+        entityId: data.entityId,
+        action: data.action,
+        changes: data.changes,
+        userName: data.userName,
+        projectId: data.projectId,
+        taskId: data.taskId,
+      },
+    });
+  }
+
+  /**
+   * Gets audit logs filtered by entity type and/or entity id
+   */
+  public async getAuditLogs(entityType?: string, entityId?: string) {
+    await this.ensureInitialized();
+    return this.prisma.auditLog.findMany({
+      where: {
+        ...(entityType && { entityType }),
+        ...(entityId && { entityId }),
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

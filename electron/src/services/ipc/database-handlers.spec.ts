@@ -90,6 +90,7 @@ describe('Database Handlers', () => {
           id: '1',
           name: 'Project 1',
           description: 'Description 1',
+          isClosed: false,
           createdAt: new Date('2025-01-01'),
           updatedAt: new Date('2025-01-01'),
         },
@@ -121,6 +122,7 @@ describe('Database Handlers', () => {
         id: '1',
         name: 'New Project',
         description: 'New Description',
+        isClosed: false,
         createdAt: new Date('2025-01-01'),
         updatedAt: new Date('2025-01-01'),
       };
@@ -147,6 +149,7 @@ describe('Database Handlers', () => {
         id: '1',
         name: 'New Project',
         description: null,
+        isClosed: false,
         createdAt: new Date('2025-01-01'),
         updatedAt: new Date('2025-01-01'),
       };
@@ -173,6 +176,7 @@ describe('Database Handlers', () => {
         id: '1',
         name: 'Updated Project',
         description: 'Updated Description',
+        isClosed: false,
         createdAt: new Date('2025-01-01'),
         updatedAt: new Date('2025-01-01'),
       };
@@ -206,6 +210,7 @@ describe('Database Handlers', () => {
         id: '1',
         name: 'Deleted Project',
         description: null,
+        isClosed: false,
         createdAt: new Date('2025-01-01'),
         updatedAt: new Date('2025-01-01'),
       };
@@ -241,6 +246,7 @@ describe('Database Handlers', () => {
             id: 'p1',
             name: 'Project 1',
             description: null,
+            isClosed: false,
             createdAt: new Date('2025-01-01'),
             updatedAt: new Date('2025-01-01'),
           },
@@ -274,6 +280,7 @@ describe('Database Handlers', () => {
             id: 'p1',
             name: 'Project 1',
             description: null,
+            isClosed: false,
             createdAt: new Date('2025-01-01'),
             updatedAt: new Date('2025-01-01'),
           },

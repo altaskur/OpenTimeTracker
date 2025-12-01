@@ -1,0 +1,53 @@
+/* ==================== TASK TABLE ==================== */
+.task-table {
+  &__actions-col {
+    width: 150px;
+  }
+
+  &__task-name {
+    display: block;
+    font-weight: 500;
+  }
+
+  &__task-description {
+    display: block;
+    color: var(--text-color-secondary);
+    margin-top: 0.25rem;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  &__tag {
+    font-size: 0.75rem;
+  }
+
+  &__no-data {
+    color: var(--text-color-secondary);
+    font-style: italic;
+  }
+
+  &__empty {
+    text-align: center;
+    color: var(--text-color-secondary);
+    padding: 2rem;
+  }
+}
+
+/* ==================== PRIMENG OVERRIDES ==================== */
+:host ::ng-deep {
+  .p-tag {
+    font-size: 0.75rem;
+  }
+
+  .p-chip {
+    font-size: 0.75rem;
+  }
+}

@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 
 import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,7 +10,6 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ChipModule } from 'primeng/chip';
-import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +20,7 @@ import { DatabaseService } from '../../services';
 import { Task, Project, TaskStatus, Tag } from '../../../types/electron';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 import { OpenConfirmDeleteComponent } from '../../components/open-confirm-delete/open-confirm-delete';
+import { TaskTableComponent } from './components';
 import { TaskWithTags, TaskForm } from '../../interfaces';
 
 /**
@@ -31,7 +30,6 @@ import { TaskWithTags, TaskForm } from '../../interfaces';
   selector: 'app-open-tasks',
   imports: [
     CardModule,
-    TableModule,
     ButtonModule,
     DialogModule,
     InputTextModule,
@@ -41,12 +39,12 @@ import { TaskWithTags, TaskForm } from '../../interfaces';
     InputGroupModule,
     MultiSelectModule,
     ChipModule,
-    TagModule,
     ToastModule,
     TooltipModule,
     FormsModule,
     OpenLayoutComponent,
     OpenConfirmDeleteComponent,
+    TaskTableComponent,
     TranslateModule,
   ],
   providers: [MessageService],
@@ -90,14 +88,32 @@ export class OpenTasks implements OnInit {
   /** Selected project filter (null = all) */
   selectedProjectFilter = signal<string | null>(null);
 
-  /** Filtered tasks based on selected project */
-  filteredTasks = computed(() => {
+  /** Filtered pending tasks based on selected project */
+  filteredPendingTasks = computed(() => {
     const filter = this.selectedProjectFilter();
     const allTasks = this.tasks();
+    const pending = allTasks.filter(
+      (task) =>
+        task.status?.name !== 'Completada' && task.status?.name !== 'Completed',
+    );
     if (!filter) {
-      return allTasks;
+      return pending;
     }
-    return allTasks.filter((task) => task.projectId === filter);
+    return pending.filter((task) => task.projectId === filter);
+  });
+
+  /** Filtered completed tasks based on selected project */
+  filteredCompletedTasks = computed(() => {
+    const filter = this.selectedProjectFilter();
+    const allTasks = this.tasks();
+    const completed = allTasks.filter(
+      (task) =>
+        task.status?.name === 'Completada' || task.status?.name === 'Completed',
+    );
+    if (!filter) {
+      return completed;
+    }
+    return completed.filter((task) => task.projectId === filter);
   });
 
   /** Task form for create/edit */

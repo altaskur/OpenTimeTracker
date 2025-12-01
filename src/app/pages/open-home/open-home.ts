@@ -41,7 +41,12 @@ export class OpenHome implements OnInit {
     this.loading.set(true);
     try {
       const tasks = await this.dbService.getTasks();
-      this.pendingTasks.set(tasks);
+      const pendingOnly = tasks.filter(
+        (task) =>
+          task.status?.name !== 'Completada' &&
+          task.status?.name !== 'Completed',
+      );
+      this.pendingTasks.set(pendingOnly);
     } finally {
       this.loading.set(false);
     }

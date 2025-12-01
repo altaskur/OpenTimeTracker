@@ -23,15 +23,34 @@
   }
 }
 
+/* ==================== SECTION TITLE ==================== */
+.projects-section-title {
+  margin: 1rem 0 0.5rem;
+  padding: 0 1rem;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+
+  &--closed {
+    margin-top: 2rem;
+    color: var(--text-color-secondary);
+  }
+}
+
 /* ==================== PROJECTS TABLE ==================== */
 .projects-table {
   &__actions-col {
-    width: 150px;
+    width: 180px;
   }
 
   &__project-name {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 500;
+  }
+
+  &__closed-tag {
+    font-size: 0.7rem;
   }
 
   &__project-description {

@@ -20,6 +20,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
   es: {
     home: 'Inicio',
     main: 'Principal',
+    calendar: 'Calendario',
     projects: 'Proyectos',
     tasks: 'Tareas',
     darkLightMode: 'Modo Claro/Oscuro',
@@ -45,6 +46,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
   en: {
     home: 'Home',
     main: 'Main',
+    calendar: 'Calendar',
     projects: 'Projects',
     tasks: 'Tasks',
     darkLightMode: 'Dark/Light Mode',
@@ -123,15 +125,22 @@ export class MenuManager {
             },
           },
           {
-            label: this.t('projects'),
+            label: this.t('calendar'),
             accelerator: 'CmdOrCtrl+2',
+            click: (): void => {
+              this.navigateTo('/calendar');
+            },
+          },
+          {
+            label: this.t('projects'),
+            accelerator: 'CmdOrCtrl+3',
             click: (): void => {
               this.navigateTo('/projects');
             },
           },
           {
             label: this.t('tasks'),
-            accelerator: 'CmdOrCtrl+3',
+            accelerator: 'CmdOrCtrl+4',
             click: (): void => {
               this.navigateTo('/tasks');
             },

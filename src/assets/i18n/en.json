@@ -2,6 +2,7 @@
   "menu": {
     "start": "Start",
     "home": "Home",
+    "calendar": "Calendar",
     "projects": "Projects",
     "tasks": "Tasks",
     "themeToggle": "Light/Dark Mode",
@@ -24,8 +25,14 @@
   "projects": {
     "title": "Projects",
     "new": "New Project",
+    "open": "Active Projects",
+    "closed": "Closed Projects",
     "empty": "No projects registered",
+    "emptyOpen": "No active projects",
+    "emptyClosed": "No closed projects",
     "search": "Search projects...",
+    "close": "Close project",
+    "reopen": "Reopen project",
     "dialog": {
       "title": "Project",
       "namePlaceholder": "Name*",
@@ -35,7 +42,11 @@
   "tasks": {
     "title": "Tasks",
     "new": "New Task",
+    "pending": "Pending Tasks",
+    "completed": "Completed Tasks",
     "empty": "No tasks registered",
+    "emptyPending": "No pending tasks",
+    "emptyCompleted": "No completed tasks",
     "filterByProject": "Filter by project",
     "dialog": {
       "title": "Task",
@@ -82,6 +93,9 @@
     "projectCreated": "Project created successfully",
     "projectUpdated": "Project updated successfully",
     "projectDeleted": "Project deleted successfully",
+    "projectClosed": "Project closed successfully",
+    "projectReopened": "Project reopened successfully",
+    "cannotCloseProject": "Cannot close: there are pending tasks",
     "taskCreated": "Task created successfully",
     "taskUpdated": "Task updated successfully",
     "taskDeleted": "Task deleted successfully",
@@ -108,6 +122,35 @@
       "goToProjects": "Go to Projects",
       "goToTasks": "Go to Tasks",
       "toggleTheme": "Light/Dark Mode"
+    }
+  },
+  "calendar": {
+    "today": "Today",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "more": "more",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
     }
   }
 }

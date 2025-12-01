@@ -1,0 +1,80 @@
+<p-table [value]="projects()" [loading]="loading()">
+  <ng-template pTemplate="header">
+    <tr>
+      <th scope="col">{{ "table.name" | translate }}</th>
+      <th scope="col">{{ "table.description" | translate }}</th>
+      <th scope="col">{{ "table.createdAt" | translate }}</th>
+      <th scope="col" class="project-table__actions-col">
+        {{ "table.actions" | translate }}
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-project>
+    <tr>
+      <td>
+        <span class="project-table__project-name">
+          {{ project.name }}
+          @if (showClosed()) {
+            <p-tag
+              value="Closed"
+              severity="secondary"
+              class="project-table__closed-tag"
+            />
+          }
+        </span>
+      </td>
+      <td>
+        @if (project.description) {
+          <span class="project-table__project-description">{{
+            project.description
+          }}</span>
+        } @else {
+          <span class="project-table__no-data">{{
+            "table.noData" | translate
+          }}</span>
+        }
+      </td>
+      <td>{{ project.createdAt | date: "dd/MM/yyyy" }}</td>
+      <td>
+        @if (!showClosed()) {
+          <p-button
+            icon="pi pi-pencil"
+            [text]="true"
+            severity="secondary"
+            (onClick)="onEdit(project)"
+            [pTooltip]="'common.edit' | translate"
+          />
+          <p-button
+            icon="pi pi-lock"
+            [text]="true"
+            severity="warn"
+            (onClick)="onClose(project)"
+            [pTooltip]="'projects.close' | translate"
+          />
+        } @else {
+          <p-button
+            icon="pi pi-lock-open"
+            [text]="true"
+            severity="success"
+            (onClick)="onReopen(project)"
+            [pTooltip]="'projects.reopen' | translate"
+          />
+        }
+        <p-button
+          icon="pi pi-trash"
+          [text]="true"
+          severity="danger"
+          (onClick)="onDelete(project)"
+          [pTooltip]="'common.delete' | translate"
+        />
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="4" class="project-table__empty">
+        {{ emptyMessage() | translate }}
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

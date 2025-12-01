@@ -1,0 +1,77 @@
+<div class="calendar">
+  <header class="calendar__header">
+    <div class="calendar__nav">
+      <p-button
+        icon="pi pi-chevron-left"
+        [rounded]="true"
+        [text]="true"
+        (onClick)="previousMonth()"
+        [pTooltip]="'calendar.previousMonth' | translate"
+      />
+      <h2 class="calendar__title">{{ monthYearLabel() }}</h2>
+      <p-button
+        icon="pi pi-chevron-right"
+        [rounded]="true"
+        [text]="true"
+        (onClick)="nextMonth()"
+        [pTooltip]="'calendar.nextMonth' | translate"
+      />
+    </div>
+    <p-button
+      [label]="'calendar.today' | translate"
+      [outlined]="true"
+      size="small"
+      (onClick)="goToToday()"
+    />
+  </header>
+
+  <div class="calendar__grid">
+    <div class="calendar__weekdays">
+      @for (day of weekDays(); track day) {
+        <div class="calendar__weekday">{{ day }}</div>
+      }
+    </div>
+
+    <div class="calendar__days">
+      @for (day of calendarDays(); track day.date.toISOString()) {
+        <div
+          class="calendar__day"
+          [class.calendar__day--other-month]="!day.isCurrentMonth"
+          [class.calendar__day--today]="day.isToday"
+          (click)="onDayClick(day)"
+          (keydown.enter)="onDayClick(day)"
+          tabindex="0"
+          role="button"
+        >
+          <span class="calendar__day-number">{{ day.dayNumber }}</span>
+
+          <div class="calendar__tasks">
+            @for (task of day.tasks.slice(0, 3); track task.id) {
+              <div
+                class="calendar__task"
+                [class]="getStatusColor(task.status?.name)"
+                [pTooltip]="task.name"
+                (click)="onTaskClick(task, $event)"
+                (keydown.enter)="onTaskClick(task, $event)"
+                tabindex="0"
+                role="button"
+              >
+                <span class="calendar__task-name">{{ task.name }}</span>
+                @if (task.estimatedHours) {
+                  <span class="calendar__task-hours"
+                    >{{ task.estimatedHours }}h</span
+                  >
+                }
+              </div>
+            }
+            @if (day.tasks.length > 3) {
+              <div class="calendar__more">
+                +{{ day.tasks.length - 3 }} {{ "calendar.more" | translate }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

@@ -15,111 +15,47 @@
     (cancelled)="onDeleteTagCancelled()"
   />
 
-  <p-card>
-    <ng-template pTemplate="header">
-      <header class="tasks-header">
-        <h2 class="tasks-header__title">{{ "tasks.title" | translate }}</h2>
-        <div class="tasks-header__actions">
-          <p-select
-            [options]="projects()"
-            [(ngModel)]="selectedProjectFilter"
-            [placeholder]="'tasks.filterByProject' | translate"
-            optionLabel="name"
-            optionValue="id"
-            [showClear]="true"
-            class="tasks-header__filter"
-          />
-          <p-button
-            [label]="'tasks.new' | translate"
-            icon="pi pi-plus"
-            (onClick)="openNewDialog()"
-          />
-        </div>
-      </header>
-    </ng-template>
+  <ng-template pTemplate="header">
+    <header class="tasks-header">
+      <h2 class="tasks-header__title">{{ "tasks.title" | translate }}</h2>
+      <div class="tasks-header__actions">
+        <p-select
+          [options]="projects()"
+          [(ngModel)]="selectedProjectFilter"
+          [placeholder]="'tasks.filterByProject' | translate"
+          optionLabel="name"
+          optionValue="id"
+          [showClear]="true"
+          class="tasks-header__filter"
+        />
+        <p-button
+          [label]="'tasks.new' | translate"
+          icon="pi pi-plus"
+          (onClick)="openNewDialog()"
+        />
+      </div>
+    </header>
+  </ng-template>
 
-    <p-table [value]="filteredTasks()" [loading]="loading()">
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col">{{ "table.name" | translate }}</th>
-          <th scope="col">{{ "table.project" | translate }}</th>
-          <th scope="col">{{ "table.status" | translate }}</th>
-          <th scope="col">{{ "table.estimatedHours" | translate }}</th>
-          <th scope="col">{{ "table.tags" | translate }}</th>
-          <th scope="col" class="tasks-table__actions-col">
-            {{ "table.actions" | translate }}
-          </th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-task>
-        <tr>
-          <td>
-            <span class="tasks-table__task-name">{{ task.name }}</span>
-            @if (task.description) {
-              <small class="tasks-table__task-description">{{
-                task.description
-              }}</small>
-            }
-          </td>
-          <td>{{ task.project?.name || ("table.unassigned" | translate) }}</td>
-          <td>
-            @if (task.status?.name) {
-              <p-tag
-                [value]="task.status.name"
-                [severity]="getStatusSeverity(task.status.name)"
-              />
-            } @else {
-              <span class="tasks-table__no-data">{{
-                "table.noData" | translate
-              }}</span>
-            }
-          </td>
-          <td>
-            @if (task.estimatedHours) {
-              {{ task.estimatedHours }}h
-            } @else {
-              {{ "table.noData" | translate }}
-            }
-          </td>
-          <td>
-            <div class="tasks-table__tags">
-              @for (taskTag of task.tags; track taskTag.tag.id) {
-                <p-chip [label]="taskTag.tag.name" class="tasks-table__tag" />
-              }
-              @if (!task.tags?.length) {
-                <span class="tasks-table__no-data">{{
-                  "table.noData" | translate
-                }}</span>
-              }
-            </div>
-          </td>
-          <td>
-            <p-button
-              icon="pi pi-pencil"
-              [text]="true"
-              severity="secondary"
-              (onClick)="openEditDialog(task)"
-              [pTooltip]="'common.edit' | translate"
-            />
-            <p-button
-              icon="pi pi-trash"
-              [text]="true"
-              severity="danger"
-              (onClick)="confirmDeleteTask(task)"
-              [pTooltip]="'common.delete' | translate"
-            />
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="tasks-table__empty">
-            {{ "tasks.empty" | translate }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </p-card>
+  <h3 class="tasks-section-title">{{ "tasks.pending" | translate }}</h3>
+  <app-task-table
+    [tasks]="filteredPendingTasks()"
+    [loading]="loading()"
+    [emptyMessage]="'tasks.emptyPending'"
+    (editTask)="openEditDialog($event)"
+    (deleteTask)="confirmDeleteTask($event)"
+  />
+
+  <h3 class="tasks-section-title tasks-section-title--completed">
+    {{ "tasks.completed" | translate }}
+  </h3>
+  <app-task-table
+    [tasks]="filteredCompletedTasks()"
+    [loading]="loading()"
+    [emptyMessage]="'tasks.emptyCompleted'"
+    (editTask)="openEditDialog($event)"
+    (deleteTask)="confirmDeleteTask($event)"
+  />
 
   <p-dialog
     [header]="'tasks.dialog.title' | translate"

@@ -11,12 +11,14 @@ datasource db {
 }
 
 model Project {
-  id          String   @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
   description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  isClosed    Boolean    @default(false) @map("is_closed")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
   tasks       Task[]
+  auditLogs   AuditLog[]
 
   @@map("projects")
 }
@@ -42,6 +44,7 @@ model Task {
   status         TaskStatus? @relation(fields: [statusId], references: [id])
   tags           TaskTag[]
   timeEntries    TimeEntry[]
+  auditLogs      AuditLog[]
 
   @@map("tasks")
 }
@@ -98,4 +101,20 @@ model AppSettings {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("app_settings")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  action     String
+  changes    String?
+  userName   String?  @map("user_name")
+  createdAt  DateTime @default(now()) @map("created_at")
+  projectId  String?  @map("project_id")
+  taskId     String?  @map("task_id")
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
 }

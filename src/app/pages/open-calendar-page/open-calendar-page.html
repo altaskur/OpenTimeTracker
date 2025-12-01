@@ -1,0 +1,15 @@
+<app-open-layout>
+  <section class="calendar-section">
+    @if (loading()) {
+      <div class="loading-container">
+        <p class="loading-text">{{ "home.loading" | translate }}</p>
+      </div>
+    } @else {
+      <app-open-calendar
+        [tasks]="tasks()"
+        (taskClicked)="onTaskClicked($event)"
+        (dayClicked)="onDayClicked($event)"
+      />
+    }
+  </section>
+</app-open-layout>

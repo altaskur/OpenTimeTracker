@@ -2,7 +2,7 @@ import { DatabaseManager } from './database';
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Project, WorkPeriod, TaskStatus } from '../../interfaces';
+import { WorkPeriod, TaskStatus } from '../../interfaces';
 
 const TEST_DB_PATH = path.join(
   __dirname,
@@ -48,6 +48,7 @@ describe('DatabaseManager', () => {
         "id" TEXT NOT NULL PRIMARY KEY,
         "name" TEXT NOT NULL,
         "description" TEXT,
+        "is_closed" INTEGER NOT NULL DEFAULT 0,
         "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updated_at" DATETIME NOT NULL
       );
@@ -119,6 +120,22 @@ describe('DatabaseManager', () => {
       );
     `);
 
+    await testPrisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "audit_logs" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "entity_type" TEXT NOT NULL,
+        "entity_id" TEXT NOT NULL,
+        "action" TEXT NOT NULL,
+        "changes" TEXT,
+        "user_name" TEXT,
+        "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "project_id" TEXT,
+        "task_id" TEXT,
+        FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE,
+        FOREIGN KEY ("task_id") REFERENCES "tasks"("id") ON DELETE CASCADE
+      );
+    `);
+
     // Seed default task statuses
     await testPrisma.taskStatus.create({
       data: { id: '1', name: 'Pendiente' },
@@ -155,6 +172,8 @@ describe('DatabaseManager', () => {
       await testPrisma.task.deleteMany();
       await testPrisma.project.deleteMany();
       await testPrisma.workPeriod.deleteMany();
+      await testPrisma.tag.deleteMany();
+      await testPrisma.auditLog.deleteMany();
     } catch (error) {
       // Ignorar errores si la DB ya está cerrada
       if (!(error as Error).message.includes('Engine was empty')) {
@@ -196,7 +215,7 @@ describe('DatabaseManager', () => {
       await dbManager.createProject('My Project', 'My Description');
       const projects = await dbManager.getProjects();
       expect(projects.length).toBeGreaterThan(0);
-      const project = projects.find((p: Project) => p.name === 'My Project');
+      const project = projects.find((p) => p.name === 'My Project');
       expect(project).toBeDefined();
       expect(project?.description).toBe('My Description');
     });
@@ -217,7 +236,7 @@ describe('DatabaseManager', () => {
       expect(result.description).toBe('Updated Desc');
 
       const projects = await dbManager.getProjects();
-      const updated = projects.find((p: Project) => p.id === projectId);
+      const updated = projects.find((p) => p.id === projectId);
       expect(updated?.name).toBe('Updated Name');
       expect(updated?.description).toBe('Updated Desc');
     });
@@ -230,10 +249,106 @@ describe('DatabaseManager', () => {
       expect(result.id).toBe(projectId);
 
       const remaining = await dbManager.getProjects();
-      const deleted: Project | undefined = remaining.find(
-        (p: Project) => p.id === projectId,
-      );
+      const deleted = remaining.find((p) => p.id === projectId);
       expect(deleted).toBeUndefined();
+    });
+
+    it('should check if project can be closed when no tasks', async () => {
+      const project = await dbManager.createProject('Empty Project');
+      const canClose = await dbManager.canCloseProject(project.id);
+      expect(canClose).toBe(true);
+    });
+
+    it('should check if project can be closed when all tasks are completed', async () => {
+      const project = await dbManager.createProject('Completed Project');
+      const statuses = await dbManager.getTaskStatuses();
+      const completedStatus = statuses.find(
+        (s: TaskStatus) => s.name === 'Completada',
+      );
+
+      await dbManager.createTask(
+        project.id,
+        'Task 1',
+        undefined,
+        undefined,
+        completedStatus?.id,
+      );
+
+      const canClose = await dbManager.canCloseProject(project.id);
+      expect(canClose).toBe(true);
+    });
+
+    it('should check if project cannot be closed when tasks are pending', async () => {
+      const project = await dbManager.createProject('Pending Project');
+      const statuses = await dbManager.getTaskStatuses();
+      const pendingStatus = statuses.find(
+        (s: TaskStatus) => s.name === 'Pendiente',
+      );
+
+      await dbManager.createTask(
+        project.id,
+        'Pending Task',
+        undefined,
+        undefined,
+        pendingStatus?.id,
+      );
+
+      const canClose = await dbManager.canCloseProject(project.id);
+      expect(canClose).toBe(false);
+    });
+
+    it('should close a project when all tasks are completed', async () => {
+      const project = await dbManager.createProject('To Close Project');
+
+      const result = await dbManager.closeProject(project.id);
+      expect(result.isClosed).toBe(true);
+    });
+
+    it('should throw error when closing project with pending tasks', async () => {
+      const project = await dbManager.createProject('Cannot Close Project');
+      const statuses = await dbManager.getTaskStatuses();
+      const pendingStatus = statuses.find(
+        (s: TaskStatus) => s.name === 'Pendiente',
+      );
+
+      await dbManager.createTask(
+        project.id,
+        'Pending Task',
+        undefined,
+        undefined,
+        pendingStatus?.id,
+      );
+
+      await expect(dbManager.closeProject(project.id)).rejects.toThrow(
+        'Cannot close project',
+      );
+    });
+
+    it('should reopen a closed project', async () => {
+      const project = await dbManager.createProject('To Reopen Project');
+      await dbManager.closeProject(project.id);
+
+      const result = await dbManager.reopenProject(project.id);
+      expect(result.isClosed).toBe(false);
+    });
+
+    it('should create audit log when closing project', async () => {
+      const project = await dbManager.createProject('Audit Close Project');
+      await dbManager.closeProject(project.id, 'TestUser');
+
+      const logs = await dbManager.getAuditLogs('Project', project.id);
+      expect(logs.length).toBeGreaterThan(0);
+      expect(logs[0].action).toBe('CLOSED');
+    });
+
+    it('should create audit log when reopening project', async () => {
+      const project = await dbManager.createProject('Audit Reopen Project');
+      await dbManager.closeProject(project.id);
+      await dbManager.reopenProject(project.id, 'TestUser');
+
+      const logs = await dbManager.getAuditLogs('Project', project.id);
+      const reopenLog = logs.find((l) => l.action === 'REOPENED');
+      expect(reopenLog).toBeDefined();
     });
   });
 
@@ -508,6 +623,87 @@ describe('DatabaseManager', () => {
       );
       expect(period).toBeDefined();
       expect(period?.plannedHours).toBe(160);
+    });
+  });
+
+  describe('Tags', () => {
+    it('should get empty tags list initially', async () => {
+      const tags = await dbManager.getTags();
+      expect(Array.isArray(tags)).toBe(true);
+    });
+
+    it('should create a new tag', async () => {
+      const result = await dbManager.createTag('Bug');
+      expect(result.id).toBeDefined();
+      expect(result.name).toBe('Bug');
+    });
+
+    it('should get created tags', async () => {
+      await dbManager.createTag('Feature');
+      const tags = await dbManager.getTags();
+      const found = tags.find((t) => t.name === 'Feature');
+      expect(found).toBeDefined();
+    });
+
+    it('should delete a tag', async () => {
+      const tag = await dbManager.createTag('ToDelete');
+      const result = await dbManager.deleteTag(tag.id);
+      expect(result.id).toBe(tag.id);
+
+      const tags = await dbManager.getTags();
+      const deleted = tags.find((t) => t.id === tag.id);
+      expect(deleted).toBeUndefined();
+    });
+
+    it('should add tag to task', async () => {
+      const project = await dbManager.createProject('Tag Project');
+      const task = await dbManager.createTask(project.id, 'Tagged Task');
+      const tag = await dbManager.createTag('Important');
+
+      await dbManager.addTagToTask(task.id, tag.id);
+
+      const tasks = await dbManager.getTasks();
+      const taggedTask = tasks.find((t) => t.id === task.id);
+      expect(taggedTask?.tags?.length).toBeGreaterThan(0);
+    });
+
+    it('should remove tag from task', async () => {
+      const project = await dbManager.createProject('Tag Remove Project');
+      const task = await dbManager.createTask(project.id, 'Task with Tag');
+      const tag = await dbManager.createTag('ToRemove');
+
+      await dbManager.addTagToTask(task.id, tag.id);
+      await dbManager.removeTagFromTask(task.id, tag.id);
+
+      const tasks = await dbManager.getTasks();
+      const updatedTask = tasks.find((t) => t.id === task.id);
+      const hasTag = updatedTask?.tags?.some((tt) => tt.tag.id === tag.id);
+      expect(hasTag).toBeFalsy();
+    });
+  });
+
+  describe('Audit Logs', () => {
+    it('should get empty audit logs initially', async () => {
+      const logs = await dbManager.getAuditLogs();
+      expect(Array.isArray(logs)).toBe(true);
+    });
+
+    it('should get audit logs by entity type', async () => {
+      const project = await dbManager.createProject('Audit Project');
+      await dbManager.closeProject(project.id);
+
+      const logs = await dbManager.getAuditLogs('Project');
+      expect(logs.length).toBeGreaterThan(0);
+      expect(logs.every((l) => l.entityType === 'Project')).toBe(true);
+    });
+
+    it('should get audit logs by entity type and id', async () => {
+      const project = await dbManager.createProject('Specific Audit Project');
+      await dbManager.closeProject(project.id);
+
+      const logs = await dbManager.getAuditLogs('Project', project.id);
+      expect(logs.length).toBeGreaterThan(0);
+      expect(logs.every((l) => l.entityId === project.id)).toBe(true);
     });
   });
 

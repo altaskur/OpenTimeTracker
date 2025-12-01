@@ -68,6 +68,33 @@ describe('DatabaseService', () => {
         .and.returnValue(Promise.resolve('es')),
       setLanguage: jasmine.createSpy('setLanguage'),
       onLanguageChange: jasmine.createSpy('onLanguageChange'),
+      canCloseProject: jasmine
+        .createSpy('canCloseProject')
+        .and.returnValue(Promise.resolve(true)),
+      closeProject: jasmine
+        .createSpy('closeProject')
+        .and.returnValue(Promise.resolve({ id: '1', isClosed: true })),
+      reopenProject: jasmine
+        .createSpy('reopenProject')
+        .and.returnValue(Promise.resolve({ id: '1', isClosed: false })),
+      getTags: jasmine
+        .createSpy('getTags')
+        .and.returnValue(Promise.resolve([])),
+      createTag: jasmine
+        .createSpy('createTag')
+        .and.returnValue(Promise.resolve({ id: '1', name: 'Test' })),
+      deleteTag: jasmine
+        .createSpy('deleteTag')
+        .and.returnValue(Promise.resolve({ changes: 1 })),
+      addTagToTask: jasmine
+        .createSpy('addTagToTask')
+        .and.returnValue(Promise.resolve()),
+      removeTagFromTask: jasmine
+        .createSpy('removeTagFromTask')
+        .and.returnValue(Promise.resolve()),
+      getAuditLogs: jasmine
+        .createSpy('getAuditLogs')
+        .and.returnValue(Promise.resolve([])),
     };
 
     // Save original and set up global window mock
@@ -127,6 +154,24 @@ describe('DatabaseService', () => {
     it('should delete project', async () => {
       await service.deleteProject('1');
       expect(mockElectronAPI.deleteProject).toHaveBeenCalledWith('1');
+    });
+
+    it('should check if project can close', async () => {
+      const result = await service.canCloseProject('1');
+      expect(mockElectronAPI.canCloseProject).toHaveBeenCalledWith('1');
+      expect(result).toBe(true);
+    });
+
+    it('should close project', async () => {
+      const result = await service.closeProject('1');
+      expect(mockElectronAPI.closeProject).toHaveBeenCalledWith('1');
+      expect(result.isClosed).toBe(true);
+    });
+
+    it('should reopen project', async () => {
+      const result = await service.reopenProject('1');
+      expect(mockElectronAPI.reopenProject).toHaveBeenCalledWith('1');
+      expect(result.isClosed).toBe(false);
     });
   });
 
@@ -253,6 +298,70 @@ describe('DatabaseService', () => {
     });
   });
 
+  describe('Tags', () => {
+    it('should get tags', async () => {
+      const result = await service.getTags();
+      expect(mockElectronAPI.getTags).toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+
+    it('should create tag', async () => {
+      const result = await service.createTag('Bug');
+      expect(mockElectronAPI.createTag).toHaveBeenCalledWith('Bug');
+      expect(result.name).toBe('Test');
+    });
+
+    it('should delete tag', async () => {
+      await service.deleteTag('t1');
+      expect(mockElectronAPI.deleteTag).toHaveBeenCalledWith('t1');
+    });
+
+    it('should add tag to task', async () => {
+      await service.addTagToTask('task1', 'tag1');
+      expect(mockElectronAPI.addTagToTask).toHaveBeenCalledWith(
+        'task1',
+        'tag1',
+      );
+    });
+
+    it('should remove tag from task', async () => {
+      await service.removeTagFromTask('task1', 'tag1');
+      expect(mockElectronAPI.removeTagFromTask).toHaveBeenCalledWith(
+        'task1',
+        'tag1',
+      );
+    });
+  });
+
+  describe('Audit Logs', () => {
+    it('should get all audit logs', async () => {
+      const result = await service.getAuditLogs();
+      expect(mockElectronAPI.getAuditLogs).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+      );
+      expect(result).toEqual([]);
+    });
+
+    it('should get audit logs by entity type', async () => {
+      const result = await service.getAuditLogs('Project');
+      expect(mockElectronAPI.getAuditLogs).toHaveBeenCalledWith(
+        'Project',
+        undefined,
+      );
+      expect(result).toEqual([]);
+    });
+
+    it('should get audit logs by entity type and id', async () => {
+      const result = await service.getAuditLogs('Project', 'p1');
+      expect(mockElectronAPI.getAuditLogs).toHaveBeenCalledWith(
+        'Project',
+        'p1',
+      );
+      expect(result).toEqual([]);
+    });
+  });
+
   describe('Error handling when electronAPI is not available', () => {
     beforeEach(() => {
       // Remove electronAPI to test error paths
@@ -354,6 +463,60 @@ describe('DatabaseService', () => {
       await expectAsync(
         service.createWorkPeriod(2025, 11, 160, 'November'),
       ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when canCloseProject and electronAPI is undefined', async () => {
+      await expectAsync(service.canCloseProject('1')).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when closeProject and electronAPI is undefined', async () => {
+      await expectAsync(service.closeProject('1')).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when reopenProject and electronAPI is undefined', async () => {
+      await expectAsync(service.reopenProject('1')).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when getTags and electronAPI is undefined', async () => {
+      await expectAsync(service.getTags()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when createTag and electronAPI is undefined', async () => {
+      await expectAsync(service.createTag('Bug')).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when deleteTag and electronAPI is undefined', async () => {
+      await expectAsync(service.deleteTag('t1')).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when addTagToTask and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.addTagToTask('task1', 'tag1'),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when removeTagFromTask and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.removeTagFromTask('task1', 'tag1'),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when getAuditLogs and electronAPI is undefined', async () => {
+      await expectAsync(service.getAuditLogs()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
     });
   });
 });

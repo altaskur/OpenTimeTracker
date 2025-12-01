@@ -7,6 +7,13 @@ export const routes: Routes = [
       import('./pages/open-home/open-home').then((m) => m.OpenHome),
   },
   {
+    path: 'calendar',
+    loadComponent: () =>
+      import('./pages/open-calendar-page/open-calendar-page').then(
+        (m) => m.OpenCalendarPage,
+      ),
+  },
+  {
     path: 'projects',
     loadComponent: () =>
       import('./pages/open-projects/open-projects').then((m) => m.OpenProjects),

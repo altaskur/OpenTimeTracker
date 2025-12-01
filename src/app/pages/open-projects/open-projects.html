@@ -1,87 +1,53 @@
 <app-open-layout>
   <p-toast />
-
-  <p-card>
-    <ng-template pTemplate="header">
-      <header class="projects-header">
-        <h2 class="projects-header__title">
-          {{ "projects.title" | translate }}
-        </h2>
-        <div class="projects-header__actions">
-          <p-iconfield class="projects-header__search">
-            <p-inputicon styleClass="pi pi-search" />
-            <input
-              type="text"
-              pInputText
-              [ngModel]="searchTerm()"
-              (ngModelChange)="searchTerm.set($event)"
-              [placeholder]="'projects.search' | translate"
-            />
-          </p-iconfield>
-          <p-button
-            [label]="'projects.new' | translate"
-            icon="pi pi-plus"
-            (onClick)="openNewDialog()"
+  <ng-template pTemplate="header">
+    <header class="projects-header">
+      <h2 class="projects-header__title">
+        {{ "projects.title" | translate }}
+      </h2>
+      <div class="projects-header__actions">
+        <p-iconfield class="projects-header__search">
+          <p-inputicon styleClass="pi pi-search" />
+          <input
+            type="text"
+            pInputText
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            [placeholder]="'projects.search' | translate"
           />
-        </div>
-      </header>
-    </ng-template>
+        </p-iconfield>
+        <p-button
+          [label]="'projects.new' | translate"
+          icon="pi pi-plus"
+          (onClick)="openNewDialog()"
+        />
+      </div>
+    </header>
+  </ng-template>
 
-    <p-table [value]="filteredProjects()" [loading]="loading()">
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col">{{ "table.name" | translate }}</th>
-          <th scope="col">{{ "table.description" | translate }}</th>
-          <th scope="col">{{ "table.createdAt" | translate }}</th>
-          <th scope="col" class="projects-table__actions-col">
-            {{ "table.actions" | translate }}
-          </th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-project>
-        <tr>
-          <td>
-            <span class="projects-table__project-name">{{ project.name }}</span>
-          </td>
-          <td>
-            @if (project.description) {
-              <span class="projects-table__project-description">{{
-                project.description
-              }}</span>
-            } @else {
-              <span class="projects-table__no-data">{{
-                "table.noData" | translate
-              }}</span>
-            }
-          </td>
-          <td>{{ project.createdAt | date: "dd/MM/yyyy" }}</td>
-          <td>
-            <p-button
-              icon="pi pi-pencil"
-              [text]="true"
-              severity="secondary"
-              (onClick)="openEditDialog(project)"
-              [pTooltip]="'common.edit' | translate"
-            />
-            <p-button
-              icon="pi pi-trash"
-              [text]="true"
-              severity="danger"
-              (onClick)="confirmDeleteProject(project)"
-              [pTooltip]="'common.delete' | translate"
-            />
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="4" class="projects-table__empty">
-            {{ "projects.empty" | translate }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </p-card>
+  <h3 class="projects-section-title">{{ "projects.open" | translate }}</h3>
+  <app-project-table
+    [projects]="filteredOpenProjects()"
+    [loading]="loading()"
+    [emptyMessage]="'projects.emptyOpen'"
+    [showClosed]="false"
+    (editProject)="openEditDialog($event)"
+    (deleteProject)="confirmDeleteProject($event)"
+    (closeProject)="closeProject($event)"
+  />
+
+  <h3 class="projects-section-title projects-section-title--closed">
+    {{ "projects.closed" | translate }}
+  </h3>
+  <app-project-table
+    [projects]="filteredClosedProjects()"
+    [loading]="loading()"
+    [emptyMessage]="'projects.emptyClosed'"
+    [showClosed]="true"
+    (editProject)="openEditDialog($event)"
+    (deleteProject)="confirmDeleteProject($event)"
+    (reopenProject)="reopenProject($event)"
+  />
 
   <p-dialog
     [header]="'projects.dialog.title' | translate"

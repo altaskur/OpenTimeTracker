@@ -6,8 +6,21 @@ export interface Project {
   id: string;
   name: string;
   description: string | null;
+  isClosed: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface AuditLog {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  changes: string | null;
+  userName: string | null;
+  createdAt: Date;
+  projectId: string | null;
+  taskId: string | null;
 }
 
 export interface TaskStatus {
@@ -81,6 +94,15 @@ declare global {
         description?: string,
       ) => Promise<Project>;
       deleteProject: (id: string) => Promise<DeleteResult>;
+      closeProject: (id: string) => Promise<Project>;
+      reopenProject: (id: string) => Promise<Project>;
+      canCloseProject: (id: string) => Promise<boolean>;
+
+      // Audit Logs
+      getAuditLogs: (
+        entityType?: string,
+        entityId?: string,
+      ) => Promise<AuditLog[]>;
 
       // Tasks
       getTasks: (projectId?: string) => Promise<Task[]>;

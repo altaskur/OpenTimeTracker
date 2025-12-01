@@ -20,6 +20,7 @@ describe('OpenTasks', () => {
       id: '1',
       name: 'Project 1',
       description: 'Desc 1',
+      isClosed: false,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     },
@@ -27,6 +28,7 @@ describe('OpenTasks', () => {
       id: '2',
       name: 'Project 2',
       description: 'Desc 2',
+      isClosed: false,
       createdAt: new Date('2024-01-02'),
       updatedAt: new Date('2024-01-02'),
     },
@@ -162,19 +164,19 @@ describe('OpenTasks', () => {
     });
   });
 
-  describe('filteredTasks', () => {
-    it('should return all tasks when no filter is set', async () => {
+  describe('filteredPendingTasks', () => {
+    it('should return all pending tasks when no filter is set', async () => {
       await component.loadData();
       component.selectedProjectFilter.set(null);
 
-      expect(component.filteredTasks().length).toBe(2);
+      expect(component.filteredPendingTasks().length).toBe(2);
     });
 
-    it('should filter tasks by project', async () => {
+    it('should filter pending tasks by project', async () => {
       await component.loadData();
       component.selectedProjectFilter.set('1');
 
-      const filtered = component.filteredTasks();
+      const filtered = component.filteredPendingTasks();
       expect(filtered.length).toBe(1);
       expect(filtered[0].projectId).toBe('1');
     });

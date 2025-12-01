@@ -15,10 +15,12 @@ describe('OpenProjects', () => {
     id: string,
     name: string,
     description: string | null = null,
+    isClosed = false,
   ): Project => ({
     id,
     name,
     description,
+    isClosed,
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
   });
@@ -29,6 +31,9 @@ describe('OpenProjects', () => {
       'createProject',
       'updateProject',
       'deleteProject',
+      'canCloseProject',
+      'closeProject',
+      'reopenProject',
     ]);
 
     await TestBed.configureTestingModule({
@@ -223,5 +228,160 @@ describe('OpenProjects', () => {
 
     expect(mockDatabaseService.deleteProject).not.toHaveBeenCalled();
     expect(component.deleteDialogVisible()).toBe(false);
+  });
+
+  describe('Close/Reopen Project', () => {
+    it('should close project when all tasks are completed', async () => {
+      const project = createMockProject('1', 'Test Project');
+      mockDatabaseService.canCloseProject.and.returnValue(
+        Promise.resolve(true),
+      );
+      mockDatabaseService.closeProject.and.returnValue(
+        Promise.resolve({ ...project, isClosed: true }),
+      );
+      mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
+
+      await component.closeProject(project);
+
+      expect(mockDatabaseService.canCloseProject).toHaveBeenCalledWith('1');
+      expect(mockDatabaseService.closeProject).toHaveBeenCalledWith('1');
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'success' }),
+      );
+    });
+
+    it('should show error when project cannot be closed', async () => {
+      const project = createMockProject('1', 'Test Project');
+      mockDatabaseService.canCloseProject.and.returnValue(
+        Promise.resolve(false),
+      );
+
+      await component.closeProject(project);
+
+      expect(mockDatabaseService.closeProject).not.toHaveBeenCalled();
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'error' }),
+      );
+    });
+
+    it('should handle error when closing project fails', async () => {
+      const project = createMockProject('1', 'Test Project');
+      mockDatabaseService.canCloseProject.and.returnValue(
+        Promise.reject(new Error('Close error')),
+      );
+
+      await component.closeProject(project);
+
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'error' }),
+      );
+    });
+
+    it('should reopen a closed project', async () => {
+      const project = createMockProject('1', 'Test Project', null, true);
+      mockDatabaseService.reopenProject.and.returnValue(
+        Promise.resolve({ ...project, isClosed: false }),
+      );
+      mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
+
+      await component.reopenProject(project);
+
+      expect(mockDatabaseService.reopenProject).toHaveBeenCalledWith('1');
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'success' }),
+      );
+    });
+
+    it('should handle error when reopening project fails', async () => {
+      const project = createMockProject('1', 'Test Project', null, true);
+      mockDatabaseService.reopenProject.and.returnValue(
+        Promise.reject(new Error('Reopen error')),
+      );
+
+      await component.reopenProject(project);
+
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'error' }),
+      );
+    });
+  });
+
+  describe('Filtered Projects', () => {
+    beforeEach(() => {
+      const projects = [
+        createMockProject('1', 'Active Project', 'Description A', false),
+        createMockProject('2', 'Closed Project', 'Description B', true),
+        createMockProject('3', 'Another Active', null, false),
+        createMockProject('4', 'Another Closed', 'Searchable', true),
+      ];
+      component.projects.set(projects);
+    });
+
+    it('should filter open projects', () => {
+      const openProjects = component.filteredOpenProjects();
+      expect(openProjects.length).toBe(2);
+      expect(openProjects.every((p) => !p.isClosed)).toBe(true);
+    });
+
+    it('should filter closed projects', () => {
+      const closedProjects = component.filteredClosedProjects();
+      expect(closedProjects.length).toBe(2);
+      expect(closedProjects.every((p) => p.isClosed)).toBe(true);
+    });
+
+    it('should filter open projects by search term in name', () => {
+      component.searchTerm.set('Active Project');
+      const filtered = component.filteredOpenProjects();
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].name).toBe('Active Project');
+    });
+
+    it('should filter open projects by search term in description', () => {
+      component.searchTerm.set('Description A');
+      const filtered = component.filteredOpenProjects();
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].id).toBe('1');
+    });
+
+    it('should filter closed projects by search term', () => {
+      component.searchTerm.set('Searchable');
+      const filtered = component.filteredClosedProjects();
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].id).toBe('4');
+    });
+
+    it('should return all open projects when search term is empty', () => {
+      component.searchTerm.set('   ');
+      const filtered = component.filteredOpenProjects();
+      expect(filtered.length).toBe(2);
+    });
+
+    it('should return all closed projects when search term is empty', () => {
+      component.searchTerm.set('');
+      const filtered = component.filteredClosedProjects();
+      expect(filtered.length).toBe(2);
+    });
+
+    it('should be case insensitive when filtering', () => {
+      component.searchTerm.set('DESCRIPTION A');
+      const filtered = component.filteredOpenProjects();
+      expect(filtered.length).toBe(1);
+    });
+  });
+
+  describe('Delete Project Error Handling', () => {
+    it('should show error toast when delete fails', async () => {
+      const project = createMockProject('1', 'Test');
+      mockDatabaseService.deleteProject.and.returnValue(
+        Promise.reject(new Error('Delete error')),
+      );
+
+      component.projectToDelete.set(project);
+      await component.onDeleteConfirmed();
+
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'error' }),
+      );
+    });
   });
 });
