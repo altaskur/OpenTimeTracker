@@ -15,6 +15,9 @@ jest.mock('electron', () => ({
   BrowserWindow: {
     fromWebContents: jest.fn(),
   },
+  app: {
+    getLocale: jest.fn().mockReturnValue('es-ES'),
+  },
 }));
 
 describe('Language Handlers', () => {

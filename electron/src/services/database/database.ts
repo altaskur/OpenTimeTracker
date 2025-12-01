@@ -146,6 +146,11 @@ export class DatabaseManager {
       include: {
         status: true,
         project: true,
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -157,6 +162,7 @@ export class DatabaseManager {
     description?: string,
     estimatedHours?: number,
     statusId?: string,
+    tagIds?: string[],
   ) {
     await this.ensureInitialized();
     return this.prisma.task.create({
@@ -166,6 +172,19 @@ export class DatabaseManager {
         description,
         estimatedHours,
         statusId,
+        ...(tagIds &&
+          tagIds.length > 0 && {
+            tags: {
+              create: tagIds.map((tagId) => ({ tagId })),
+            },
+          }),
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
   }
@@ -179,6 +198,7 @@ export class DatabaseManager {
           description?: string;
           estimatedHours?: number;
           statusId?: string;
+          tagIds?: string[];
         },
     description?: string,
     estimatedHours?: number,
@@ -196,6 +216,9 @@ export class DatabaseManager {
           }
         : dataOrName || {};
 
+    const tagIds =
+      typeof dataOrName === 'object' ? dataOrName?.tagIds : undefined;
+
     return this.prisma.task.update({
       where: { id },
       data: {
@@ -207,6 +230,19 @@ export class DatabaseManager {
           estimatedHours: data.estimatedHours,
         }),
         ...(data.statusId !== undefined && { statusId: data.statusId }),
+        ...(tagIds !== undefined && {
+          tags: {
+            deleteMany: {},
+            create: tagIds.map((tagId) => ({ tagId })),
+          },
+        }),
+      },
+      include: {
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
       },
     });
   }
@@ -324,6 +360,45 @@ export class DatabaseManager {
         month,
         plannedHours,
         note,
+      },
+    });
+  }
+
+  // ==================== TAGS ====================
+
+  public async getTags() {
+    await this.ensureInitialized();
+    return this.prisma.tag.findMany({
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  public async createTag(name: string) {
+    await this.ensureInitialized();
+    return this.prisma.tag.create({
+      data: { name },
+    });
+  }
+
+  public async deleteTag(id: string) {
+    await this.ensureInitialized();
+    return this.prisma.tag.delete({
+      where: { id },
+    });
+  }
+
+  public async addTagToTask(taskId: string, tagId: string) {
+    await this.ensureInitialized();
+    return this.prisma.taskTag.create({
+      data: { taskId, tagId },
+    });
+  }
+
+  public async removeTagFromTask(taskId: string, tagId: string) {
+    await this.ensureInitialized();
+    return this.prisma.taskTag.delete({
+      where: {
+        taskId_tagId: { taskId, tagId },
       },
     });
   }

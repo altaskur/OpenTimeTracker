@@ -1,89 +1,137 @@
 .welcome-header {
-    text-align: center;
-    margin-bottom: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
 
-    h1 {
-        margin: 0 0 0.5rem;
-        font-size: 2rem;
-    }
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
 
-    p {
-        margin: 0 0 1.5rem;
-        opacity: 0.8;
-    }
+  p {
+    margin: 0 0 1.5rem;
+    opacity: 0.8;
+  }
 }
 
 .navigation {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: center;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .tasks-section {
-    margin-top: 2rem;
+  margin-top: 2rem;
 
-    h2 {
-        margin: 0 0 1rem;
-        font-size: 1.25rem;
-    }
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+  }
 }
 
 .loading-text {
-    text-align: center;
-    opacity: 0.7;
+  text-align: center;
+  opacity: 0.7;
 }
 
 .empty-state {
-    .empty-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 2rem;
-        text-align: center;
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    text-align: center;
 
-        i {
-            font-size: 3rem;
-            opacity: 0.5;
-        }
-
-        p {
-            margin: 0;
-            opacity: 0.7;
-        }
+    i {
+      font-size: 3rem;
+      opacity: 0.5;
     }
+
+    p {
+      margin: 0;
+      opacity: 0.7;
+    }
+  }
 }
 
 .tasks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  > li {
+    display: flex;
+  }
 }
 
 .task-card {
-    .project-name {
-        display: block;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        opacity: 0.6;
-        margin-bottom: 0.25rem;
-    }
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 
-    .task-name {
-        margin: 0 0 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-    }
+  ::ng-deep .p-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .task-description {
-        margin: 0;
-        font-size: 0.875rem;
-        opacity: 0.8;
-        line-height: 1.4;
-    }
+  ::ng-deep .p-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::ng-deep .p-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-name {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    margin-bottom: 0.25rem;
+  }
+
+  .task-name {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .task-description {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.8;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .task-footer {
+    margin-top: auto;
+    padding-top: 0.75rem;
+  }
+
+  .task-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .task-hours {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--p-text-muted-color);
+    padding: 0.25rem 0.5rem;
+    background: var(--p-surface-100);
+    border-radius: var(--p-border-radius-sm);
+  }
 }

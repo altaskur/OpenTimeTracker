@@ -2,6 +2,27 @@ import { ipcMain } from 'electron';
 import { DatabaseManager } from '../database/database';
 
 /**
+ * Task update data interface for IPC communication.
+ */
+interface TaskUpdateData {
+  name?: string;
+  description?: string;
+  estimatedHours?: number;
+  statusId?: string;
+  tagIds?: string[];
+}
+
+/**
+ * Time entry update data interface for IPC communication.
+ */
+interface TimeEntryUpdateData {
+  date?: string;
+  hours?: number;
+  taskId?: string;
+  notes?: string;
+}
+
+/**
  * Sets up database-related IPC handlers
  */
 export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
@@ -18,7 +39,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
 
   ipcMain.handle(
     'create-project',
-    async (event, name: string, description?: string) => {
+    async (_event, name: string, description?: string) => {
       try {
         return await dbManager.createProject(name, description);
       } catch (error) {
@@ -30,7 +51,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
 
   ipcMain.handle(
     'update-project',
-    async (event, id: string, name: string, description?: string) => {
+    async (_event, id: string, name: string, description?: string) => {
       try {
         return await dbManager.updateProject(id, name, description);
       } catch (error) {
@@ -40,7 +61,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
     },
   );
 
-  ipcMain.handle('delete-project', async (event, id: string) => {
+  ipcMain.handle('delete-project', async (_event, id: string) => {
     try {
       return await dbManager.deleteProject(id);
     } catch (error) {
@@ -51,7 +72,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
 
   // ==================== TASKS ====================
 
-  ipcMain.handle('get-tasks', async (event, projectId?: string) => {
+  ipcMain.handle('get-tasks', async (_event, projectId?: string) => {
     try {
       return await dbManager.getTasks(projectId);
     } catch (error) {
@@ -63,12 +84,13 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
   ipcMain.handle(
     'create-task',
     async (
-      event,
+      _event,
       projectId: string,
       name: string,
       description?: string,
       estimatedHours?: number,
       statusId?: string,
+      tagIds?: string[],
     ) => {
       try {
         return await dbManager.createTask(
@@ -77,6 +99,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
           description,
           estimatedHours,
           statusId,
+          tagIds,
         );
       } catch (error) {
         console.error('Error creating task:', error);
@@ -85,16 +108,19 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
     },
   );
 
-  ipcMain.handle('update-task', async (event, id: string, data: any) => {
-    try {
-      return await dbManager.updateTask(id, data);
-    } catch (error) {
-      console.error('Error updating task:', error);
-      throw error;
-    }
-  });
+  ipcMain.handle(
+    'update-task',
+    async (_event, id: string, data: TaskUpdateData) => {
+      try {
+        return await dbManager.updateTask(id, data);
+      } catch (error) {
+        console.error('Error updating task:', error);
+        throw error;
+      }
+    },
+  );
 
-  ipcMain.handle('delete-task', async (event, id: string) => {
+  ipcMain.handle('delete-task', async (_event, id: string) => {
     try {
       return await dbManager.deleteTask(id);
     } catch (error) {
@@ -116,7 +142,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
 
   // ==================== TIME ENTRIES ====================
 
-  ipcMain.handle('get-time-entries', async (event, taskId?: string) => {
+  ipcMain.handle('get-time-entries', async (_event, taskId?: string) => {
     try {
       return await dbManager.getTimeEntries(taskId);
     } catch (error) {
@@ -137,7 +163,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
   ipcMain.handle(
     'create-time-entry',
     async (
-      event,
+      _event,
       date: string,
       hours: number,
       taskId?: string,
@@ -152,16 +178,19 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
     },
   );
 
-  ipcMain.handle('update-time-entry', async (event, id: string, data: any) => {
-    try {
-      return await dbManager.updateTimeEntry(id, data);
-    } catch (error) {
-      console.error('Error updating time entry:', error);
-      throw error;
-    }
-  });
+  ipcMain.handle(
+    'update-time-entry',
+    async (_event, id: string, data: TimeEntryUpdateData) => {
+      try {
+        return await dbManager.updateTimeEntry(id, data);
+      } catch (error) {
+        console.error('Error updating time entry:', error);
+        throw error;
+      }
+    },
+  );
 
-  ipcMain.handle('delete-time-entry', async (event, id: string) => {
+  ipcMain.handle('delete-time-entry', async (_event, id: string) => {
     try {
       return await dbManager.deleteTimeEntry(id);
     } catch (error) {
@@ -184,7 +213,7 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
   ipcMain.handle(
     'create-work-period',
     async (
-      event,
+      _event,
       year: number,
       month: number,
       plannedHours: number,
@@ -199,6 +228,59 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
         );
       } catch (error) {
         console.error('Error creating work period:', error);
+        throw error;
+      }
+    },
+  );
+
+  // ==================== TAGS ====================
+
+  ipcMain.handle('get-tags', async () => {
+    try {
+      return await dbManager.getTags();
+    } catch (error) {
+      console.error('Error getting tags:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('create-tag', async (_event, name: string) => {
+    try {
+      return await dbManager.createTag(name);
+    } catch (error) {
+      console.error('Error creating tag:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('delete-tag', async (_event, id: string) => {
+    try {
+      return await dbManager.deleteTag(id);
+    } catch (error) {
+      console.error('Error deleting tag:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(
+    'add-tag-to-task',
+    async (_event, taskId: string, tagId: string) => {
+      try {
+        return await dbManager.addTagToTask(taskId, tagId);
+      } catch (error) {
+        console.error('Error adding tag to task:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'remove-tag-from-task',
+    async (_event, taskId: string, tagId: string) => {
+      try {
+        return await dbManager.removeTagFromTask(taskId, tagId);
+      } catch (error) {
+        console.error('Error removing tag from task:', error);
         throw error;
       }
     },

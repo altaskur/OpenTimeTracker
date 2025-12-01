@@ -2,8 +2,8 @@
   "menu": {
     "start": "Start",
     "home": "Home",
-    "remainingTime": "Remaining Time",
     "projects": "Projects",
+    "tasks": "Tasks",
     "themeToggle": "Light/Dark Mode",
     "exit": "Exit",
     "help": "Help",
@@ -21,18 +21,34 @@
     "empty": "No pending tasks",
     "noProject": "No project"
   },
-  "remainingTime": {
-    "title": "Remaining Time",
-    "totalHours": "Total Hours",
-    "empty": "No time entries recorded"
-  },
   "projects": {
     "title": "Projects",
     "new": "New Project",
+    "empty": "No projects registered",
+    "search": "Search projects...",
     "dialog": {
       "title": "Project",
       "namePlaceholder": "Name*",
       "descriptionPlaceholder": "Description"
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "new": "New Task",
+    "empty": "No tasks registered",
+    "filterByProject": "Filter by project",
+    "dialog": {
+      "title": "Task",
+      "namePlaceholder": "Name*",
+      "descriptionPlaceholder": "Description",
+      "projectPlaceholder": "Project*",
+      "statusPlaceholder": "Status",
+      "estimatedHoursPlaceholder": "Estimated Hours",
+      "tagsPlaceholder": "Tags",
+      "selectProject": "Select project",
+      "selectStatus": "Select status",
+      "selectTags": "Select tags",
+      "newTagPlaceholder": "New tag..."
     }
   },
   "table": {
@@ -46,7 +62,10 @@
     "createdAt": "Created Date",
     "actions": "Actions",
     "unassigned": "Unassigned",
-    "noData": "-"
+    "noData": "-",
+    "status": "Status",
+    "estimatedHours": "Est. Hours",
+    "tags": "Tags"
   },
   "common": {
     "cancel": "Cancel",
@@ -55,10 +74,27 @@
     "edit": "Edit",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "success": "Success",
+    "error": "Error"
+  },
+  "toast": {
+    "projectCreated": "Project created successfully",
+    "projectUpdated": "Project updated successfully",
+    "projectDeleted": "Project deleted successfully",
+    "taskCreated": "Task created successfully",
+    "taskUpdated": "Task updated successfully",
+    "taskDeleted": "Task deleted successfully",
+    "tagCreated": "Tag created successfully",
+    "tagDeleted": "Tag deleted successfully",
+    "error": "An error occurred",
+    "success": "Operation successful"
   },
   "dialogs": {
+    "confirmDelete": "Confirm deletion",
     "deleteProject": "Are you sure you want to delete this project?",
+    "deleteTask": "Are you sure you want to delete this task?",
+    "deleteTag": "Are you sure you want to delete this tag? It will be removed from all tasks.",
     "about": {
       "version": "Version",
       "description": "Time tracking system for projects and tasks.",
@@ -69,8 +105,8 @@
       "title": "Available Keyboard Shortcuts",
       "navigation": "Navigation",
       "goToHome": "Go to Home",
-      "goToRemainingTime": "Go to Remaining Time",
       "goToProjects": "Go to Projects",
+      "goToTasks": "Go to Tasks",
       "toggleTheme": "Light/Dark Mode"
     }
   }

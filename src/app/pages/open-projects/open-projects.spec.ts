@@ -1,12 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MessageService } from 'primeng/api';
 import { OpenProjects } from './open-projects';
-import { DatabaseService } from '../../services/database.service';
+import { DatabaseService } from '../../services';
 import { provideTranslateTestingModule } from '../../testing/test-utils';
+import { Project } from '../../../types/electron';
 
 describe('OpenProjects', () => {
   let component: OpenProjects;
   let fixture: ComponentFixture<OpenProjects>;
   let mockDatabaseService: jasmine.SpyObj<DatabaseService>;
+  let mockMessageService: jasmine.SpyObj<MessageService>;
+
+  const createMockProject = (
+    id: string,
+    name: string,
+    description: string | null = null,
+  ): Project => ({
+    id,
+    name,
+    description,
+    createdAt: new Date('2025-01-01'),
+    updatedAt: new Date('2025-01-01'),
+  });
 
   beforeEach(async () => {
     mockDatabaseService = jasmine.createSpyObj('DatabaseService', [
@@ -20,12 +35,18 @@ describe('OpenProjects', () => {
       imports: [OpenProjects],
       providers: [
         { provide: DatabaseService, useValue: mockDatabaseService },
+        MessageService,
         ...provideTranslateTestingModule(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OpenProjects);
     component = fixture.componentInstance;
+
+    const messageService = fixture.debugElement.injector.get(MessageService);
+    spyOn(messageService, 'add');
+    mockMessageService =
+      messageService as unknown as jasmine.SpyObj<MessageService>;
   });
 
   it('should create', () => {
@@ -33,14 +54,7 @@ describe('OpenProjects', () => {
   });
 
   it('should load projects on init', async () => {
-    const mockProjects = [
-      {
-        id: '1',
-        name: 'Project 1',
-        description: 'Desc 1',
-        created_at: '2025-01-01',
-      },
-    ];
+    const mockProjects = [createMockProject('1', 'Project 1', 'Desc 1')];
     mockDatabaseService.getProjects.and.returnValue(
       Promise.resolve(mockProjects),
     );
@@ -83,12 +97,7 @@ describe('OpenProjects', () => {
   });
 
   it('should open edit dialog with project data', () => {
-    const project = {
-      id: '1',
-      name: 'Test Project',
-      description: 'Test Description',
-      created_at: '2025-01-01',
-    };
+    const project = createMockProject('1', 'Test Project', 'Test Description');
 
     component.openEditDialog(project);
 
@@ -101,25 +110,15 @@ describe('OpenProjects', () => {
   });
 
   it('should open edit dialog with empty description if not provided', () => {
-    const project = {
-      id: '1',
-      name: 'Test Project',
-      description: undefined,
-      created_at: '2025-01-01',
-    };
+    const project = createMockProject('1', 'Test Project', null);
 
-    component.openEditDialog(project);
+    component.openEditDialog(project as Project);
 
     expect(component.projectForm.description).toBe('');
   });
 
   it('should create new project when id is empty', async () => {
-    const mockProject = {
-      id: 'new-id',
-      name: 'New Project',
-      description: 'New Desc',
-      created_at: '2025-01-01',
-    };
+    const mockProject = createMockProject('new-id', 'New Project', 'New Desc');
     mockDatabaseService.createProject.and.returnValue(
       Promise.resolve(mockProject),
     );
@@ -141,12 +140,7 @@ describe('OpenProjects', () => {
   });
 
   it('should update existing project when id is provided', async () => {
-    const mockProject = {
-      id: '1',
-      name: 'Updated',
-      description: 'Updated Desc',
-      created_at: '2025-01-01',
-    };
+    const mockProject = createMockProject('1', 'Updated', 'Updated Desc');
     mockDatabaseService.updateProject.and.returnValue(
       Promise.resolve(mockProject),
     );
@@ -168,47 +162,66 @@ describe('OpenProjects', () => {
     expect(mockDatabaseService.getProjects).toHaveBeenCalled();
   });
 
-  it('should handle error when saving project', async () => {
+  it('should show error toast when saving project fails', async () => {
     mockDatabaseService.createProject.and.returnValue(
       Promise.reject(new Error('Save error')),
     );
 
     component.projectForm = { id: '', name: 'New', description: '' };
-    await expectAsync(component.saveProject()).toBeRejectedWithError(
-      'Save error',
+    await component.saveProject();
+
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      jasmine.objectContaining({ severity: 'error' }),
     );
   });
 
-  it('should delete project after confirmation', async () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+  it('should open delete confirmation dialog', () => {
+    const project = createMockProject('1', 'Test Project', 'Test Description');
+
+    component.confirmDeleteProject(project);
+
+    expect(component.deleteDialogVisible()).toBe(true);
+    expect(component.projectToDelete()).toEqual(project);
+  });
+
+  it('should delete project on confirmation', async () => {
+    const project = createMockProject('1', 'Test Project', 'Test Description');
     mockDatabaseService.deleteProject.and.returnValue(
       Promise.resolve({ success: true }),
     );
     mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
 
-    await component.deleteProject('1');
+    component.projectToDelete.set(project);
+    component.deleteDialogVisible.set(true);
 
-    expect(window.confirm).toHaveBeenCalledWith('dialogs.deleteProject');
+    await component.onDeleteConfirmed();
+
     expect(mockDatabaseService.deleteProject).toHaveBeenCalledWith('1');
     expect(mockDatabaseService.getProjects).toHaveBeenCalled();
+    expect(component.deleteDialogVisible()).toBe(false);
+    expect(component.projectToDelete()).toBeNull();
   });
 
-  it('should not delete project if user cancels confirmation', async () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+  it('should close dialog and reset state on cancel', () => {
+    const project = createMockProject('1', 'Test Project', 'Test Description');
 
-    await component.deleteProject('1');
+    component.projectToDelete.set(project);
+    component.deleteDialogVisible.set(true);
 
+    component.onDeleteCancelled();
+
+    expect(component.deleteDialogVisible()).toBe(false);
+    expect(component.projectToDelete()).toBeNull();
     expect(mockDatabaseService.deleteProject).not.toHaveBeenCalled();
   });
 
-  it('should handle error when deleting project', async () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    mockDatabaseService.deleteProject.and.returnValue(
-      Promise.reject(new Error('Delete error')),
-    );
+  it('should not delete if no project selected', async () => {
+    component.projectToDelete.set(null);
+    mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
 
-    await expectAsync(component.deleteProject('1')).toBeRejectedWithError(
-      'Delete error',
-    );
+    await component.onDeleteConfirmed();
+
+    expect(mockDatabaseService.deleteProject).not.toHaveBeenCalled();
+    expect(component.deleteDialogVisible()).toBe(false);
   });
 });

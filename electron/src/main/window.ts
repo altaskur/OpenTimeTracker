@@ -26,7 +26,7 @@ export class WindowManager {
     });
 
     await this.loadApplication();
-    this.setupMenu();
+    await this.setupMenu();
     this.setupDevTools();
     this.setupEventListeners();
   }
@@ -43,7 +43,7 @@ export class WindowManager {
       'dist',
       'OpenTimeTracker',
       'browser',
-      'index.html'
+      'index.html',
     );
 
     console.log('Loading index.html from:', indexPath);
@@ -62,10 +62,10 @@ export class WindowManager {
   /**
    * Sets up the application menu
    */
-  private setupMenu(): void {
+  private async setupMenu(): Promise<void> {
     if (this.mainWindow) {
       this.menuManager = new MenuManager(this.mainWindow);
-      this.menuManager.setupMenu();
+      await this.menuManager.setupMenu();
       console.log('Menu configured successfully');
     }
   }

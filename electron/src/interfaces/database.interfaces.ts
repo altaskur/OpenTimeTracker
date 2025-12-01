@@ -1,13 +1,14 @@
 /**
  * Database model interfaces for type-safe IPC communication.
- * These types mirror the Prisma schema and are shared with the renderer process.
+ * These types mirror the Prisma schema with camelCase naming convention.
  */
 
 export interface Project {
   id: string;
   name: string;
   description: string | null;
-  created_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface TaskStatus {
@@ -17,34 +18,47 @@ export interface TaskStatus {
 
 export interface Task {
   id: string;
-  project_id: string;
+  projectId: string;
   name: string;
   description: string | null;
-  estimated_hours: number | null;
-  status_id: string;
-  created_at: Date;
-  status_name?: string;
-  project_name?: string;
+  estimatedHours: number | null;
+  statusId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  project?: Project;
+  status?: TaskStatus | null;
+  tags?: { tag: Tag }[];
 }
 
 export interface TimeEntry {
   id: string;
-  task_id: string | null;
-  date: Date;
+  taskId: string | null;
+  date: string;
   hours: number;
   notes: string | null;
-  created_at: Date;
-  task_name?: string;
-  project_name?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  task?: Task;
 }
 
 export interface WorkPeriod {
   id: string;
   year: number;
   month: number;
-  planned_hours: number;
+  plannedHours: number;
   note: string | null;
-  created_at: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+}
+
+export interface TaskTag {
+  taskId: string;
+  tagId: string;
 }
 
 export interface DeleteResult {

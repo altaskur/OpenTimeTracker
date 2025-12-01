@@ -2,6 +2,7 @@ import { DatabaseManager } from './database';
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Project, WorkPeriod, TaskStatus } from '../../interfaces';
 
 const TEST_DB_PATH = path.join(
   __dirname,
@@ -195,13 +196,6 @@ describe('DatabaseManager', () => {
       await dbManager.createProject('My Project', 'My Description');
       const projects = await dbManager.getProjects();
       expect(projects.length).toBeGreaterThan(0);
-      interface Project {
-        id: string;
-        name: string;
-        description?: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-      }
       const project = projects.find((p: Project) => p.name === 'My Project');
       expect(project).toBeDefined();
       expect(project?.description).toBe('My Description');
@@ -223,13 +217,6 @@ describe('DatabaseManager', () => {
       expect(result.description).toBe('Updated Desc');
 
       const projects = await dbManager.getProjects();
-      interface Project {
-        id: string;
-        name: string;
-        description?: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-      }
       const updated = projects.find((p: Project) => p.id === projectId);
       expect(updated?.name).toBe('Updated Name');
       expect(updated?.description).toBe('Updated Desc');
@@ -243,13 +230,6 @@ describe('DatabaseManager', () => {
       expect(result.id).toBe(projectId);
 
       const remaining = await dbManager.getProjects();
-      interface Project {
-        id: string;
-        name: string;
-        description?: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-      }
       const deleted: Project | undefined = remaining.find(
         (p: Project) => p.id === projectId,
       );
@@ -374,10 +354,6 @@ describe('DatabaseManager', () => {
 
     it('should have default statuses', async () => {
       const statuses = await dbManager.getTaskStatuses();
-      interface TaskStatus {
-        id: string;
-        name: string;
-      }
       const statusNames = statuses.map((s: TaskStatus) => s.name);
       expect(statusNames).toContain('Pendiente');
       expect(statusNames).toContain('En progreso');
@@ -527,15 +503,6 @@ describe('DatabaseManager', () => {
       await dbManager.createWorkPeriod(2025, 10, 160);
       const periods = await dbManager.getWorkPeriods();
       expect(periods.length).toBeGreaterThan(0);
-      interface WorkPeriod {
-        id: string;
-        year: number;
-        month: number;
-        plannedHours: number;
-        note?: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-      }
       const period = periods.find(
         (p: WorkPeriod) => p.year === 2025 && p.month === 10,
       );

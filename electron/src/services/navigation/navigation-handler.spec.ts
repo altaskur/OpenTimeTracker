@@ -1,5 +1,5 @@
 import { NavigationHandler } from './navigation-handler';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, Input } from 'electron';
 
 // Ensure we use Jest's expect for matchers like expect.any
 import { expect as jestExpect } from '@jest/globals';
@@ -8,8 +8,24 @@ jest.mock('electron', () => ({
   BrowserWindow: jest.fn(),
 }));
 
+/**
+ * Mock type for BrowserWindow webContents calls
+ */
+type WebContentsCall = [string, (...args: unknown[]) => void];
+
+/**
+ * Mock BrowserWindow structure for testing
+ */
+interface MockBrowserWindow {
+  webContents: {
+    on: jest.Mock;
+    loadURL: jest.Mock;
+  };
+  loadURL: jest.Mock;
+}
+
 describe('NavigationHandler', () => {
-  let mockWindow: any;
+  let mockWindow: MockBrowserWindow;
   let handler: NavigationHandler;
 
   beforeEach(() => {
@@ -27,35 +43,35 @@ describe('NavigationHandler', () => {
   });
 
   it('should create NavigationHandler instance', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     expect(handler).toBeDefined();
     expect(handler).toBeInstanceOf(NavigationHandler);
   });
 
   it('should have setupNavigationHandlers method', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     expect(typeof handler.setupNavigationHandlers).toBe('function');
   });
 
   it('should have loadIndex method', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     expect(typeof handler.loadIndex).toBe('function');
   });
 
   it('should have getIndexUrl method', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     expect(typeof handler.getIndexUrl).toBe('function');
   });
 
   it('should return index URL', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     const url = handler.getIndexUrl();
     expect(url).toContain('index.html');
     expect(url).toContain('file://');
   });
 
   it('should load index HTML', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.loadIndex();
     expect(mockWindow.loadURL).toHaveBeenCalled();
     const callArg = mockWindow.loadURL.mock.calls[0][0];
@@ -63,7 +79,7 @@ describe('NavigationHandler', () => {
   });
 
   it('should setup navigation handlers', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
     expect(mockWindow.webContents.on).toHaveBeenCalledWith(
       'will-navigate',
@@ -80,43 +96,46 @@ describe('NavigationHandler', () => {
   });
 
   it('should register will-navigate handler', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const calls = mockWindow.webContents.on.mock.calls;
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
     const willNavigateCall = calls.find(
-      (call: any) => call[0] === 'will-navigate',
+      (call: WebContentsCall) => call[0] === 'will-navigate',
     );
     expect(willNavigateCall).toBeDefined();
   });
 
   it('should register did-fail-load handler', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const calls = mockWindow.webContents.on.mock.calls;
-    const failLoadCall = calls.find((call: any) => call[0] === 'did-fail-load');
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
+    const failLoadCall = calls.find(
+      (call: WebContentsCall) => call[0] === 'did-fail-load',
+    );
     expect(failLoadCall).toBeDefined();
   });
 
   it('should register before-input-event handler', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const calls = mockWindow.webContents.on.mock.calls;
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
     const inputCall = calls.find(
-      (call: any) => call[0] === 'before-input-event',
+      (call: WebContentsCall) => call[0] === 'before-input-event',
     );
     expect(inputCall).toBeDefined();
   });
 
   it('should intercept navigation and redirect to index', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const willNavigateHandler = mockWindow.webContents.on.mock.calls.find(
-      (call: any) => call[0] === 'will-navigate',
-    )[1];
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
+    const willNavigateHandler = calls.find(
+      (call: WebContentsCall) => call[0] === 'will-navigate',
+    )![1];
 
     const mockEvent = { preventDefault: jest.fn() };
     const fileUrl = 'file:///some/path/dashboard';
@@ -128,12 +147,13 @@ describe('NavigationHandler', () => {
   });
 
   it('should not intercept navigation to index.html', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const willNavigateHandler = mockWindow.webContents.on.mock.calls.find(
-      (call: any) => call[0] === 'will-navigate',
-    )[1];
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
+    const willNavigateHandler = calls.find(
+      (call: WebContentsCall) => call[0] === 'will-navigate',
+    )![1];
 
     const mockEvent = { preventDefault: jest.fn() };
     const indexUrl = 'file:///some/path/index.html';
@@ -144,12 +164,13 @@ describe('NavigationHandler', () => {
   });
 
   it('should handle failed load with error code -6', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const failLoadHandler = mockWindow.webContents.on.mock.calls.find(
-      (call: any) => call[0] === 'did-fail-load',
-    )[1];
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
+    const failLoadHandler = calls.find(
+      (call: WebContentsCall) => call[0] === 'did-fail-load',
+    )![1];
 
     const mockEvent = {};
     const errorCode = -6;
@@ -161,15 +182,16 @@ describe('NavigationHandler', () => {
   });
 
   it('should intercept F5 reload', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const inputHandler = mockWindow.webContents.on.mock.calls.find(
-      (call: any) => call[0] === 'before-input-event',
-    )[1];
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
+    const inputHandler = calls.find(
+      (call: WebContentsCall) => call[0] === 'before-input-event',
+    )![1];
 
     const mockEvent = { preventDefault: jest.fn() };
-    const input = { type: 'keyDown', key: 'F5' };
+    const input: Partial<Input> = { type: 'keyDown', key: 'F5' };
 
     inputHandler(mockEvent, input);
 
@@ -178,15 +200,16 @@ describe('NavigationHandler', () => {
   });
 
   it('should intercept Ctrl+R reload', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const inputHandler = mockWindow.webContents.on.mock.calls.find(
-      (call: any) => call[0] === 'before-input-event',
-    )[1];
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
+    const inputHandler = calls.find(
+      (call: WebContentsCall) => call[0] === 'before-input-event',
+    )![1];
 
     const mockEvent = { preventDefault: jest.fn() };
-    const input = { type: 'keyDown', key: 'r', control: true };
+    const input: Partial<Input> = { type: 'keyDown', key: 'r', control: true };
 
     inputHandler(mockEvent, input);
 
@@ -195,15 +218,16 @@ describe('NavigationHandler', () => {
   });
 
   it('should not intercept other key combinations', () => {
-    handler = new NavigationHandler(mockWindow);
+    handler = new NavigationHandler(mockWindow as unknown as BrowserWindow);
     handler.setupNavigationHandlers();
 
-    const inputHandler = mockWindow.webContents.on.mock.calls.find(
-      (call: any) => call[0] === 'before-input-event',
-    )[1];
+    const calls: WebContentsCall[] = mockWindow.webContents.on.mock.calls;
+    const inputHandler = calls.find(
+      (call: WebContentsCall) => call[0] === 'before-input-event',
+    )![1];
 
     const mockEvent = { preventDefault: jest.fn() };
-    const input = { type: 'keyDown', key: 'a', control: true };
+    const input: Partial<Input> = { type: 'keyDown', key: 'a', control: true };
 
     inputHandler(mockEvent, input);
 

@@ -1,0 +1,79 @@
+/* ==================== PROJECTS HEADER ==================== */
+.projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  &__title {
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  &__search {
+    min-width: 200px;
+  }
+}
+
+/* ==================== PROJECTS TABLE ==================== */
+.projects-table {
+  &__actions-col {
+    width: 150px;
+  }
+
+  &__project-name {
+    display: block;
+    font-weight: 500;
+  }
+
+  &__project-description {
+    display: block;
+    color: var(--text-color-secondary);
+    margin-top: 0.25rem;
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__no-data {
+    color: var(--text-color-secondary);
+    font-style: italic;
+  }
+
+  &__empty {
+    text-align: center;
+    color: var(--text-color-secondary);
+    padding: 2rem;
+  }
+}
+
+/* ==================== PROJECT FORM ==================== */
+.project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__label {
+    font-weight: 500;
+  }
+
+  &__input,
+  &__textarea {
+    width: 100%;
+  }
+}

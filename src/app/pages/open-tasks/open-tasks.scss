@@ -1,0 +1,144 @@
+/* ==================== TASKS HEADER ==================== */
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  &__title {
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  &__filter {
+    min-width: 200px;
+  }
+}
+
+/* ==================== TASKS TABLE ==================== */
+.tasks-table {
+  &__actions-col {
+    width: 150px;
+  }
+
+  &__task-name {
+    display: block;
+    font-weight: 500;
+  }
+
+  &__task-description {
+    display: block;
+    color: var(--text-color-secondary);
+    margin-top: 0.25rem;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  &__tag {
+    font-size: 0.75rem;
+  }
+
+  &__no-data {
+    color: var(--text-color-secondary);
+    font-style: italic;
+  }
+
+  &__empty {
+    text-align: center;
+    color: var(--text-color-secondary);
+    padding: 2rem;
+  }
+}
+
+/* ==================== TASK FORM ==================== */
+.task-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__label {
+    font-weight: 500;
+  }
+
+  &__input,
+  &__textarea {
+    width: 100%;
+  }
+
+  &__select,
+  &__multiselect,
+  &__input-number {
+    width: 100%;
+  }
+}
+
+/* ==================== TAG OPTION (in multiselect) ==================== */
+.tag-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.25rem 0;
+
+  &__name {
+    flex: 1;
+  }
+
+  &__delete {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+/* ==================== TAG CREATE (in multiselect footer) ==================== */
+.tag-create {
+  padding: 0.5rem;
+  border-top: 1px solid var(--surface-border);
+  margin-top: 0.5rem;
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* ==================== PRIMENG OVERRIDES ==================== */
+:host ::ng-deep {
+  .p-tag {
+    font-size: 0.75rem;
+  }
+
+  .p-chip {
+    font-size: 0.75rem;
+  }
+}

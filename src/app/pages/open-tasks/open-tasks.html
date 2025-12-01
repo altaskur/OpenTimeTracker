@@ -1,0 +1,271 @@
+<app-open-layout>
+  <p-toast />
+
+  <app-open-confirm-delete
+    [visible]="deleteTaskDialogVisible()"
+    [message]="'dialogs.deleteTask' | translate"
+    (confirmed)="onDeleteTaskConfirmed()"
+    (cancelled)="onDeleteTaskCancelled()"
+  />
+
+  <app-open-confirm-delete
+    [visible]="deleteTagDialogVisible()"
+    [message]="'dialogs.deleteTag' | translate"
+    (confirmed)="onDeleteTagConfirmed()"
+    (cancelled)="onDeleteTagCancelled()"
+  />
+
+  <p-card>
+    <ng-template pTemplate="header">
+      <header class="tasks-header">
+        <h2 class="tasks-header__title">{{ "tasks.title" | translate }}</h2>
+        <div class="tasks-header__actions">
+          <p-select
+            [options]="projects()"
+            [(ngModel)]="selectedProjectFilter"
+            [placeholder]="'tasks.filterByProject' | translate"
+            optionLabel="name"
+            optionValue="id"
+            [showClear]="true"
+            class="tasks-header__filter"
+          />
+          <p-button
+            [label]="'tasks.new' | translate"
+            icon="pi pi-plus"
+            (onClick)="openNewDialog()"
+          />
+        </div>
+      </header>
+    </ng-template>
+
+    <p-table [value]="filteredTasks()" [loading]="loading()">
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">{{ "table.name" | translate }}</th>
+          <th scope="col">{{ "table.project" | translate }}</th>
+          <th scope="col">{{ "table.status" | translate }}</th>
+          <th scope="col">{{ "table.estimatedHours" | translate }}</th>
+          <th scope="col">{{ "table.tags" | translate }}</th>
+          <th scope="col" class="tasks-table__actions-col">
+            {{ "table.actions" | translate }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-task>
+        <tr>
+          <td>
+            <span class="tasks-table__task-name">{{ task.name }}</span>
+            @if (task.description) {
+              <small class="tasks-table__task-description">{{
+                task.description
+              }}</small>
+            }
+          </td>
+          <td>{{ task.project?.name || ("table.unassigned" | translate) }}</td>
+          <td>
+            @if (task.status?.name) {
+              <p-tag
+                [value]="task.status.name"
+                [severity]="getStatusSeverity(task.status.name)"
+              />
+            } @else {
+              <span class="tasks-table__no-data">{{
+                "table.noData" | translate
+              }}</span>
+            }
+          </td>
+          <td>
+            @if (task.estimatedHours) {
+              {{ task.estimatedHours }}h
+            } @else {
+              {{ "table.noData" | translate }}
+            }
+          </td>
+          <td>
+            <div class="tasks-table__tags">
+              @for (taskTag of task.tags; track taskTag.tag.id) {
+                <p-chip [label]="taskTag.tag.name" class="tasks-table__tag" />
+              }
+              @if (!task.tags?.length) {
+                <span class="tasks-table__no-data">{{
+                  "table.noData" | translate
+                }}</span>
+              }
+            </div>
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              severity="secondary"
+              (onClick)="openEditDialog(task)"
+              [pTooltip]="'common.edit' | translate"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              severity="danger"
+              (onClick)="confirmDeleteTask(task)"
+              [pTooltip]="'common.delete' | translate"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="tasks-table__empty">
+            {{ "tasks.empty" | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+
+  <p-dialog
+    [header]="'tasks.dialog.title' | translate"
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [style]="{ width: '600px' }"
+  >
+    <div class="task-form">
+      <div class="task-form__field">
+        <label for="taskName" class="task-form__label">{{
+          "tasks.dialog.namePlaceholder" | translate
+        }}</label>
+        <input
+          id="taskName"
+          type="text"
+          pInputText
+          [(ngModel)]="taskForm.name"
+          class="task-form__input"
+        />
+      </div>
+
+      <div class="task-form__field">
+        <label for="taskProject" class="task-form__label">{{
+          "tasks.dialog.projectPlaceholder" | translate
+        }}</label>
+        <p-select
+          id="taskProject"
+          [options]="projects()"
+          [(ngModel)]="taskForm.projectId"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="'tasks.dialog.selectProject' | translate"
+          class="task-form__select"
+        />
+      </div>
+
+      <div class="task-form__field">
+        <label for="taskStatus" class="task-form__label">{{
+          "tasks.dialog.statusPlaceholder" | translate
+        }}</label>
+        <p-select
+          id="taskStatus"
+          [options]="statuses()"
+          [(ngModel)]="taskForm.statusId"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="'tasks.dialog.selectStatus' | translate"
+          [showClear]="true"
+          class="task-form__select"
+        />
+      </div>
+
+      <div class="task-form__field">
+        <label for="taskHours" class="task-form__label">{{
+          "tasks.dialog.estimatedHoursPlaceholder" | translate
+        }}</label>
+        <p-inputNumber
+          id="taskHours"
+          [(ngModel)]="taskForm.estimatedHours"
+          [min]="0"
+          [max]="1000"
+          [step]="0.5"
+          mode="decimal"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="1"
+          class="task-form__input-number"
+        />
+      </div>
+
+      <div class="task-form__field task-form__field--full">
+        <label for="taskTags" class="task-form__label">{{
+          "tasks.dialog.tagsPlaceholder" | translate
+        }}</label>
+        <p-multiSelect
+          id="taskTags"
+          [options]="tags()"
+          [(ngModel)]="taskForm.tags"
+          optionLabel="name"
+          [placeholder]="'tasks.dialog.selectTags' | translate"
+          class="task-form__multiselect"
+          display="chip"
+          appendTo="body"
+        >
+          <ng-template pTemplate="item" let-tag>
+            <span class="tag-option">
+              <span class="tag-option__name">{{ tag.name }}</span>
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                size="small"
+                (onClick)="confirmDeleteTag($event, tag)"
+                [pTooltip]="'common.delete' | translate"
+                class="tag-option__delete"
+              />
+            </span>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <p-inputGroup class="tag-create">
+              <input
+                type="text"
+                pInputText
+                [ngModel]="newTagName()"
+                (ngModelChange)="newTagName.set($event)"
+                [ngModelOptions]="{ standalone: true }"
+                [placeholder]="'tasks.dialog.newTagPlaceholder' | translate"
+                class="tag-create__input"
+                (keyup.enter)="createTag()"
+              />
+              <p-button
+                icon="pi pi-plus"
+                severity="success"
+                (onClick)="createTag()"
+                [disabled]="!newTagName().trim()"
+              />
+            </p-inputGroup>
+          </ng-template>
+        </p-multiSelect>
+      </div>
+
+      <div class="task-form__field task-form__field--full">
+        <label for="taskDescription" class="task-form__label">{{
+          "tasks.dialog.descriptionPlaceholder" | translate
+        }}</label>
+        <textarea
+          id="taskDescription"
+          pTextarea
+          [(ngModel)]="taskForm.description"
+          rows="3"
+          class="task-form__textarea"
+        ></textarea>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        [label]="'common.cancel' | translate"
+        severity="secondary"
+        (onClick)="dialogVisible.set(false)"
+      />
+      <p-button
+        [label]="'common.save' | translate"
+        [disabled]="!taskForm.name || !taskForm.projectId"
+        (onClick)="saveTask()"
+      />
+    </ng-template>
+  </p-dialog>
+</app-open-layout>

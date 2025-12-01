@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import {
   DeleteResult,
   Project,
+  Tag,
   Task,
   TaskStatus,
   TimeEntry,
@@ -31,6 +32,7 @@ const electronAPI = {
     description?: string,
     estimatedHours?: number,
     statusId?: string,
+    tagIds?: string[],
   ): Promise<Task> =>
     ipcRenderer.invoke(
       'create-task',
@@ -39,6 +41,7 @@ const electronAPI = {
       description,
       estimatedHours,
       statusId,
+      tagIds,
     ),
   updateTask: (id: string, data: Partial<Task>): Promise<Task> =>
     ipcRenderer.invoke('update-task', id, data),
@@ -76,6 +79,17 @@ const electronAPI = {
     note?: string,
   ): Promise<WorkPeriod> =>
     ipcRenderer.invoke('create-work-period', year, month, plannedHours, note),
+
+  // Tags
+  getTags: (): Promise<Tag[]> => ipcRenderer.invoke('get-tags'),
+  createTag: (name: string): Promise<Tag> =>
+    ipcRenderer.invoke('create-tag', name),
+  deleteTag: (id: string): Promise<DeleteResult> =>
+    ipcRenderer.invoke('delete-tag', id),
+  addTagToTask: (taskId: string, tagId: string): Promise<void> =>
+    ipcRenderer.invoke('add-tag-to-task', taskId, tagId),
+  removeTagFromTask: (taskId: string, tagId: string): Promise<void> =>
+    ipcRenderer.invoke('remove-tag-from-task', taskId, tagId),
 
   // Navigation - Listen for navigation events from Electron
   onNavigate: (callback: (route: string) => void): void => {

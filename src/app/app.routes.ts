@@ -7,16 +7,14 @@ export const routes: Routes = [
       import('./pages/open-home/open-home').then((m) => m.OpenHome),
   },
   {
-    path: 'remaining-time',
-    loadComponent: () =>
-      import('./pages/open-remaining-time/open-remaining-time').then(
-        (m) => m.OpenRemainingTime,
-      ),
-  },
-  {
     path: 'projects',
     loadComponent: () =>
       import('./pages/open-projects/open-projects').then((m) => m.OpenProjects),
+  },
+  {
+    path: 'tasks',
+    loadComponent: () =>
+      import('./pages/open-tasks/open-tasks').then((m) => m.OpenTasks),
   },
   {
     path: '**',

@@ -2,12 +2,13 @@ import { Injectable, signal } from '@angular/core';
 import {
   DeleteResult,
   Project,
+  Tag,
   Task,
   TaskStatus,
   TimeEntry,
   WorkPeriod,
-} from '../../types/electron';
-import { ElectronApiError } from './electron-api-error';
+} from '../../../types/electron';
+import { ElectronApiError } from '../errors/electron-api-error';
 
 @Injectable({
   providedIn: 'root',
@@ -91,6 +92,7 @@ export class DatabaseService {
     description?: string,
     estimatedHours?: number,
     statusId?: string,
+    tagIds?: string[],
   ): Promise<Task> {
     return this.executeWithErrorHandling('create task', async () => {
       return globalThis.window.electronAPI.createTask(
@@ -99,6 +101,7 @@ export class DatabaseService {
         description,
         estimatedHours,
         statusId,
+        tagIds,
       );
     });
   }
@@ -192,6 +195,38 @@ export class DatabaseService {
         plannedHours,
         note,
       );
+    });
+  }
+
+  // ==================== TAGS ====================
+
+  async getTags(): Promise<Tag[]> {
+    return this.executeWithErrorHandling('get tags', async () => {
+      return globalThis.window.electronAPI.getTags();
+    });
+  }
+
+  async createTag(name: string): Promise<Tag> {
+    return this.executeWithErrorHandling('create tag', async () => {
+      return globalThis.window.electronAPI.createTag(name);
+    });
+  }
+
+  async deleteTag(id: string): Promise<DeleteResult> {
+    return this.executeWithErrorHandling('delete tag', async () => {
+      return globalThis.window.electronAPI.deleteTag(id);
+    });
+  }
+
+  async addTagToTask(taskId: string, tagId: string): Promise<void> {
+    return this.executeWithErrorHandling('add tag to task', async () => {
+      return globalThis.window.electronAPI.addTagToTask(taskId, tagId);
+    });
+  }
+
+  async removeTagFromTask(taskId: string, tagId: string): Promise<void> {
+    return this.executeWithErrorHandling('remove tag from task', async () => {
+      return globalThis.window.electronAPI.removeTagFromTask(taskId, tagId);
     });
   }
 }

@@ -2,8 +2,8 @@
   "menu": {
     "start": "Inicio",
     "home": "Principal",
-    "remainingTime": "Tiempo Restante",
     "projects": "Proyectos",
+    "tasks": "Tareas",
     "themeToggle": "Modo Claro/Oscuro",
     "exit": "Salir",
     "help": "Ayuda",
@@ -21,18 +21,34 @@
     "empty": "No hay tareas pendientes",
     "noProject": "Sin proyecto"
   },
-  "remainingTime": {
-    "title": "Tiempo Restante",
-    "totalHours": "Horas Totales",
-    "empty": "No hay entradas de tiempo registradas"
-  },
   "projects": {
     "title": "Proyectos",
     "new": "Nuevo Proyecto",
+    "empty": "No hay proyectos registrados",
+    "search": "Buscar proyectos...",
     "dialog": {
       "title": "Proyecto",
       "namePlaceholder": "Nombre*",
       "descriptionPlaceholder": "Descripción"
+    }
+  },
+  "tasks": {
+    "title": "Tareas",
+    "new": "Nueva Tarea",
+    "empty": "No hay tareas registradas",
+    "filterByProject": "Filtrar por proyecto",
+    "dialog": {
+      "title": "Tarea",
+      "namePlaceholder": "Nombre*",
+      "descriptionPlaceholder": "Descripción",
+      "projectPlaceholder": "Proyecto*",
+      "statusPlaceholder": "Estado",
+      "estimatedHoursPlaceholder": "Horas Estimadas",
+      "tagsPlaceholder": "Etiquetas",
+      "selectProject": "Seleccionar proyecto",
+      "selectStatus": "Seleccionar estado",
+      "selectTags": "Seleccionar etiquetas",
+      "newTagPlaceholder": "Nueva etiqueta..."
     }
   },
   "table": {
@@ -46,7 +62,10 @@
     "createdAt": "Fecha Creación",
     "actions": "Acciones",
     "unassigned": "Sin asignar",
-    "noData": "-"
+    "noData": "-",
+    "status": "Estado",
+    "estimatedHours": "Horas Est.",
+    "tags": "Etiquetas"
   },
   "common": {
     "cancel": "Cancelar",
@@ -55,10 +74,27 @@
     "edit": "Editar",
     "confirm": "Confirmar",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "success": "Éxito",
+    "error": "Error"
+  },
+  "toast": {
+    "projectCreated": "Proyecto creado correctamente",
+    "projectUpdated": "Proyecto actualizado correctamente",
+    "projectDeleted": "Proyecto eliminado correctamente",
+    "taskCreated": "Tarea creada correctamente",
+    "taskUpdated": "Tarea actualizada correctamente",
+    "taskDeleted": "Tarea eliminada correctamente",
+    "tagCreated": "Etiqueta creada correctamente",
+    "tagDeleted": "Etiqueta eliminada correctamente",
+    "error": "Ha ocurrido un error",
+    "success": "Operación exitosa"
   },
   "dialogs": {
+    "confirmDelete": "Confirmar eliminación",
     "deleteProject": "¿Está seguro de eliminar este proyecto?",
+    "deleteTask": "¿Está seguro de eliminar esta tarea?",
+    "deleteTag": "¿Está seguro de eliminar esta etiqueta? Se eliminará de todas las tareas.",
     "about": {
       "version": "Versión",
       "description": "Sistema de seguimiento de tiempo para proyectos y tareas.",
@@ -69,8 +105,8 @@
       "title": "Atajos de Teclado Disponibles",
       "navigation": "Navegación",
       "goToHome": "Ir a Principal",
-      "goToRemainingTime": "Ir a Tiempo Restante",
       "goToProjects": "Ir a Proyectos",
+      "goToTasks": "Ir a Tareas",
       "toggleTheme": "Modo Claro/Oscuro"
     }
   }

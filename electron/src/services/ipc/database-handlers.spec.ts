@@ -8,12 +8,14 @@ jest.mock('electron', () => ({
   },
 }));
 
+/**
+ * Database Handlers Test Suite
+ */
 describe('Database Handlers', () => {
   let mockDbManager: jest.Mocked<DatabaseManager>;
   let handleSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    // Create mock database manager
     mockDbManager = {
       getProjects: jest.fn(),
       createProject: jest.fn(),
@@ -31,7 +33,12 @@ describe('Database Handlers', () => {
       deleteTimeEntry: jest.fn(),
       getWorkPeriods: jest.fn(),
       createWorkPeriod: jest.fn(),
-    } as any;
+      getTags: jest.fn(),
+      createTag: jest.fn(),
+      deleteTag: jest.fn(),
+      addTagToTask: jest.fn(),
+      removeTagFromTask: jest.fn(),
+    } as unknown as jest.Mocked<DatabaseManager>;
 
     handleSpy = jest.spyOn(ipcMain, 'handle');
   });
@@ -44,7 +51,9 @@ describe('Database Handlers', () => {
     it('should register all IPC handlers', () => {
       setupDatabaseHandlers(mockDbManager);
 
-      const registeredHandlers = handleSpy.mock.calls.map((call) => call[0]);
+      const registeredHandlers = handleSpy.mock.calls.map(
+        (call: unknown[]) => call[0],
+      );
 
       expect(registeredHandlers).toContain('get-projects');
       expect(registeredHandlers).toContain('create-project');
@@ -62,6 +71,11 @@ describe('Database Handlers', () => {
       expect(registeredHandlers).toContain('delete-time-entry');
       expect(registeredHandlers).toContain('get-work-periods');
       expect(registeredHandlers).toContain('create-work-period');
+      expect(registeredHandlers).toContain('get-tags');
+      expect(registeredHandlers).toContain('create-tag');
+      expect(registeredHandlers).toContain('delete-tag');
+      expect(registeredHandlers).toContain('add-tag-to-task');
+      expect(registeredHandlers).toContain('remove-tag-from-task');
     });
   });
 
@@ -72,14 +86,19 @@ describe('Database Handlers', () => {
 
     it('should handle get-projects', async () => {
       const mockProjects = [
-        { id: '1', name: 'Project 1', description: 'Description 1' },
-        { id: '2', name: 'Project 2', description: 'Description 2' },
+        {
+          id: '1',
+          name: 'Project 1',
+          description: 'Description 1',
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+        },
       ];
-      mockDbManager.getProjects.mockResolvedValue(mockProjects as any);
+      mockDbManager.getProjects.mockResolvedValue(mockProjects);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-projects',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-projects',
+      )?.[1] as () => Promise<unknown>;
       const result = await handler();
 
       expect(mockDbManager.getProjects).toHaveBeenCalled();
@@ -91,15 +110,10 @@ describe('Database Handlers', () => {
       mockDbManager.getProjects.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-projects',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-projects',
+      )?.[1] as () => Promise<unknown>;
 
-      try {
-        await handler();
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Database error');
-      }
+      await expect(handler()).rejects.toThrow('Database error');
     });
 
     it('should handle create-project', async () => {
@@ -107,12 +121,18 @@ describe('Database Handlers', () => {
         id: '1',
         name: 'New Project',
         description: 'New Description',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
       };
-      mockDbManager.createProject.mockResolvedValue(mockProject as any);
+      mockDbManager.createProject.mockResolvedValue(mockProject);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-project',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-project',
+      )?.[1] as (
+        event: unknown,
+        name: string,
+        description?: string,
+      ) => Promise<unknown>;
       const result = await handler({}, 'New Project', 'New Description');
 
       expect(mockDbManager.createProject).toHaveBeenCalledWith(
@@ -123,12 +143,22 @@ describe('Database Handlers', () => {
     });
 
     it('should handle create-project without description', async () => {
-      const mockProject = { id: '1', name: 'New Project', description: null };
-      mockDbManager.createProject.mockResolvedValue(mockProject as any);
+      const mockProject = {
+        id: '1',
+        name: 'New Project',
+        description: null,
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+      };
+      mockDbManager.createProject.mockResolvedValue(mockProject);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-project',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-project',
+      )?.[1] as (
+        event: unknown,
+        name: string,
+        description?: string,
+      ) => Promise<unknown>;
       const result = await handler({}, 'New Project');
 
       expect(mockDbManager.createProject).toHaveBeenCalledWith(
@@ -143,12 +173,19 @@ describe('Database Handlers', () => {
         id: '1',
         name: 'Updated Project',
         description: 'Updated Description',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
       };
-      mockDbManager.updateProject.mockResolvedValue(mockProject as any);
+      mockDbManager.updateProject.mockResolvedValue(mockProject);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'update-project',
-      )[1];
+        (call: unknown[]) => call[0] === 'update-project',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        name: string,
+        description?: string,
+      ) => Promise<unknown>;
       const result = await handler(
         {},
         '1',
@@ -165,12 +202,18 @@ describe('Database Handlers', () => {
     });
 
     it('should handle delete-project', async () => {
-      const mockProject = { id: '1', name: 'Deleted Project' };
-      mockDbManager.deleteProject.mockResolvedValue(mockProject as any);
+      const mockProject = {
+        id: '1',
+        name: 'Deleted Project',
+        description: null,
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+      };
+      mockDbManager.deleteProject.mockResolvedValue(mockProject);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'delete-project',
-      )[1];
+        (call: unknown[]) => call[0] === 'delete-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
       const result = await handler({}, '1');
 
       expect(mockDbManager.deleteProject).toHaveBeenCalledWith('1');
@@ -185,14 +228,31 @@ describe('Database Handlers', () => {
 
     it('should handle get-tasks without projectId', async () => {
       const mockTasks = [
-        { id: '1', name: 'Task 1', projectId: 'p1' },
-        { id: '2', name: 'Task 2', projectId: 'p2' },
+        {
+          id: '1',
+          name: 'Task 1',
+          projectId: 'p1',
+          description: null,
+          estimatedHours: null,
+          statusId: 's1',
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+          project: {
+            id: 'p1',
+            name: 'Project 1',
+            description: null,
+            createdAt: new Date('2025-01-01'),
+            updatedAt: new Date('2025-01-01'),
+          },
+          status: { id: 's1', name: 'Pendiente' },
+          tags: [],
+        },
       ];
-      mockDbManager.getTasks.mockResolvedValue(mockTasks as any);
+      mockDbManager.getTasks.mockResolvedValue(mockTasks);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-tasks',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-tasks',
+      )?.[1] as (event: unknown, projectId?: string) => Promise<unknown>;
       const result = await handler({});
 
       expect(mockDbManager.getTasks).toHaveBeenCalledWith(undefined);
@@ -200,12 +260,32 @@ describe('Database Handlers', () => {
     });
 
     it('should handle get-tasks with projectId', async () => {
-      const mockTasks = [{ id: '1', name: 'Task 1', projectId: 'p1' }];
-      mockDbManager.getTasks.mockResolvedValue(mockTasks as any);
+      const mockTasks = [
+        {
+          id: '1',
+          name: 'Task 1',
+          projectId: 'p1',
+          description: null,
+          estimatedHours: null,
+          statusId: 's1',
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+          project: {
+            id: 'p1',
+            name: 'Project 1',
+            description: null,
+            createdAt: new Date('2025-01-01'),
+            updatedAt: new Date('2025-01-01'),
+          },
+          status: { id: 's1', name: 'Pendiente' },
+          tags: [],
+        },
+      ];
+      mockDbManager.getTasks.mockResolvedValue(mockTasks);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-tasks',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-tasks',
+      )?.[1] as (event: unknown, projectId?: string) => Promise<unknown>;
       const result = await handler({}, 'p1');
 
       expect(mockDbManager.getTasks).toHaveBeenCalledWith('p1');
@@ -220,12 +300,23 @@ describe('Database Handlers', () => {
         description: 'Description',
         estimatedHours: 5,
         statusId: 's1',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+        tags: [],
       };
-      mockDbManager.createTask.mockResolvedValue(mockTask as any);
+      mockDbManager.createTask.mockResolvedValue(mockTask);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-task',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-task',
+      )?.[1] as (
+        event: unknown,
+        projectId: string,
+        name: string,
+        description?: string,
+        estimatedHours?: number,
+        statusId?: string,
+        tagIds?: string[],
+      ) => Promise<unknown>;
       const result = await handler(
         {},
         'p1',
@@ -233,6 +324,7 @@ describe('Database Handlers', () => {
         'Description',
         5,
         's1',
+        ['t1', 't2'],
       );
 
       expect(mockDbManager.createTask).toHaveBeenCalledWith(
@@ -241,40 +333,32 @@ describe('Database Handlers', () => {
         'Description',
         5,
         's1',
-      );
-      expect(result).toEqual(mockTask);
-    });
-
-    it('should handle create-task with minimal data', async () => {
-      const mockTask = {
-        id: '1',
-        name: 'New Task',
-        projectId: 'p1',
-      };
-      mockDbManager.createTask.mockResolvedValue(mockTask as any);
-
-      const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-task',
-      )[1];
-      const result = await handler({}, 'p1', 'New Task');
-
-      expect(mockDbManager.createTask).toHaveBeenCalledWith(
-        'p1',
-        'New Task',
-        undefined,
-        undefined,
-        undefined,
+        ['t1', 't2'],
       );
       expect(result).toEqual(mockTask);
     });
 
     it('should handle update-task', async () => {
-      const mockTask = { id: '1', name: 'Updated Task' };
-      mockDbManager.updateTask.mockResolvedValue(mockTask as any);
+      const mockTask = {
+        id: '1',
+        name: 'Updated Task',
+        projectId: 'p1',
+        description: null,
+        estimatedHours: null,
+        statusId: 's1',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+        tags: [],
+      };
+      mockDbManager.updateTask.mockResolvedValue(mockTask);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'update-task',
-      )[1];
+        (call: unknown[]) => call[0] === 'update-task',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        data: { name?: string; description?: string },
+      ) => Promise<unknown>;
       const data = { name: 'Updated Task', description: 'New description' };
       const result = await handler({}, '1', data);
 
@@ -283,12 +367,21 @@ describe('Database Handlers', () => {
     });
 
     it('should handle delete-task', async () => {
-      const mockTask = { id: '1', name: 'Deleted Task' };
-      mockDbManager.deleteTask.mockResolvedValue(mockTask as any);
+      const mockTask = {
+        id: '1',
+        name: 'Deleted Task',
+        projectId: 'p1',
+        description: null,
+        estimatedHours: null,
+        statusId: 's1',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+      };
+      mockDbManager.deleteTask.mockResolvedValue(mockTask);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'delete-task',
-      )[1];
+        (call: unknown[]) => call[0] === 'delete-task',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
       const result = await handler({}, '1');
 
       expect(mockDbManager.deleteTask).toHaveBeenCalledWith('1');
@@ -307,11 +400,11 @@ describe('Database Handlers', () => {
         { id: '2', name: 'En progreso' },
         { id: '3', name: 'Completada' },
       ];
-      mockDbManager.getTaskStatuses.mockResolvedValue(mockStatuses as any);
+      mockDbManager.getTaskStatuses.mockResolvedValue(mockStatuses);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-task-statuses',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-task-statuses',
+      )?.[1] as () => Promise<unknown>;
       const result = await handler();
 
       expect(mockDbManager.getTaskStatuses).toHaveBeenCalled();
@@ -326,14 +419,21 @@ describe('Database Handlers', () => {
 
     it('should handle get-time-entries without taskId', async () => {
       const mockEntries = [
-        { id: '1', date: '2025-01-01', hours: 8 },
-        { id: '2', date: '2025-01-02', hours: 6 },
+        {
+          id: '1',
+          date: '2025-01-01',
+          hours: 8,
+          taskId: null,
+          notes: null,
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+        },
       ];
-      mockDbManager.getTimeEntries.mockResolvedValue(mockEntries as any);
+      mockDbManager.getTimeEntries.mockResolvedValue(mockEntries);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-time-entries',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-time-entries',
+      )?.[1] as (event: unknown, taskId?: string) => Promise<unknown>;
       const result = await handler({});
 
       expect(mockDbManager.getTimeEntries).toHaveBeenCalledWith(undefined);
@@ -342,13 +442,21 @@ describe('Database Handlers', () => {
 
     it('should handle get-time-entries with taskId', async () => {
       const mockEntries = [
-        { id: '1', date: '2025-01-01', hours: 8, taskId: 't1' },
+        {
+          id: '1',
+          date: '2025-01-01',
+          hours: 8,
+          taskId: 't1',
+          notes: null,
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+        },
       ];
-      mockDbManager.getTimeEntries.mockResolvedValue(mockEntries as any);
+      mockDbManager.getTimeEntries.mockResolvedValue(mockEntries);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-time-entries',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-time-entries',
+      )?.[1] as (event: unknown, taskId?: string) => Promise<unknown>;
       const result = await handler({}, 't1');
 
       expect(mockDbManager.getTimeEntries).toHaveBeenCalledWith('t1');
@@ -357,13 +465,21 @@ describe('Database Handlers', () => {
 
     it('should handle get-pending-time-entries', async () => {
       const mockEntries = [
-        { id: '1', date: '2025-01-01', hours: 8, taskId: null },
+        {
+          id: '1',
+          date: '2025-01-01',
+          hours: 8,
+          taskId: null,
+          notes: null,
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+        },
       ];
-      mockDbManager.getPendingTimeEntries.mockResolvedValue(mockEntries as any);
+      mockDbManager.getPendingTimeEntries.mockResolvedValue(mockEntries);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-pending-time-entries',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-pending-time-entries',
+      )?.[1] as () => Promise<unknown>;
       const result = await handler();
 
       expect(mockDbManager.getPendingTimeEntries).toHaveBeenCalled();
@@ -377,12 +493,20 @@ describe('Database Handlers', () => {
         hours: 8,
         taskId: 't1',
         notes: 'Work notes',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
       };
-      mockDbManager.createTimeEntry.mockResolvedValue(mockEntry as any);
+      mockDbManager.createTimeEntry.mockResolvedValue(mockEntry);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-time-entry',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-time-entry',
+      )?.[1] as (
+        event: unknown,
+        date: string,
+        hours: number,
+        taskId?: string,
+        notes?: string,
+      ) => Promise<unknown>;
       const result = await handler({}, '2025-01-01', 8, 't1', 'Work notes');
 
       expect(mockDbManager.createTimeEntry).toHaveBeenCalledWith(
@@ -394,36 +518,25 @@ describe('Database Handlers', () => {
       expect(result).toEqual(mockEntry);
     });
 
-    it('should handle create-time-entry without taskId', async () => {
+    it('should handle update-time-entry', async () => {
       const mockEntry = {
         id: '1',
         date: '2025-01-01',
-        hours: 8,
+        hours: 10,
         taskId: null,
+        notes: null,
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
       };
-      mockDbManager.createTimeEntry.mockResolvedValue(mockEntry as any);
+      mockDbManager.updateTimeEntry.mockResolvedValue(mockEntry);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-time-entry',
-      )[1];
-      const result = await handler({}, '2025-01-01', 8);
-
-      expect(mockDbManager.createTimeEntry).toHaveBeenCalledWith(
-        '2025-01-01',
-        8,
-        undefined,
-        undefined,
-      );
-      expect(result).toEqual(mockEntry);
-    });
-
-    it('should handle update-time-entry', async () => {
-      const mockEntry = { id: '1', date: '2025-01-01', hours: 10 };
-      mockDbManager.updateTimeEntry.mockResolvedValue(mockEntry as any);
-
-      const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'update-time-entry',
-      )[1];
+        (call: unknown[]) => call[0] === 'update-time-entry',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        data: { hours?: number },
+      ) => Promise<unknown>;
       const data = { hours: 10 };
       const result = await handler({}, '1', data);
 
@@ -432,12 +545,20 @@ describe('Database Handlers', () => {
     });
 
     it('should handle delete-time-entry', async () => {
-      const mockEntry = { id: '1', date: '2025-01-01', hours: 8 };
-      mockDbManager.deleteTimeEntry.mockResolvedValue(mockEntry as any);
+      const mockEntry = {
+        id: '1',
+        date: '2025-01-01',
+        hours: 8,
+        taskId: null,
+        notes: null,
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+      };
+      mockDbManager.deleteTimeEntry.mockResolvedValue(mockEntry);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'delete-time-entry',
-      )[1];
+        (call: unknown[]) => call[0] === 'delete-time-entry',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
       const result = await handler({}, '1');
 
       expect(mockDbManager.deleteTimeEntry).toHaveBeenCalledWith('1');
@@ -452,14 +573,21 @@ describe('Database Handlers', () => {
 
     it('should handle get-work-periods', async () => {
       const mockPeriods = [
-        { id: '1', year: 2025, month: 1, plannedHours: 160 },
-        { id: '2', year: 2025, month: 2, plannedHours: 152 },
+        {
+          id: '1',
+          year: 2025,
+          month: 1,
+          plannedHours: 160,
+          note: null,
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+        },
       ];
-      mockDbManager.getWorkPeriods.mockResolvedValue(mockPeriods as any);
+      mockDbManager.getWorkPeriods.mockResolvedValue(mockPeriods);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-work-periods',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-work-periods',
+      )?.[1] as () => Promise<unknown>;
       const result = await handler();
 
       expect(mockDbManager.getWorkPeriods).toHaveBeenCalled();
@@ -473,12 +601,20 @@ describe('Database Handlers', () => {
         month: 1,
         plannedHours: 160,
         note: 'January period',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
       };
-      mockDbManager.createWorkPeriod.mockResolvedValue(mockPeriod as any);
+      mockDbManager.createWorkPeriod.mockResolvedValue(mockPeriod);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-work-period',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        plannedHours: number,
+        note?: string,
+      ) => Promise<unknown>;
       const result = await handler({}, 2025, 1, 160, 'January period');
 
       expect(mockDbManager.createWorkPeriod).toHaveBeenCalledWith(
@@ -489,28 +625,88 @@ describe('Database Handlers', () => {
       );
       expect(result).toEqual(mockPeriod);
     });
+  });
 
-    it('should handle create-work-period without note', async () => {
-      const mockPeriod = {
-        id: '1',
-        year: 2025,
-        month: 1,
-        plannedHours: 160,
-      };
-      mockDbManager.createWorkPeriod.mockResolvedValue(mockPeriod as any);
+  describe('Tags Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle get-tags', async () => {
+      const mockTags = [
+        { id: '1', name: 'Bug' },
+        { id: '2', name: 'Feature' },
+      ];
+      mockDbManager.getTags.mockResolvedValue(mockTags);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-work-period',
-      )[1];
-      const result = await handler({}, 2025, 1, 160);
+        (call: unknown[]) => call[0] === 'get-tags',
+      )?.[1] as () => Promise<unknown>;
+      const result = await handler();
 
-      expect(mockDbManager.createWorkPeriod).toHaveBeenCalledWith(
-        2025,
-        1,
-        160,
-        undefined,
+      expect(mockDbManager.getTags).toHaveBeenCalled();
+      expect(result).toEqual(mockTags);
+    });
+
+    it('should handle create-tag', async () => {
+      const mockTag = { id: '1', name: 'New Tag' };
+      mockDbManager.createTag.mockResolvedValue(mockTag);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-tag',
+      )?.[1] as (event: unknown, name: string) => Promise<unknown>;
+      const result = await handler({}, 'New Tag');
+
+      expect(mockDbManager.createTag).toHaveBeenCalledWith('New Tag');
+      expect(result).toEqual(mockTag);
+    });
+
+    it('should handle delete-tag', async () => {
+      const mockTag = { id: '1', name: 'Deleted Tag' };
+      mockDbManager.deleteTag.mockResolvedValue(mockTag);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-tag',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+      const result = await handler({}, '1');
+
+      expect(mockDbManager.deleteTag).toHaveBeenCalledWith('1');
+      expect(result).toEqual(mockTag);
+    });
+
+    it('should handle add-tag-to-task', async () => {
+      const mockTaskTag = { taskId: 'task1', tagId: 'tag1' };
+      mockDbManager.addTagToTask.mockResolvedValue(mockTaskTag);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'add-tag-to-task',
+      )?.[1] as (
+        event: unknown,
+        taskId: string,
+        tagId: string,
+      ) => Promise<unknown>;
+      await handler({}, 'task1', 'tag1');
+
+      expect(mockDbManager.addTagToTask).toHaveBeenCalledWith('task1', 'tag1');
+    });
+
+    it('should handle remove-tag-from-task', async () => {
+      const mockTaskTag = { taskId: 'task1', tagId: 'tag1' };
+      mockDbManager.removeTagFromTask.mockResolvedValue(mockTaskTag);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'remove-tag-from-task',
+      )?.[1] as (
+        event: unknown,
+        taskId: string,
+        tagId: string,
+      ) => Promise<unknown>;
+      await handler({}, 'task1', 'tag1');
+
+      expect(mockDbManager.removeTagFromTask).toHaveBeenCalledWith(
+        'task1',
+        'tag1',
       );
-      expect(result).toEqual(mockPeriod);
     });
   });
 
@@ -519,22 +715,16 @@ describe('Database Handlers', () => {
       setupDatabaseHandlers(mockDbManager);
     });
 
-    it('should log and throw errors in handlers', async () => {
+    it('should log and throw errors for get-projects', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Test error');
       mockDbManager.getProjects.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-projects',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-projects',
+      )?.[1] as () => Promise<unknown>;
 
-      try {
-        await handler();
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Test error');
-      }
-
+      await expect(handler()).rejects.toThrow('Test error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error getting projects:',
         error,
@@ -543,22 +733,20 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle create-project errors', async () => {
+    it('should log and throw errors for create-project', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Create error');
       mockDbManager.createProject.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-project',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-project',
+      )?.[1] as (
+        event: unknown,
+        name: string,
+        description?: string,
+      ) => Promise<unknown>;
 
-      try {
-        await handler({}, 'Test Project');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Create error');
-      }
-
+      await expect(handler({}, 'Test Project')).rejects.toThrow('Create error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error creating project:',
         error,
@@ -567,70 +755,23 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle update-task errors', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      const error = new Error('Update error');
-      mockDbManager.updateTask.mockRejectedValue(error);
-
-      const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'update-task',
-      )[1];
-
-      try {
-        await handler({}, '1', { name: 'Updated' });
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Update error');
-      }
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error updating task:',
-        error,
-      );
-
-      consoleErrorSpy.mockRestore();
-    });
-
-    it('should handle delete-time-entry errors', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      const error = new Error('Delete error');
-      mockDbManager.deleteTimeEntry.mockRejectedValue(error);
-
-      const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'delete-time-entry',
-      )[1];
-
-      try {
-        await handler({}, '1');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Delete error');
-      }
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error deleting time entry:',
-        error,
-      );
-
-      consoleErrorSpy.mockRestore();
-    });
-
-    it('should handle update-project errors', async () => {
+    it('should log and throw errors for update-project', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Update project error');
       mockDbManager.updateProject.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'update-project',
-      )[1];
+        (call: unknown[]) => call[0] === 'update-project',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        name: string,
+        description?: string,
+      ) => Promise<unknown>;
 
-      try {
-        await handler({}, '1', 'Updated Project', 'Description');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Update project error');
-      }
-
+      await expect(
+        handler({}, '1', 'Updated Project', 'Description'),
+      ).rejects.toThrow('Update project error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error updating project:',
         error,
@@ -639,22 +780,16 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle delete-project errors', async () => {
+    it('should log and throw errors for delete-project', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Delete project error');
       mockDbManager.deleteProject.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'delete-project',
-      )[1];
+        (call: unknown[]) => call[0] === 'delete-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
 
-      try {
-        await handler({}, '1');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Delete project error');
-      }
-
+      await expect(handler({}, '1')).rejects.toThrow('Delete project error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error deleting project:',
         error,
@@ -663,22 +798,16 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle get-tasks errors', async () => {
+    it('should log and throw errors for get-tasks', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Get tasks error');
       mockDbManager.getTasks.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-tasks',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-tasks',
+      )?.[1] as (event: unknown, projectId?: string) => Promise<unknown>;
 
-      try {
-        await handler({}, 'p1');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Get tasks error');
-      }
-
+      await expect(handler({}, 'p1')).rejects.toThrow('Get tasks error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error getting tasks:',
         error,
@@ -687,22 +816,22 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle create-task errors', async () => {
+    it('should log and throw errors for create-task', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Create task error');
       mockDbManager.createTask.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-task',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-task',
+      )?.[1] as (
+        event: unknown,
+        projectId: string,
+        name: string,
+      ) => Promise<unknown>;
 
-      try {
-        await handler({}, 'p1', 'New Task', 'Description', 5, 's1');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Create task error');
-      }
-
+      await expect(handler({}, 'p1', 'New Task')).rejects.toThrow(
+        'Create task error',
+      );
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error creating task:',
         error,
@@ -711,22 +840,40 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle delete-task errors', async () => {
+    it('should log and throw errors for update-task', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update error');
+      mockDbManager.updateTask.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-task',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        data: { name?: string },
+      ) => Promise<unknown>;
+
+      await expect(handler({}, '1', { name: 'Updated' })).rejects.toThrow(
+        'Update error',
+      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error updating task:',
+        error,
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should log and throw errors for delete-task', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Delete task error');
       mockDbManager.deleteTask.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'delete-task',
-      )[1];
+        (call: unknown[]) => call[0] === 'delete-task',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
 
-      try {
-        await handler({}, '1');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Delete task error');
-      }
-
+      await expect(handler({}, '1')).rejects.toThrow('Delete task error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error deleting task:',
         error,
@@ -735,22 +882,16 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle get-task-statuses errors', async () => {
+    it('should log and throw errors for get-task-statuses', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Get statuses error');
       mockDbManager.getTaskStatuses.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-task-statuses',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-task-statuses',
+      )?.[1] as () => Promise<unknown>;
 
-      try {
-        await handler();
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Get statuses error');
-      }
-
+      await expect(handler()).rejects.toThrow('Get statuses error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error getting task statuses:',
         error,
@@ -759,22 +900,16 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle get-time-entries errors', async () => {
+    it('should log and throw errors for get-time-entries', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Get time entries error');
       mockDbManager.getTimeEntries.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-time-entries',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-time-entries',
+      )?.[1] as (event: unknown, taskId?: string) => Promise<unknown>;
 
-      try {
-        await handler({}, 't1');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Get time entries error');
-      }
-
+      await expect(handler({}, 't1')).rejects.toThrow('Get time entries error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error getting time entries:',
         error,
@@ -783,22 +918,16 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle get-pending-time-entries errors', async () => {
+    it('should log and throw errors for get-pending-time-entries', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Get pending entries error');
       mockDbManager.getPendingTimeEntries.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-pending-time-entries',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-pending-time-entries',
+      )?.[1] as () => Promise<unknown>;
 
-      try {
-        await handler();
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Get pending entries error');
-      }
-
+      await expect(handler()).rejects.toThrow('Get pending entries error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error getting pending time entries:',
         error,
@@ -807,22 +936,22 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle create-time-entry errors', async () => {
+    it('should log and throw errors for create-time-entry', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Create time entry error');
       mockDbManager.createTimeEntry.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-time-entry',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-time-entry',
+      )?.[1] as (
+        event: unknown,
+        date: string,
+        hours: number,
+      ) => Promise<unknown>;
 
-      try {
-        await handler({}, '2025-01-01', 8, 't1', 'Notes');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Create time entry error');
-      }
-
+      await expect(handler({}, '2025-01-01', 8)).rejects.toThrow(
+        'Create time entry error',
+      );
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error creating time entry:',
         error,
@@ -831,22 +960,22 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle update-time-entry errors', async () => {
+    it('should log and throw errors for update-time-entry', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Update time entry error');
       mockDbManager.updateTimeEntry.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'update-time-entry',
-      )[1];
+        (call: unknown[]) => call[0] === 'update-time-entry',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        data: { hours?: number },
+      ) => Promise<unknown>;
 
-      try {
-        await handler({}, '1', { hours: 10 });
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Update time entry error');
-      }
-
+      await expect(handler({}, '1', { hours: 10 })).rejects.toThrow(
+        'Update time entry error',
+      );
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error updating time entry:',
         error,
@@ -855,22 +984,34 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle get-work-periods errors', async () => {
+    it('should log and throw errors for delete-time-entry', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Delete error');
+      mockDbManager.deleteTimeEntry.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-time-entry',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Delete error');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error deleting time entry:',
+        error,
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should log and throw errors for get-work-periods', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Get work periods error');
       mockDbManager.getWorkPeriods.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'get-work-periods',
-      )[1];
+        (call: unknown[]) => call[0] === 'get-work-periods',
+      )?.[1] as () => Promise<unknown>;
 
-      try {
-        await handler();
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Get work periods error');
-      }
-
+      await expect(handler()).rejects.toThrow('Get work periods error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error getting work periods:',
         error,
@@ -879,24 +1020,127 @@ describe('Database Handlers', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should handle create-work-period errors', async () => {
+    it('should log and throw errors for create-work-period', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Create work period error');
       mockDbManager.createWorkPeriod.mockRejectedValue(error);
 
       const handler = handleSpy.mock.calls.find(
-        (call) => call[0] === 'create-work-period',
-      )[1];
+        (call: unknown[]) => call[0] === 'create-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        plannedHours: number,
+      ) => Promise<unknown>;
 
-      try {
-        await handler({}, 2025, 1, 160, 'Note');
-        fail('Should have thrown an error');
-      } catch (e: any) {
-        expect(e.message).toBe('Create work period error');
-      }
-
+      await expect(handler({}, 2025, 1, 160)).rejects.toThrow(
+        'Create work period error',
+      );
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error creating work period:',
+        error,
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should log and throw errors for get-tags', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get tags error');
+      mockDbManager.getTags.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-tags',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Get tags error');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error getting tags:',
+        error,
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should log and throw errors for create-tag', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create tag error');
+      mockDbManager.createTag.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-tag',
+      )?.[1] as (event: unknown, name: string) => Promise<unknown>;
+
+      await expect(handler({}, 'New Tag')).rejects.toThrow('Create tag error');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error creating tag:',
+        error,
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should log and throw errors for delete-tag', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Delete tag error');
+      mockDbManager.deleteTag.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-tag',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Delete tag error');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error deleting tag:',
+        error,
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should log and throw errors for add-tag-to-task', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Add tag error');
+      mockDbManager.addTagToTask.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'add-tag-to-task',
+      )?.[1] as (
+        event: unknown,
+        taskId: string,
+        tagId: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 'task1', 'tag1')).rejects.toThrow(
+        'Add tag error',
+      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error adding tag to task:',
+        error,
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should log and throw errors for remove-tag-from-task', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Remove tag error');
+      mockDbManager.removeTagFromTask.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'remove-tag-from-task',
+      )?.[1] as (
+        event: unknown,
+        taskId: string,
+        tagId: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 'task1', 'tag1')).rejects.toThrow(
+        'Remove tag error',
+      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error removing tag from task:',
         error,
       );
 

@@ -1,8 +1,28 @@
-import { ipcMain, BrowserWindow } from 'electron';
+import { ipcMain, BrowserWindow, app } from 'electron';
 import { DatabaseManager } from '../database/database';
 
 let dbManager: DatabaseManager | null = null;
 let currentLanguage = 'es';
+
+/**
+ * Supported languages in the application
+ */
+const SUPPORTED_LANGUAGES = ['es', 'en'];
+const DEFAULT_LANGUAGE = 'es';
+
+/**
+ * Gets the system language and maps it to a supported language.
+ */
+function getSystemLanguage(): string {
+  const systemLocale = app.getLocale();
+  const langCode = systemLocale.split('-')[0].toLowerCase();
+
+  if (SUPPORTED_LANGUAGES.includes(langCode)) {
+    return langCode;
+  }
+
+  return DEFAULT_LANGUAGE;
+}
 
 /**
  * Sets up language-related IPC handlers.
@@ -27,9 +47,10 @@ export const setupLanguageHandlers = (db: DatabaseManager): void => {
 
 /**
  * Gets language preference from database.
+ * Falls back to system language if no preference is stored.
  */
 async function getLanguageFromDb(): Promise<string> {
-  if (!dbManager) return 'es';
+  if (!dbManager) return getSystemLanguage();
 
   try {
     const prisma = dbManager.getPrisma();
@@ -37,18 +58,19 @@ async function getLanguageFromDb(): Promise<string> {
       where: { id: 'app_settings' },
     });
 
-    if (settings) {
+    if (settings?.language) {
       currentLanguage = settings.language;
       return settings.language;
     }
 
+    const systemLang = getSystemLanguage();
     await prisma.appSettings.create({
-      data: { id: 'app_settings', darkMode: true, language: 'es' },
+      data: { id: 'app_settings', darkMode: true, language: systemLang },
     });
-    currentLanguage = 'es';
-    return 'es';
+    currentLanguage = systemLang;
+    return systemLang;
   } catch {
-    return 'es';
+    return getSystemLanguage();
   }
 }
 

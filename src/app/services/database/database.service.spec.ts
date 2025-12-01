@@ -151,6 +151,19 @@ describe('DatabaseService', () => {
         'Desc',
         5,
         's1',
+        undefined,
+      );
+    });
+
+    it('should create task with tags', async () => {
+      await service.createTask('p1', 'Task', 'Desc', 5, 's1', ['t1', 't2']);
+      expect(mockElectronAPI.createTask).toHaveBeenCalledWith(
+        'p1',
+        'Task',
+        'Desc',
+        5,
+        's1',
+        ['t1', 't2'],
       );
     });
 

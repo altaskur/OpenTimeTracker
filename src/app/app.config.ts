@@ -18,9 +18,11 @@ import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 
 import { AuraBlack } from './themes/aura-black.preset';
-import { GlobalErrorHandler } from './services/global-error-handler';
-import { ThemeService } from './services/theme.service';
-import { TranslationService } from './services/translation.service';
+import {
+  GlobalErrorHandler,
+  ThemeService,
+  TranslationService,
+} from './services';
 
 export const appConfig: ApplicationConfig = {
   providers: [

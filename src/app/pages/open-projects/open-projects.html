@@ -1,51 +1,82 @@
 <app-open-layout>
+  <p-toast />
+
   <p-card>
     <ng-template pTemplate="header">
-      <div class="header-content">
-        <h2>{{ "projects.title" | translate }}</h2>
-        <p-button
-          [label]="'projects.new' | translate"
-          icon="pi pi-plus"
-          (click)="openNewDialog()"
-          (keydown.enter)="openNewDialog()"
-        >
-        </p-button>
-      </div>
+      <header class="projects-header">
+        <h2 class="projects-header__title">
+          {{ "projects.title" | translate }}
+        </h2>
+        <div class="projects-header__actions">
+          <p-iconfield class="projects-header__search">
+            <p-inputicon styleClass="pi pi-search" />
+            <input
+              type="text"
+              pInputText
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event)"
+              [placeholder]="'projects.search' | translate"
+            />
+          </p-iconfield>
+          <p-button
+            [label]="'projects.new' | translate"
+            icon="pi pi-plus"
+            (onClick)="openNewDialog()"
+          />
+        </div>
+      </header>
     </ng-template>
 
-    <p-table [value]="projects()" [loading]="loading()">
+    <p-table [value]="filteredProjects()" [loading]="loading()">
       <ng-template pTemplate="header">
         <tr>
           <th scope="col">{{ "table.name" | translate }}</th>
           <th scope="col">{{ "table.description" | translate }}</th>
           <th scope="col">{{ "table.createdAt" | translate }}</th>
-          <th scope="col" style="width: 150px">
+          <th scope="col" class="projects-table__actions-col">
             {{ "table.actions" | translate }}
           </th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-project>
         <tr>
-          <td>{{ project.name }}</td>
-          <td>{{ project.description }}</td>
-          <td>{{ project.created_at }}</td>
+          <td>
+            <span class="projects-table__project-name">{{ project.name }}</span>
+          </td>
+          <td>
+            @if (project.description) {
+              <span class="projects-table__project-description">{{
+                project.description
+              }}</span>
+            } @else {
+              <span class="projects-table__no-data">{{
+                "table.noData" | translate
+              }}</span>
+            }
+          </td>
+          <td>{{ project.createdAt | date: "dd/MM/yyyy" }}</td>
           <td>
             <p-button
               icon="pi pi-pencil"
               [text]="true"
               severity="secondary"
-              (click)="openEditDialog(project)"
-              (keydown.enter)="openEditDialog(project)"
-            >
-            </p-button>
+              (onClick)="openEditDialog(project)"
+              [pTooltip]="'common.edit' | translate"
+            />
             <p-button
               icon="pi pi-trash"
               [text]="true"
               severity="danger"
-              (click)="deleteProject(project.id)"
-              (keydown.enter)="deleteProject(project.id)"
-            >
-            </p-button>
+              (onClick)="confirmDeleteProject(project)"
+              [pTooltip]="'common.delete' | translate"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="projects-table__empty">
+            {{ "projects.empty" | translate }}
           </td>
         </tr>
       </ng-template>
@@ -58,46 +89,52 @@
     [modal]="true"
     [style]="{ width: '500px' }"
   >
-    <div class="field">
-      <label for="name">{{
-        "projects.dialog.namePlaceholder" | translate
-      }}</label>
-      <input
-        id="name"
-        type="text"
-        pInputText
-        [(ngModel)]="projectForm.name"
-        class="w-full"
-      />
-    </div>
+    <div class="project-form">
+      <div class="project-form__field">
+        <label for="projectName" class="project-form__label">{{
+          "projects.dialog.namePlaceholder" | translate
+        }}</label>
+        <input
+          id="projectName"
+          type="text"
+          pInputText
+          [(ngModel)]="projectForm.name"
+          class="project-form__input"
+        />
+      </div>
 
-    <div class="field">
-      <label for="description">{{
-        "projects.dialog.descriptionPlaceholder" | translate
-      }}</label>
-      <textarea
-        id="description"
-        pInputText
-        [(ngModel)]="projectForm.description"
-        rows="4"
-        class="w-full"
-      ></textarea>
+      <div class="project-form__field">
+        <label for="projectDescription" class="project-form__label">{{
+          "projects.dialog.descriptionPlaceholder" | translate
+        }}</label>
+        <textarea
+          id="projectDescription"
+          pTextarea
+          [(ngModel)]="projectForm.description"
+          rows="4"
+          class="project-form__textarea"
+        ></textarea>
+      </div>
     </div>
 
     <ng-template pTemplate="footer">
       <p-button
         [label]="'common.cancel' | translate"
         severity="secondary"
-        (click)="dialogVisible.set(false)"
-        (keydown.enter)="dialogVisible.set(false)"
-      >
-      </p-button>
+        (onClick)="dialogVisible.set(false)"
+      />
       <p-button
         [label]="'common.save' | translate"
-        (click)="saveProject()"
-        (keydown.enter)="saveProject()"
-      >
-      </p-button>
+        [disabled]="!projectForm.name"
+        (onClick)="saveProject()"
+      />
     </ng-template>
   </p-dialog>
+
+  <app-open-confirm-delete
+    [visible]="deleteDialogVisible()"
+    [message]="'dialogs.deleteProject' | translate"
+    (confirmed)="onDeleteConfirmed()"
+    (cancelled)="onDeleteCancelled()"
+  />
 </app-open-layout>

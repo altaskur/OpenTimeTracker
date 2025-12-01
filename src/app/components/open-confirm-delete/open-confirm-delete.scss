@@ -1,0 +1,19 @@
+.confirm-delete {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+
+  &__icon {
+    font-size: 2.5rem;
+    color: var(--p-orange-500);
+    flex-shrink: 0;
+  }
+
+  &__message {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-color);
+    padding-top: 0.5rem;
+  }
+}

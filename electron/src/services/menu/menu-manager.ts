@@ -7,7 +7,67 @@ import {
   shell,
 } from 'electron';
 import { getIsDarkMode, setDarkMode } from '../ipc/theme-handlers';
-import { getCurrentLanguage, setLanguage } from '../ipc/language-handlers';
+import {
+  getCurrentLanguage,
+  setLanguage,
+  initializeLanguage,
+} from '../ipc/language-handlers';
+
+/**
+ * Menu translations for supported languages
+ */
+const menuTranslations: Record<string, Record<string, string>> = {
+  es: {
+    home: 'Inicio',
+    main: 'Principal',
+    projects: 'Proyectos',
+    tasks: 'Tareas',
+    darkLightMode: 'Modo Claro/Oscuro',
+    language: 'Idioma',
+    spanish: 'Español',
+    english: 'English',
+    exit: 'Salir',
+    help: 'Ayuda',
+    documentation: 'Documentación',
+    keyboardShortcuts: 'Atajos de Teclado',
+    reportIssue: 'Reportar un Problema',
+    about: 'Acerca de OpenTimeTracker',
+    aboutTitle: 'Acerca de OpenTimeTracker',
+    aboutDetail:
+      'Versión: 1.0.0\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 21 + Electron + Prisma\n\n© 2025 Isaac Julián',
+    shortcutsTitle: 'Atajos de Teclado',
+    shortcutsMessage: 'Atajos de Teclado Disponibles',
+    navShortcuts: 'Navegación:',
+    goToMain: 'Ir a Principal',
+    goToProjects: 'Ir a Proyectos',
+    goToTasks: 'Ir a Tareas',
+  },
+  en: {
+    home: 'Home',
+    main: 'Main',
+    projects: 'Projects',
+    tasks: 'Tasks',
+    darkLightMode: 'Dark/Light Mode',
+    language: 'Language',
+    spanish: 'Español',
+    english: 'English',
+    exit: 'Exit',
+    help: 'Help',
+    documentation: 'Documentation',
+    keyboardShortcuts: 'Keyboard Shortcuts',
+    reportIssue: 'Report an Issue',
+    about: 'About OpenTimeTracker',
+    aboutTitle: 'About OpenTimeTracker',
+    aboutDetail:
+      'Version: 1.0.0\n\nTime tracking system for projects and tasks.\n\nBuilt with Angular 21 + Electron + Prisma\n\n© 2025 Isaac Julián',
+    shortcutsTitle: 'Keyboard Shortcuts',
+    shortcutsMessage: 'Available Keyboard Shortcuts',
+    navShortcuts: 'Navigation:',
+    goToMain: 'Go to Main',
+    goToProjects: 'Go to Projects',
+    goToTasks: 'Go to Tasks',
+  },
+};
 
 export class MenuManager {
   private readonly window: BrowserWindow;
@@ -17,14 +77,22 @@ export class MenuManager {
   }
 
   /**
+   * Gets translation for current language
+   */
+  private t(key: string): string {
+    const lang = getCurrentLanguage();
+    return menuTranslations[lang]?.[key] || menuTranslations['es'][key] || key;
+  }
+
+  /**
    * Creates and sets up the application menu
    */
-  public setupMenu(): void {
+  public async setupMenu(): Promise<void> {
+    await initializeLanguage();
     const isMac = process.platform === 'darwin';
     const currentLang = getCurrentLanguage();
 
     const template: MenuItemConstructorOptions[] = [
-      // App Menu (solo macOS)
       ...(isMac
         ? [
             {
@@ -44,34 +112,33 @@ export class MenuManager {
           ]
         : []),
 
-      // Inicio
       {
-        label: 'Inicio',
+        label: this.t('home'),
         submenu: [
           {
-            label: 'Principal',
+            label: this.t('main'),
             accelerator: 'CmdOrCtrl+1',
             click: (): void => {
               this.navigateTo('/');
             },
           },
           {
-            label: 'Tiempo Restante',
+            label: this.t('projects'),
             accelerator: 'CmdOrCtrl+2',
-            click: (): void => {
-              this.navigateTo('/remaining-time');
-            },
-          },
-          {
-            label: 'Proyectos',
-            accelerator: 'CmdOrCtrl+3',
             click: (): void => {
               this.navigateTo('/projects');
             },
           },
+          {
+            label: this.t('tasks'),
+            accelerator: 'CmdOrCtrl+3',
+            click: (): void => {
+              this.navigateTo('/tasks');
+            },
+          },
           { type: 'separator' },
           {
-            label: 'Modo Claro/Oscuro',
+            label: this.t('darkLightMode'),
             accelerator: 'CmdOrCtrl+T',
             click: (): void => {
               void this.toggleTheme();
@@ -79,10 +146,10 @@ export class MenuManager {
           },
           { type: 'separator' },
           {
-            label: 'Idioma',
+            label: this.t('language'),
             submenu: [
               {
-                label: 'Español',
+                label: this.t('spanish'),
                 type: 'radio',
                 checked: currentLang === 'es',
                 click: (): void => {
@@ -90,7 +157,7 @@ export class MenuManager {
                 },
               },
               {
-                label: 'English',
+                label: this.t('english'),
                 type: 'radio',
                 checked: currentLang === 'en',
                 click: (): void => {
@@ -104,7 +171,7 @@ export class MenuManager {
             : [
                 { type: 'separator' as const },
                 {
-                  label: 'Salir',
+                  label: this.t('exit'),
                   accelerator: 'Alt+F4',
                   role: 'quit' as const,
                 },
@@ -112,12 +179,11 @@ export class MenuManager {
         ],
       },
 
-      // Ayuda
       {
-        label: 'Ayuda',
+        label: this.t('help'),
         submenu: [
           {
-            label: 'Documentación',
+            label: this.t('documentation'),
             click: (): void => {
               void shell.openExternal(
                 'https://github.com/altaskur/OpenTimeTracker',
@@ -125,7 +191,7 @@ export class MenuManager {
             },
           },
           {
-            label: 'Atajos de Teclado',
+            label: this.t('keyboardShortcuts'),
             accelerator: 'CmdOrCtrl+/',
             click: (): void => {
               this.showKeyboardShortcuts();
@@ -133,7 +199,7 @@ export class MenuManager {
           },
           { type: 'separator' },
           {
-            label: 'Reportar un Problema',
+            label: this.t('reportIssue'),
             click: (): void => {
               void shell.openExternal(
                 'https://github.com/altaskur/OpenTimeTracker/issues',
@@ -142,7 +208,7 @@ export class MenuManager {
           },
           { type: 'separator' },
           {
-            label: 'Acerca de OpenTimeTracker',
+            label: this.t('about'),
             click: (): void => {
               this.showAboutDialog();
             },
@@ -175,7 +241,7 @@ export class MenuManager {
    */
   private async changeLanguage(lang: string): Promise<void> {
     await setLanguage(this.window, lang);
-    this.setupMenu();
+    await this.setupMenu();
   }
 
   /**
@@ -184,9 +250,9 @@ export class MenuManager {
   private showAboutDialog(): void {
     dialog.showMessageBox(this.window, {
       type: 'info',
-      title: 'Acerca de OpenTimeTracker',
+      title: this.t('aboutTitle'),
       message: 'OpenTimeTracker',
-      detail: `Versión: 1.0.0\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 21 + Electron + Prisma\n\n© 2025 Isaac Julián`,
+      detail: this.t('aboutDetail'),
       buttons: ['OK'],
     });
   }
@@ -200,13 +266,13 @@ export class MenuManager {
 
     dialog.showMessageBox(this.window, {
       type: 'info',
-      title: 'Atajos de Teclado',
-      message: 'Atajos de Teclado Disponibles',
-      detail: `Navegación:
-${mod}+1 - Ir a Principal
-${mod}+2 - Ir a Tiempo Restante
-${mod}+3 - Ir a Proyectos
-${mod}+T - Modo Claro/Oscuro`,
+      title: this.t('shortcutsTitle'),
+      message: this.t('shortcutsMessage'),
+      detail: `${this.t('navShortcuts')}
+${mod}+1 - ${this.t('goToMain')}
+${mod}+2 - ${this.t('goToProjects')}
+${mod}+3 - ${this.t('goToTasks')}
+${mod}+T - ${this.t('darkLightMode')}`,
       buttons: ['OK'],
     });
   }

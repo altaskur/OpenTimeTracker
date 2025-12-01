@@ -1,0 +1,38 @@
+<p-dialog
+  [header]="'dialogs.confirmDelete' | translate"
+  [visible]="visible()"
+  (visibleChange)="onCancel()"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '400px' }"
+>
+  <div
+    class="confirm-delete"
+    role="alertdialog"
+    aria-describedby="confirm-message"
+  >
+    <i
+      class="confirm-delete__icon pi pi-exclamation-triangle"
+      aria-hidden="true"
+    ></i>
+    <p id="confirm-message" class="confirm-delete__message">
+      {{ message() }}
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'common.cancel' | translate"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-times"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      [label]="'common.delete' | translate"
+      severity="danger"
+      icon="pi pi-trash"
+      (onClick)="onConfirm()"
+    />
+  </ng-template>
+</p-dialog>

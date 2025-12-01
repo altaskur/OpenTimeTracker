@@ -2,10 +2,15 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ElectronNavigationService } from './electron-navigation.service';
 
+type MockElectronAPI = Pick<Window['electronAPI'], 'onNavigate'>;
+type WindowWithOptionalElectronAPI = Omit<Window, 'electronAPI'> & {
+  electronAPI?: Partial<Window['electronAPI']>;
+};
+
 describe('ElectronNavigationService', () => {
   let service: ElectronNavigationService;
   let mockRouter: jasmine.SpyObj<Router>;
-  let mockElectronAPI: any;
+  let mockElectronAPI: MockElectronAPI;
   let navigationCallback: ((route: string) => void) | null = null;
 
   beforeEach(() => {
@@ -36,7 +41,7 @@ describe('ElectronNavigationService', () => {
 
   afterEach(() => {
     navigationCallback = null;
-    delete (window as any).electronAPI;
+    delete (window as WindowWithOptionalElectronAPI).electronAPI;
   });
 
   it('should be created', () => {
@@ -81,7 +86,7 @@ describe('ElectronNavigationService', () => {
   });
 
   it('should not throw error when electronAPI is not available', () => {
-    delete (window as any).electronAPI;
+    delete (window as WindowWithOptionalElectronAPI).electronAPI;
 
     expect(() => {
       service = TestBed.inject(ElectronNavigationService);
@@ -89,7 +94,7 @@ describe('ElectronNavigationService', () => {
   });
 
   it('should not setup listener when onNavigate is not available', () => {
-    (window as any).electronAPI = {};
+    (window as WindowWithOptionalElectronAPI).electronAPI = {};
 
     expect(() => {
       service = TestBed.inject(ElectronNavigationService);
