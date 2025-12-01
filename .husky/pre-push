@@ -2,6 +2,9 @@
 
 echo "🔍 Running tests before push..."
 
+# Use npx to ensure npm commands work across different environments
+export PATH="$PATH:$(dirname $(which node))"
+
 # Run Angular tests
 npm run test:coverage
 ANGULAR_EXIT=$?
