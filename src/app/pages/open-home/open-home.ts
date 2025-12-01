@@ -33,8 +33,8 @@ export class OpenHome implements OnInit {
   pendingTasks = signal<Task[]>([]);
   loading = signal(false);
 
-  ngOnInit(): void {
-    void this.loadPendingTasks();
+  async ngOnInit(): Promise<void> {
+    await this.loadPendingTasks();
   }
 
   async loadPendingTasks(): Promise<void> {

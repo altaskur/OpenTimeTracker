@@ -1,9 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { DatabaseService } from './database.service';
 
+interface GlobalWithElectronAPI {
+  electronAPI?: typeof window.electronAPI;
+}
+
 describe('DatabaseService', () => {
   let service: DatabaseService;
-  let originalElectronAPI: typeof window.electronAPI;
+  let originalElectronAPI: typeof window.electronAPI | undefined;
   let mockElectronAPI: Partial<typeof window.electronAPI>;
 
   beforeEach(() => {
@@ -97,9 +101,9 @@ describe('DatabaseService', () => {
         .and.returnValue(Promise.resolve([])),
     };
 
-    // Save original and set up global window mock
-    originalElectronAPI = window.electronAPI;
-    Object.defineProperty(window, 'electronAPI', {
+    // Save original and set up global mock
+    originalElectronAPI = (globalThis as GlobalWithElectronAPI).electronAPI;
+    Object.defineProperty(globalThis, 'electronAPI', {
       writable: true,
       configurable: true,
       value: mockElectronAPI,
@@ -112,14 +116,13 @@ describe('DatabaseService', () => {
   afterEach(() => {
     // Restore original electronAPI
     if (originalElectronAPI) {
-      Object.defineProperty(window, 'electronAPI', {
+      Object.defineProperty(globalThis, 'electronAPI', {
         writable: true,
         configurable: true,
         value: originalElectronAPI,
       });
     } else {
-      delete (window as { electronAPI?: typeof window.electronAPI })
-        .electronAPI;
+      delete (globalThis as GlobalWithElectronAPI).electronAPI;
     }
   });
 
@@ -365,8 +368,7 @@ describe('DatabaseService', () => {
   describe('Error handling when electronAPI is not available', () => {
     beforeEach(() => {
       // Remove electronAPI to test error paths
-      delete (window as { electronAPI?: typeof window.electronAPI })
-        .electronAPI;
+      delete (globalThis as GlobalWithElectronAPI).electronAPI;
     });
 
     it('should throw ElectronApiError when getProjects and electronAPI is undefined', async () => {

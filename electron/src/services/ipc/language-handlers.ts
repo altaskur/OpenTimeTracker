@@ -7,7 +7,7 @@ let currentLanguage = 'es';
 /**
  * Supported languages in the application
  */
-const SUPPORTED_LANGUAGES = ['es', 'en'];
+const SUPPORTED_LANGUAGES = new Set(['es', 'en']);
 const DEFAULT_LANGUAGE = 'es';
 
 /**
@@ -17,7 +17,7 @@ function getSystemLanguage(): string {
   const systemLocale = app.getLocale();
   const langCode = systemLocale.split('-')[0].toLowerCase();
 
-  if (SUPPORTED_LANGUAGES.includes(langCode)) {
+  if (SUPPORTED_LANGUAGES.has(langCode)) {
     return langCode;
   }
 

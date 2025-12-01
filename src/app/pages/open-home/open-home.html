@@ -12,9 +12,9 @@
         </div>
       </p-card>
     } @else {
-      <ul class="tasks-grid" role="list">
+      <div class="tasks-grid" role="list">
         @for (task of pendingTasks(); track task.id) {
-          <li>
+          <div role="listitem">
             <article class="task-card">
               <p-card>
                 <span class="project-name">{{
@@ -42,9 +42,9 @@
                 </div>
               </p-card>
             </article>
-          </li>
+          </div>
         }
-      </ul>
+      </div>
     }
   </section>
 </app-open-layout>
