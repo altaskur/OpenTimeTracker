@@ -316,6 +316,23 @@ export class OpenCalendar implements OnInit {
 
       const lastWorkDayIndex = this.findLastWorkDayIndex(weekDays);
 
+      // Calculate effective weekly target (subtract day override minutes)
+      let effectiveWeeklyMinutes = weeklyMinutes;
+      for (const day of weekDays) {
+        if (
+          !day.isWorkDay &&
+          day.override?.dayType?.defaultMinutes !== undefined
+        ) {
+          effectiveWeeklyMinutes -= day.override.dayType.defaultMinutes;
+        } else if (
+          !day.isWorkDay &&
+          day.override?.minutes !== null &&
+          day.override?.minutes !== undefined
+        ) {
+          effectiveWeeklyMinutes -= day.override.minutes;
+        }
+      }
+
       // Calculate minutes already allocated (excluding last work day)
       let allocatedMinutes = 0;
       for (let i = 0; i < weekDays.length; i++) {
@@ -331,12 +348,6 @@ export class OpenCalendar implements OnInit {
           } else {
             allocatedMinutes += daySchedule[String(day.dayOfWeek)] || 480;
           }
-        } else if (day.override?.dayType?.defaultMinutes !== undefined) {
-          // Non-work days with type (like worked holiday)
-          allocatedMinutes += this.getWorkedMinutesForDate(
-            day.dateString,
-            entries,
-          );
         }
       }
 
@@ -355,8 +366,11 @@ export class OpenCalendar implements OnInit {
           plannedMinutes = day.override.dayType.defaultMinutes;
         } else if (day.isWorkDay) {
           if (isLastWorkDay) {
-            // Auto-adjust last work day to complete weekly target
-            plannedMinutes = Math.max(0, weeklyMinutes - allocatedMinutes);
+            // Auto-adjust last work day to complete effective weekly target
+            plannedMinutes = Math.max(
+              0,
+              effectiveWeeklyMinutes - allocatedMinutes,
+            );
           } else {
             plannedMinutes = daySchedule[String(day.dayOfWeek)] || 480;
           }
