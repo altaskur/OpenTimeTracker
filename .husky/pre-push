@@ -1,26 +1,37 @@
 #!/bin/sh
 
-echo "🔍 Running tests before push..."
+# Get the current branch and remote branch being pushed to
+current_branch=$(git symbolic-ref --short HEAD)
+remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{push} 2>/dev/null | sed 's/.*\///')
 
-# Use npx to ensure npm commands work across different environments
-export PATH="$PATH:$(dirname $(which node))"
+echo "🔍 Pushing from $current_branch to $remote_branch..."
 
-# Run Angular tests
-npm run test:coverage
-ANGULAR_EXIT=$?
+# Only run coverage checks when pushing to develop or main
+if [ "$remote_branch" = "develop" ] || [ "$remote_branch" = "main" ] || [ "$current_branch" = "develop" ] || [ "$current_branch" = "main" ]; then
+  echo "🧪 Running tests with coverage check (target: develop/main)..."
 
-if [ $ANGULAR_EXIT -ne 0 ]; then
-  echo "❌ Push rejected: Angular tests failed"
-  exit 1
+  # Use npx to ensure npm commands work across different environments
+  export PATH="$PATH:$(dirname $(which node))"
+
+  # Run Angular tests with coverage
+  npm run test:coverage
+  ANGULAR_EXIT=$?
+
+  if [ $ANGULAR_EXIT -ne 0 ]; then
+    echo "❌ Push rejected: Angular tests failed or coverage below 80%"
+    exit 1
+  fi
+
+  # Run Electron tests with coverage
+  npm run test:electron:coverage
+  ELECTRON_EXIT=$?
+
+  if [ $ELECTRON_EXIT -ne 0 ]; then
+    echo "❌ Push rejected: Electron tests failed or coverage below 80%"
+    exit 1
+  fi
+
+  echo "✅ All tests passed with sufficient coverage!"
+else
+  echo "⏭️ Skipping coverage check (not pushing to develop/main)"
 fi
-
-# Run Electron tests
-npm run test:electron:coverage
-ELECTRON_EXIT=$?
-
-if [ $ELECTRON_EXIT -ne 0 ]; then
-  echo "❌ Push rejected: Electron tests failed"
-  exit 1
-fi
-
-echo "✅ All tests passed - proceeding with push"
