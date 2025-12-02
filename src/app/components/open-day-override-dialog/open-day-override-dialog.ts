@@ -10,6 +10,7 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
@@ -26,6 +27,7 @@ import { DayOverride, DayType } from '../../../types/electron';
   imports: [
     FormsModule,
     ButtonModule,
+    DatePickerModule,
     DialogModule,
     InputNumberModule,
     InputTextModule,
@@ -51,11 +53,17 @@ export class OpenDayOverrideDialogComponent {
 
   /** Event emitted when day override is saved */
   saved = output<{
-    date: Date;
+    dates: Date[];
     dayTypeId: string | null;
     minutes: number | null;
     note: string | null;
   }>();
+
+  /** Selected date range for multiple days */
+  dateRange = signal<Date[] | null>(null);
+
+  /** Whether range selection mode is enabled */
+  useRangeMode = signal(false);
 
   /** Event emitted when cancelled or dialog closed */
   cancelled = output<void>();
@@ -88,6 +96,21 @@ export class OpenDayOverrideDialogComponent {
 
   /** Formatted date for display */
   formattedDate = computed(() => {
+    if (this.useRangeMode()) {
+      const range = this.dateRange();
+      if (range && range.length === 2 && range[0] && range[1]) {
+        const start = range[0].toLocaleDateString('es-ES', {
+          day: 'numeric',
+          month: 'short',
+        });
+        const end = range[1].toLocaleDateString('es-ES', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        });
+        return `${start} - ${end}`;
+      }
+    }
     const date = this.selectedDate();
     return date.toLocaleDateString('es-ES', {
       weekday: 'long',
@@ -95,6 +118,24 @@ export class OpenDayOverrideDialogComponent {
       month: 'long',
       year: 'numeric',
     });
+  });
+
+  /** Get all dates in the range */
+  allSelectedDates = computed(() => {
+    if (this.useRangeMode()) {
+      const range = this.dateRange();
+      if (range && range.length === 2 && range[0] && range[1]) {
+        const dates: Date[] = [];
+        const current = new Date(range[0]);
+        const end = new Date(range[1]);
+        while (current <= end) {
+          dates.push(new Date(current));
+          current.setDate(current.getDate() + 1);
+        }
+        return dates;
+      }
+    }
+    return [this.selectedDate()];
   });
 
   /** Selected day type object */
@@ -133,6 +174,8 @@ export class OpenDayOverrideDialogComponent {
     if (override) {
       this.dayTypeId.set(override.dayTypeId || null);
       this.note.set(override.note || '');
+      this.useRangeMode.set(false);
+      this.dateRange.set(null);
       if (override.minutes !== null && override.minutes !== undefined) {
         this.useCustomMinutes.set(true);
         this.customMinutes.set(override.minutes);
@@ -145,6 +188,8 @@ export class OpenDayOverrideDialogComponent {
       this.note.set('');
       this.useCustomMinutes.set(false);
       this.customMinutes.set(null);
+      this.useRangeMode.set(false);
+      this.dateRange.set([this.selectedDate(), this.selectedDate()]);
     }
   }
 
@@ -164,7 +209,7 @@ export class OpenDayOverrideDialogComponent {
     if (!this.isValid()) return;
 
     this.saved.emit({
-      date: this.selectedDate(),
+      dates: this.allSelectedDates(),
       dayTypeId: this.dayTypeId(),
       minutes: this.useCustomMinutes() ? this.customMinutes() : null,
       note: this.note() || null,

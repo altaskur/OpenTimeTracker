@@ -139,7 +139,7 @@
           display="chip"
           appendTo="body"
         >
-          <ng-template pTemplate="item" let-tag>
+          <ng-template let-tag #item>
             <span class="tag-option">
               <span class="tag-option__name">{{ tag.name }}</span>
               <p-button
@@ -154,7 +154,7 @@
               />
             </span>
           </ng-template>
-          <ng-template pTemplate="footer">
+          <ng-template #footer>
             <p-inputGroup class="tag-create">
               <input
                 type="text"

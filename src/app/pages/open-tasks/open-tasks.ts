@@ -85,6 +85,9 @@ export class OpenTasks implements OnInit {
   /** New tag name for creation */
   newTagName = signal('');
 
+  /** Show new tag input */
+  showNewTagInput = signal(false);
+
   /** Selected project filter (null = all) */
   selectedProjectFilter = signal<string | null>(null);
 
@@ -257,6 +260,7 @@ export class OpenTasks implements OnInit {
     try {
       await this.dbService.createTag(name);
       this.newTagName.set('');
+      this.showNewTagInput.set(false);
       this.tags.set(await this.dbService.getTags());
       this.showSuccess('toast.tagCreated');
     } catch {

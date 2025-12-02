@@ -154,4 +154,8 @@
   .p-chip {
     font-size: 0.75rem;
   }
+
+  .task-form__multiselect--elevated .p-overlay {
+    z-index: 10000 !important;
+  }
 }

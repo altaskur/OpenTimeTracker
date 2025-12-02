@@ -15,6 +15,40 @@
         <span>{{ formattedDate() }}</span>
       </div>
 
+      @if (!isEditing()) {
+        <div class="day-override__section">
+          <div class="day-override__custom-toggle">
+            <input
+              type="checkbox"
+              id="use-range-mode"
+              [(ngModel)]="useRangeMode"
+            />
+            <label for="use-range-mode">{{
+              "dayOverride.multipleDays" | translate
+            }}</label>
+          </div>
+          @if (useRangeMode()) {
+            <p-datepicker
+              [(ngModel)]="dateRange"
+              selectionMode="range"
+              [inline]="true"
+              [showWeek]="true"
+              dateFormat="dd/mm/yy"
+              [style]="{ width: '100%' }"
+            />
+            @if (allSelectedDates().length > 1) {
+              <div class="day-override__range-info">
+                <i class="pi pi-info-circle"></i>
+                <span
+                  >{{ allSelectedDates().length }}
+                  {{ "dayOverride.daysSelected" | translate }}</span
+                >
+              </div>
+            }
+          }
+        </div>
+      }
+
       <div class="day-override__section">
         <div class="day-override__label-row">
           <label class="day-override__label" for="day-type-select">{{
@@ -38,8 +72,9 @@
           [showClear]="true"
           [style]="{ width: '100%' }"
           inputId="day-type-select"
+          appendTo="body"
         >
-          <ng-template pTemplate="item" let-item>
+          <ng-template #item let-item>
             <div class="day-override__type-option">
               <span
                 class="day-override__type-color"
@@ -51,7 +86,7 @@
               </span>
             </div>
           </ng-template>
-          <ng-template pTemplate="selectedItem" let-item>
+          <ng-template #selectedItem let-item>
             @if (item) {
               <div class="day-override__type-option">
                 <span

@@ -58,6 +58,21 @@
   font-size: 0.875rem;
 }
 
+.day-override__range-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--p-primary-50);
+  border-radius: var(--p-border-radius);
+  color: var(--p-primary-700);
+  font-size: 0.875rem;
+
+  i {
+    font-size: 1rem;
+  }
+}
+
 .day-override__custom-toggle {
   display: flex;
   align-items: center;

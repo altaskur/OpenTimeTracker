@@ -295,26 +295,32 @@ export class OpenCalendarPage implements OnInit {
    * Handles day override save
    */
   async onDayOverrideSaved(data: {
-    date: Date;
+    dates: Date[];
     dayTypeId: string | null;
     minutes: number | null;
     note: string | null;
   }): Promise<void> {
     try {
-      const dateString = this.formatDateString(data.date);
-      await this.dbService.upsertDayOverride(
-        dateString,
-        data.dayTypeId ?? undefined,
-        data.minutes ?? undefined,
-        data.note ?? undefined,
-      );
+      for (const date of data.dates) {
+        const dateString = this.formatDateString(date);
+        await this.dbService.upsertDayOverride(
+          dateString,
+          data.dayTypeId ?? undefined,
+          data.minutes ?? undefined,
+          data.note ?? undefined,
+        );
+      }
       await this.loadData();
       this.showDayOverrideDialog.set(false);
       this.editingDayOverride.set(null);
+      const messageKey =
+        data.dates.length > 1
+          ? 'toast.dayOverridesSaved'
+          : 'toast.dayOverrideSaved';
       this.messageService.add({
         severity: 'success',
         summary: this.translate.instant('common.success'),
-        detail: this.translate.instant('toast.dayOverrideSaved'),
+        detail: this.translate.instant(messageKey),
       });
     } catch {
       this.messageService.add({

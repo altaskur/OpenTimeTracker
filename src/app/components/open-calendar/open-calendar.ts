@@ -316,20 +316,14 @@ export class OpenCalendar implements OnInit {
 
       const lastWorkDayIndex = this.findLastWorkDayIndex(weekDays);
 
-      // Calculate effective weekly target (subtract day override minutes)
+      // Calculate effective weekly target (subtract scheduled hours for days with dayTypeId)
       let effectiveWeeklyMinutes = weeklyMinutes;
       for (const day of weekDays) {
-        if (
-          !day.isWorkDay &&
-          day.override?.dayType?.defaultMinutes !== undefined
-        ) {
-          effectiveWeeklyMinutes -= day.override.dayType.defaultMinutes;
-        } else if (
-          !day.isWorkDay &&
-          day.override?.minutes !== null &&
-          day.override?.minutes !== undefined
-        ) {
-          effectiveWeeklyMinutes -= day.override.minutes;
+        const wasOriginallyWorkDay = workDaysArray.includes(day.dayOfWeek);
+
+        if (wasOriginallyWorkDay && day.override?.dayTypeId) {
+          const scheduledMinutes = daySchedule[String(day.dayOfWeek)] || 480;
+          effectiveWeeklyMinutes -= scheduledMinutes;
         }
       }
 
