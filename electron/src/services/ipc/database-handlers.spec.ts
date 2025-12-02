@@ -250,7 +250,12 @@ describe('Database Handlers', () => {
             createdAt: new Date('2025-01-01'),
             updatedAt: new Date('2025-01-01'),
           },
-          status: { id: 's1', name: 'Pendiente' },
+          status: {
+            id: 's1',
+            name: 'status.pending',
+            color: '#f59e0b',
+            isDefault: true,
+          },
           tags: [],
         },
       ];
@@ -284,7 +289,12 @@ describe('Database Handlers', () => {
             createdAt: new Date('2025-01-01'),
             updatedAt: new Date('2025-01-01'),
           },
-          status: { id: 's1', name: 'Pendiente' },
+          status: {
+            id: 's1',
+            name: 'status.pending',
+            color: '#f59e0b',
+            isDefault: true,
+          },
           tags: [],
         },
       ];
@@ -403,9 +413,9 @@ describe('Database Handlers', () => {
 
     it('should handle get-task-statuses', async () => {
       const mockStatuses = [
-        { id: '1', name: 'Pendiente' },
-        { id: '2', name: 'En progreso' },
-        { id: '3', name: 'Completada' },
+        { id: '1', name: 'status.pending', color: '#f59e0b', isDefault: true },
+        { id: '2', name: 'En progreso', color: '#3b82f6', isDefault: true },
+        { id: '3', name: 'Completada', color: '#6b7280', isDefault: true },
       ];
       mockDbManager.getTaskStatuses.mockResolvedValue(mockStatuses);
 
@@ -434,6 +444,7 @@ describe('Database Handlers', () => {
           notes: null,
           createdAt: new Date('2025-01-01'),
           updatedAt: new Date('2025-01-01'),
+          task: null,
         },
       ];
       mockDbManager.getTimeEntries.mockResolvedValue(mockEntries);
@@ -457,6 +468,25 @@ describe('Database Handlers', () => {
           notes: null,
           createdAt: new Date('2025-01-01'),
           updatedAt: new Date('2025-01-01'),
+          task: {
+            id: 't1',
+            name: 'Test Task',
+            projectId: 'p1',
+            description: null,
+            estimatedHours: null,
+            statusId: null,
+            createdAt: new Date('2025-01-01'),
+            updatedAt: new Date('2025-01-01'),
+            project: {
+              id: 'p1',
+              name: 'Test Project',
+              description: null,
+              isClosed: false,
+              createdAt: new Date('2025-01-01'),
+              updatedAt: new Date('2025-01-01'),
+            },
+            status: null,
+          },
         },
       ];
       mockDbManager.getTimeEntries.mockResolvedValue(mockEntries);
@@ -502,6 +532,16 @@ describe('Database Handlers', () => {
         notes: 'Work notes',
         createdAt: new Date('2025-01-01'),
         updatedAt: new Date('2025-01-01'),
+        task: {
+          id: 't1',
+          name: 'Test Task',
+          description: null,
+          createdAt: new Date('2025-01-01'),
+          updatedAt: new Date('2025-01-01'),
+          projectId: 'p1',
+          estimatedHours: null,
+          statusId: null,
+        },
       };
       mockDbManager.createTimeEntry.mockResolvedValue(mockEntry);
 
@@ -534,6 +574,7 @@ describe('Database Handlers', () => {
         notes: null,
         createdAt: new Date('2025-01-01'),
         updatedAt: new Date('2025-01-01'),
+        task: null,
       };
       mockDbManager.updateTimeEntry.mockResolvedValue(mockEntry);
 

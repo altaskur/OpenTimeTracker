@@ -35,10 +35,10 @@ describe('OpenTasks', () => {
   ];
 
   const mockStatuses = [
-    { id: 's1', name: 'Pendiente' },
-    { id: 's2', name: 'En progreso' },
-    { id: 's3', name: 'Completada' },
-    { id: 's4', name: 'Bloqueada' },
+    { id: 's1', name: 'Pendiente', color: '#f59e0b', isDefault: true },
+    { id: 's2', name: 'En progreso', color: '#3b82f6', isDefault: true },
+    { id: 's3', name: 'Completada', color: '#6b7280', isDefault: true },
+    { id: 's4', name: 'Bloqueada', color: '#ef4444', isDefault: true },
   ];
 
   const mockTags = [
@@ -54,7 +54,12 @@ describe('OpenTasks', () => {
       description: 'Task description',
       estimatedHours: 5,
       statusId: 's1',
-      status: { id: 's1', name: 'Pendiente' },
+      status: {
+        id: 's1',
+        name: 'Pendiente',
+        color: '#f59e0b',
+        isDefault: true,
+      },
       project: mockProjects[0],
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
@@ -67,7 +72,12 @@ describe('OpenTasks', () => {
       description: null,
       estimatedHours: null,
       statusId: 's2',
-      status: { id: 's2', name: 'En progreso' },
+      status: {
+        id: 's2',
+        name: 'En progreso',
+        color: '#3b82f6',
+        isDefault: true,
+      },
       project: mockProjects[1],
       createdAt: new Date('2024-01-02'),
       updatedAt: new Date('2024-01-02'),
@@ -502,6 +512,425 @@ describe('OpenTasks', () => {
       expect(component.deleteTagDialogVisible()).toBe(false);
       expect(component.tagToDelete()).toBeNull();
       expect(mockDatabaseService.deleteTag).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('filteredCompletedTasks', () => {
+    it('should return completed tasks when no filter', async () => {
+      const completedTask: TaskWithTags = {
+        ...mockTasks[0],
+        id: 'task3',
+        status: {
+          id: 's3',
+          name: 'Completada',
+          color: '#6b7280',
+          isDefault: true,
+        },
+      };
+      mockDatabaseService.getTasks.and.returnValue(
+        Promise.resolve([...mockTasks, completedTask]),
+      );
+      await component.loadData();
+      component.selectedProjectFilter.set(null);
+
+      const filtered = component.filteredCompletedTasks();
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].status?.name).toBe('Completada');
+    });
+
+    it('should filter completed tasks by project', async () => {
+      const completedTask1: TaskWithTags = {
+        ...mockTasks[0],
+        id: 'task3',
+        projectId: '1',
+        status: {
+          id: 's3',
+          name: 'status.completed',
+          color: '#6b7280',
+          isDefault: true,
+        },
+      };
+      const completedTask2: TaskWithTags = {
+        ...mockTasks[0],
+        id: 'task4',
+        projectId: '2',
+        status: {
+          id: 's3',
+          name: 'Completed',
+          color: '#6b7280',
+          isDefault: true,
+        },
+      };
+      mockDatabaseService.getTasks.and.returnValue(
+        Promise.resolve([...mockTasks, completedTask1, completedTask2]),
+      );
+      await component.loadData();
+      component.selectedProjectFilter.set('1');
+
+      const filtered = component.filteredCompletedTasks();
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].projectId).toBe('1');
+    });
+  });
+
+  describe('translatedStatuses', () => {
+    it('should translate status names starting with status.', async () => {
+      await component.loadData();
+
+      const translated = component.translatedStatuses();
+      expect(translated.length).toBe(4);
+      expect(translated.every((s) => s.displayName)).toBeTrue();
+    });
+
+    it('should keep original name for non-translatable statuses', async () => {
+      const customStatuses = [
+        { id: 's5', name: 'Custom Status', color: '#123456', isDefault: false },
+      ];
+      mockDatabaseService.getTaskStatuses.and.returnValue(
+        Promise.resolve(customStatuses),
+      );
+      await component.loadData();
+
+      const translated = component.translatedStatuses();
+      expect(translated[0].displayName).toBe('Custom Status');
+    });
+  });
+
+  describe('loadData error handling', () => {
+    it('should handle error gracefully', async () => {
+      mockDatabaseService.getTasks.and.returnValue(
+        Promise.reject(new Error('Load error')),
+      );
+      spyOn(console, 'error');
+
+      await component.loadData();
+
+      expect(console.error).toHaveBeenCalled();
+      expect(component.loading()).toBeFalse();
+    });
+  });
+
+  describe('delete task when no task selected', () => {
+    it('should not call delete when no task to delete', async () => {
+      component.taskToDelete.set(null);
+      component.deleteTaskDialogVisible.set(true);
+
+      await component.onDeleteTaskConfirmed();
+
+      expect(mockDatabaseService.deleteTask).not.toHaveBeenCalled();
+      expect(component.deleteTaskDialogVisible()).toBeFalse();
+    });
+  });
+
+  describe('delete tag when no tag selected', () => {
+    it('should not call delete when no tag to delete', async () => {
+      component.tagToDelete.set(null);
+      component.deleteTagDialogVisible.set(true);
+
+      await component.onDeleteTagConfirmed();
+
+      expect(mockDatabaseService.deleteTag).not.toHaveBeenCalled();
+      expect(component.deleteTagDialogVisible()).toBeFalse();
+    });
+  });
+
+  describe('showNewTagInput toggle', () => {
+    it('should toggle new tag input visibility', () => {
+      expect(component.showNewTagInput()).toBeFalse();
+      component.showNewTagInput.set(true);
+      expect(component.showNewTagInput()).toBeTrue();
+    });
+  });
+
+  describe('task form tags handling', () => {
+    it('should extract tag ids correctly', async () => {
+      await component.loadData();
+      component.taskForm = {
+        id: 'task1',
+        projectId: '1',
+        name: 'Updated',
+        description: 'Desc',
+        estimatedHours: 5,
+        statusId: 's1',
+        tags: [
+          { id: 't1', name: 'Bug' },
+          { id: 't2', name: 'Feature' },
+        ],
+      };
+
+      await component.saveTask();
+
+      expect(mockDatabaseService.updateTask).toHaveBeenCalledWith('task1', {
+        name: 'Updated',
+        description: 'Desc',
+        estimatedHours: 5,
+        statusId: 's1',
+        tagIds: ['t1', 't2'],
+      });
+    });
+  });
+
+  describe('getStatusSeverity additional cases', () => {
+    it('should return correct severity for English names', () => {
+      expect(component.getStatusSeverity('Completed')).toBe('success');
+      expect(component.getStatusSeverity('In Progress')).toBe('info');
+      expect(component.getStatusSeverity('Pending')).toBe('warn');
+      expect(component.getStatusSeverity('Blocked')).toBe('danger');
+    });
+  });
+
+  describe('getActionSeverity', () => {
+    it('should return success for create action', () => {
+      expect(component.getActionSeverity('create')).toBe('success');
+      expect(component.getActionSeverity('CREATE')).toBe('success');
+    });
+
+    it('should return info for update action', () => {
+      expect(component.getActionSeverity('update')).toBe('info');
+      expect(component.getActionSeverity('UPDATE')).toBe('info');
+    });
+
+    it('should return danger for delete action', () => {
+      expect(component.getActionSeverity('delete')).toBe('danger');
+      expect(component.getActionSeverity('DELETE')).toBe('danger');
+    });
+
+    it('should return secondary for unknown action', () => {
+      expect(component.getActionSeverity('unknown')).toBe('secondary');
+    });
+  });
+
+  describe('getActionIcon', () => {
+    it('should return pi-plus for create', () => {
+      expect(component.getActionIcon('create')).toBe('pi pi-plus');
+    });
+
+    it('should return pi-pencil for update', () => {
+      expect(component.getActionIcon('update')).toBe('pi pi-pencil');
+    });
+
+    it('should return pi-trash for delete', () => {
+      expect(component.getActionIcon('delete')).toBe('pi pi-trash');
+    });
+
+    it('should return pi-circle for unknown', () => {
+      expect(component.getActionIcon('unknown')).toBe('pi pi-circle');
+    });
+  });
+
+  describe('getEntityIcon', () => {
+    it('should return pi-check-square for Task', () => {
+      expect(component.getEntityIcon('Task')).toBe('pi pi-check-square');
+    });
+
+    it('should return pi-clock for TimeEntry', () => {
+      expect(component.getEntityIcon('TimeEntry')).toBe('pi pi-clock');
+    });
+
+    it('should return pi-folder for Project', () => {
+      expect(component.getEntityIcon('Project')).toBe('pi pi-folder');
+    });
+
+    it('should return pi-circle for unknown', () => {
+      expect(component.getEntityIcon('Unknown')).toBe('pi pi-circle');
+    });
+  });
+
+  describe('getEntityLabel', () => {
+    it('should return translated label for known entity', () => {
+      const result = component.getEntityLabel('Task');
+      expect(result).toBeTruthy();
+    });
+
+    it('should return entity type when translation not found', () => {
+      const result = component.getEntityLabel('UnknownEntity');
+      expect(result).toBe('UnknownEntity');
+    });
+  });
+
+  describe('getActionLabel', () => {
+    it('should return translated label for known action', () => {
+      const result = component.getActionLabel('create');
+      expect(result).toBeTruthy();
+    });
+  });
+
+  describe('openDetailsDialog', () => {
+    beforeEach(async () => {
+      mockDatabaseService.getAuditLogs = jasmine
+        .createSpy('getAuditLogs')
+        .and.returnValue(Promise.resolve([]));
+      await component.loadData();
+    });
+
+    it('should open details dialog and load history', async () => {
+      const task = mockTasks[0];
+
+      await component.openDetailsDialog(task);
+
+      expect(component.selectedTask()).toBe(task);
+      expect(component.detailsDialogVisible()).toBeTrue();
+      expect(mockDatabaseService.getAuditLogs).toHaveBeenCalled();
+    });
+
+    it('should handle error loading task history', async () => {
+      mockDatabaseService.getAuditLogs = jasmine
+        .createSpy('getAuditLogs')
+        .and.returnValue(Promise.reject(new Error('Load error')));
+      spyOn(console, 'error');
+      const task = mockTasks[0];
+
+      await component.openDetailsDialog(task);
+
+      expect(console.error).toHaveBeenCalled();
+      expect(component.taskHistory()).toEqual([]);
+    });
+  });
+
+  describe('formatChangesDescription', () => {
+    it('should return dash for null changes', () => {
+      const log = { changes: null } as never;
+      expect(component.formatChangesDescription(log)).toBe('-');
+    });
+
+    it('should return dash for invalid JSON', () => {
+      const log = { changes: 'not valid json' } as never;
+      expect(component.formatChangesDescription(log)).toBe('-');
+    });
+
+    it('should format TimeEntry create action', () => {
+      const log = {
+        entityType: 'TimeEntry',
+        action: 'create',
+        changes: JSON.stringify({
+          date: '2025-01-01',
+          hours: 8,
+          notes: 'Work',
+        }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toContain('2025-01-01');
+    });
+
+    it('should format TimeEntry update action with previous', () => {
+      const log = {
+        entityType: 'TimeEntry',
+        action: 'update',
+        changes: JSON.stringify({
+          previous: { hours: 4, date: '2025-01-01', notes: 'Old' },
+          current: { hours: 8, date: '2025-01-02', notes: 'New' },
+        }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toContain('→');
+    });
+
+    it('should format Task create action', () => {
+      const log = {
+        entityType: 'Task',
+        action: 'create',
+        changes: JSON.stringify({ name: 'New Task' }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toContain('New Task');
+    });
+
+    it('should format Task delete action', () => {
+      const log = {
+        entityType: 'Task',
+        action: 'delete',
+        changes: JSON.stringify({ name: 'Deleted Task' }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toContain('Deleted Task');
+    });
+
+    it('should format Task update action with previous', () => {
+      const log = {
+        entityType: 'Task',
+        action: 'update',
+        changes: JSON.stringify({
+          previous: { name: 'Old Name' },
+          current: {
+            name: 'New Name',
+            description: 'updated',
+            statusId: 's2',
+            estimatedHours: 10,
+          },
+        }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toBeTruthy();
+    });
+
+    it('should return dash for unknown entity types', () => {
+      const log = {
+        entityType: 'Unknown',
+        action: 'create',
+        changes: JSON.stringify({ foo: 'bar' }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toBe('-');
+    });
+
+    it('should handle TimeEntry update without notes change', () => {
+      const log = {
+        entityType: 'TimeEntry',
+        action: 'update',
+        changes: JSON.stringify({
+          previous: { hours: 4, date: '2025-01-01', notes: 'Same' },
+          current: { hours: 8, date: '2025-01-01', notes: 'Same' },
+        }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toBeTruthy();
+    });
+
+    it('should return dash for Task update with no changes', () => {
+      const log = {
+        entityType: 'Task',
+        action: 'update',
+        changes: JSON.stringify({
+          previous: { name: 'Same' },
+          current: {},
+        }),
+      } as never;
+      const result = component.formatChangesDescription(log);
+      expect(result).toBe('-');
+    });
+  });
+
+  describe('delete tag error handling', () => {
+    it('should show error when delete tag fails', async () => {
+      await component.loadData();
+      mockDatabaseService.deleteTag.and.returnValue(
+        Promise.reject(new Error('Delete error')),
+      );
+      const tag = mockTags[0];
+      component.tagToDelete.set(tag);
+
+      await component.onDeleteTagConfirmed();
+
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'error' }),
+      );
+    });
+  });
+
+  describe('delete task error handling', () => {
+    it('should show error when delete task fails', async () => {
+      await component.loadData();
+      mockDatabaseService.deleteTask.and.returnValue(
+        Promise.reject(new Error('Delete error')),
+      );
+      const task = mockTasks[0];
+      component.taskToDelete.set(task);
+
+      await component.onDeleteTaskConfirmed();
+
+      expect(mockMessageService.add).toHaveBeenCalledWith(
+        jasmine.objectContaining({ severity: 'error' }),
+      );
     });
   });
 });

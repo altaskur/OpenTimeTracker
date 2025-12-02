@@ -264,4 +264,148 @@ describe('OpenDayOverrideDialogComponent', () => {
     expect(component.useCustomMinutes()).toBeFalse();
     expect(component.customMinutes()).toBeNull();
   });
+
+  describe('range mode', () => {
+    it('should toggle range mode', () => {
+      fixture.detectChanges();
+      component.useRangeMode.set(true);
+      expect(component.useRangeMode()).toBeTrue();
+    });
+
+    it('should format date range correctly', () => {
+      fixture.detectChanges();
+      component.useRangeMode.set(true);
+      const start = new Date(2025, 11, 1);
+      const end = new Date(2025, 11, 5);
+      component.dateRange.set([start, end]);
+
+      const formatted = component.formattedDate();
+      expect(formatted).toContain('-');
+    });
+
+    it('should return all dates in range', () => {
+      fixture.detectChanges();
+      component.useRangeMode.set(true);
+      const start = new Date(2025, 11, 1);
+      const end = new Date(2025, 11, 3);
+      component.dateRange.set([start, end]);
+
+      const dates = component.allSelectedDates();
+      expect(dates.length).toBe(3);
+    });
+
+    it('should return single date when range is incomplete', () => {
+      fixture.detectChanges();
+      component.useRangeMode.set(true);
+      component.dateRange.set([today]);
+
+      const dates = component.allSelectedDates();
+      expect(dates.length).toBe(1);
+    });
+
+    it('should return single date when range has null end', () => {
+      fixture.detectChanges();
+      component.useRangeMode.set(true);
+      component.dateRange.set([today, null as unknown as Date]);
+
+      const dates = component.allSelectedDates();
+      expect(dates.length).toBe(1);
+    });
+
+    it('should return single date when not in range mode', () => {
+      fixture.detectChanges();
+      component.useRangeMode.set(false);
+
+      const dates = component.allSelectedDates();
+      expect(dates.length).toBe(1);
+      expect(dates[0]).toEqual(today);
+    });
+
+    it('should format single date when range is incomplete', () => {
+      fixture.detectChanges();
+      component.useRangeMode.set(true);
+      component.dateRange.set([today]);
+
+      const formatted = component.formattedDate();
+      expect(formatted).toBeTruthy();
+      expect(formatted).not.toContain(' - ');
+    });
+  });
+
+  describe('day override with no custom minutes', () => {
+    it('should not use custom minutes when override minutes is null', async () => {
+      const overrideNoMinutes: DayOverride = {
+        id: 'do-2',
+        date: '2025-12-25',
+        dayTypeId: 'dt-1',
+        minutes: null,
+        note: 'No custom minutes',
+        createdAt: today,
+        updatedAt: today,
+      };
+      fixture.componentRef.setInput('dayOverride', overrideNoMinutes);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.useCustomMinutes()).toBeFalse();
+      expect(component.customMinutes()).toBeNull();
+    });
+  });
+
+  describe('effectiveMinutes edge cases', () => {
+    it('should return null when no day type selected', () => {
+      fixture.detectChanges();
+      expect(component.effectiveMinutes()).toBeNull();
+    });
+
+    it('should return day type default when custom minutes disabled', () => {
+      fixture.detectChanges();
+      component.dayTypeId.set('dt-1');
+      component.useCustomMinutes.set(false);
+
+      expect(component.effectiveMinutes()).toBe(480);
+    });
+
+    it('should return custom minutes when enabled and set', () => {
+      fixture.detectChanges();
+      component.dayTypeId.set('dt-1');
+      component.useCustomMinutes.set(true);
+      component.customMinutes.set(120);
+
+      expect(component.effectiveMinutes()).toBe(120);
+    });
+  });
+
+  describe('selectedDayType edge cases', () => {
+    it('should return null when dayTypeId does not match any type', () => {
+      fixture.detectChanges();
+      component.dayTypeId.set('non-existent-id');
+
+      expect(component.selectedDayType()).toBeNull();
+    });
+  });
+
+  describe('onUseCustomMinutesChange edge cases', () => {
+    it('should not set custom minutes when no day type selected', () => {
+      fixture.detectChanges();
+      component.dayTypeId.set(null);
+      component.useCustomMinutes.set(true);
+      component.customMinutes.set(null);
+
+      component.onUseCustomMinutesChange();
+
+      expect(component.customMinutes()).toBeNull();
+    });
+
+    it('should not modify custom minutes when checkbox is unchecked', () => {
+      fixture.detectChanges();
+      component.dayTypeId.set('dt-1');
+      component.customMinutes.set(120);
+      component.useCustomMinutes.set(false);
+
+      component.onUseCustomMinutesChange();
+
+      expect(component.customMinutes()).toBe(120);
+    });
+  });
 });

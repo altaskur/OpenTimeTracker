@@ -15,6 +15,8 @@ export interface Project {
 export interface TaskStatus {
   id: string;
   name: string;
+  color: string;
+  isDefault: boolean;
 }
 
 export interface Task {
@@ -115,4 +117,16 @@ export interface AuditLog {
   createdAt: Date;
   projectId: string | null;
   taskId: string | null;
+}
+
+export interface ActionHistory {
+  id: string;
+  entityType: string;
+  entityId: string;
+  actionType: string;
+  description: string;
+  previousData: string | null;
+  newData: string | null;
+  undone: boolean;
+  createdAt: Date;
 }

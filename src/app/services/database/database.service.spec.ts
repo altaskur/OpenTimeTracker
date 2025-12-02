@@ -99,6 +99,61 @@ describe('DatabaseService', () => {
       getAuditLogs: jasmine
         .createSpy('getAuditLogs')
         .and.returnValue(Promise.resolve([])),
+      getDayTypes: jasmine
+        .createSpy('getDayTypes')
+        .and.returnValue(Promise.resolve([])),
+      createDayType: jasmine
+        .createSpy('createDayType')
+        .and.returnValue(
+          Promise.resolve({ id: '1', name: 'Holiday', color: '#ff0000' }),
+        ),
+      updateDayType: jasmine
+        .createSpy('updateDayType')
+        .and.returnValue(
+          Promise.resolve({ id: '1', name: 'Updated', color: '#00ff00' }),
+        ),
+      deleteDayType: jasmine
+        .createSpy('deleteDayType')
+        .and.returnValue(Promise.resolve({ success: true, changes: 1 })),
+      getDayOverrides: jasmine
+        .createSpy('getDayOverrides')
+        .and.returnValue(Promise.resolve([])),
+      getDayOverride: jasmine
+        .createSpy('getDayOverride')
+        .and.returnValue(Promise.resolve(null)),
+      createDayOverride: jasmine
+        .createSpy('createDayOverride')
+        .and.returnValue(Promise.resolve({ id: '1', date: '2025-01-01' })),
+      updateDayOverride: jasmine
+        .createSpy('updateDayOverride')
+        .and.returnValue(Promise.resolve({ id: '1', date: '2025-01-01' })),
+      upsertDayOverride: jasmine
+        .createSpy('upsertDayOverride')
+        .and.returnValue(Promise.resolve({ id: '1', date: '2025-01-01' })),
+      deleteDayOverride: jasmine
+        .createSpy('deleteDayOverride')
+        .and.returnValue(Promise.resolve({ success: true, changes: 1 })),
+      getWorkConfig: jasmine
+        .createSpy('getWorkConfig')
+        .and.returnValue(Promise.resolve({ id: '1', dailyMinutes: 480 })),
+      updateWorkConfig: jasmine
+        .createSpy('updateWorkConfig')
+        .and.returnValue(Promise.resolve({ id: '1', dailyMinutes: 420 })),
+      getMonthConfig: jasmine
+        .createSpy('getMonthConfig')
+        .and.returnValue(Promise.resolve({ year: 2025, month: 12 })),
+      updateMonthConfig: jasmine
+        .createSpy('updateMonthConfig')
+        .and.returnValue(Promise.resolve({ year: 2025, month: 12 })),
+      getActionHistory: jasmine
+        .createSpy('getActionHistory')
+        .and.returnValue(Promise.resolve([])),
+      clearActionHistory: jasmine
+        .createSpy('clearActionHistory')
+        .and.returnValue(Promise.resolve({ success: true, changes: 5 })),
+      updateTag: jasmine
+        .createSpy('updateTag')
+        .and.returnValue(Promise.resolve({ id: '1', name: 'Updated Tag' })),
     };
 
     // Save original and set up global mock
@@ -342,6 +397,7 @@ describe('DatabaseService', () => {
       expect(mockElectronAPI.getAuditLogs).toHaveBeenCalledWith(
         undefined,
         undefined,
+        undefined,
       );
       expect(result).toEqual([]);
     });
@@ -350,6 +406,7 @@ describe('DatabaseService', () => {
       const result = await service.getAuditLogs('Project');
       expect(mockElectronAPI.getAuditLogs).toHaveBeenCalledWith(
         'Project',
+        undefined,
         undefined,
       );
       expect(result).toEqual([]);
@@ -360,8 +417,181 @@ describe('DatabaseService', () => {
       expect(mockElectronAPI.getAuditLogs).toHaveBeenCalledWith(
         'Project',
         'p1',
+        undefined,
       );
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('Day Types', () => {
+    it('should get day types', async () => {
+      const result = await service.getDayTypes();
+      expect(mockElectronAPI.getDayTypes).toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+
+    it('should create day type', async () => {
+      const result = await service.createDayType('Holiday', '#ff0000', 0);
+      expect(mockElectronAPI.createDayType).toHaveBeenCalledWith(
+        'Holiday',
+        '#ff0000',
+        0,
+      );
+      expect(result.name).toBe('Holiday');
+    });
+
+    it('should update day type', async () => {
+      const result = await service.updateDayType('1', { name: 'Updated' });
+      expect(mockElectronAPI.updateDayType).toHaveBeenCalledWith('1', {
+        name: 'Updated',
+      });
+      expect(result.name).toBe('Updated');
+    });
+
+    it('should delete day type', async () => {
+      const result = await service.deleteDayType('1');
+      expect(mockElectronAPI.deleteDayType).toHaveBeenCalledWith('1');
+      expect(result.success).toBeTrue();
+    });
+  });
+
+  describe('Day Overrides', () => {
+    it('should get day overrides', async () => {
+      const result = await service.getDayOverrides();
+      expect(mockElectronAPI.getDayOverrides).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+      );
+      expect(result).toEqual([]);
+    });
+
+    it('should get day overrides by date range', async () => {
+      const result = await service.getDayOverrides('2025-01-01', '2025-01-31');
+      expect(mockElectronAPI.getDayOverrides).toHaveBeenCalledWith(
+        '2025-01-01',
+        '2025-01-31',
+      );
+      expect(result).toEqual([]);
+    });
+
+    it('should get single day override', async () => {
+      const result = await service.getDayOverride('2025-01-01');
+      expect(mockElectronAPI.getDayOverride).toHaveBeenCalledWith('2025-01-01');
+      expect(result).toBeNull();
+    });
+
+    it('should create day override', async () => {
+      const result = await service.createDayOverride(
+        '2025-01-01',
+        'dt1',
+        480,
+        'Note',
+      );
+      expect(mockElectronAPI.createDayOverride).toHaveBeenCalledWith(
+        '2025-01-01',
+        'dt1',
+        480,
+        'Note',
+      );
+      expect(result.date).toBe('2025-01-01');
+    });
+
+    it('should update day override', async () => {
+      const result = await service.updateDayOverride('1', { minutes: 240 });
+      expect(mockElectronAPI.updateDayOverride).toHaveBeenCalledWith('1', {
+        minutes: 240,
+      });
+      expect(result.id).toBe('1');
+    });
+
+    it('should upsert day override', async () => {
+      const result = await service.upsertDayOverride(
+        '2025-01-01',
+        'dt1',
+        480,
+        'Note',
+      );
+      expect(mockElectronAPI.upsertDayOverride).toHaveBeenCalledWith(
+        '2025-01-01',
+        'dt1',
+        480,
+        'Note',
+      );
+      expect(result.date).toBe('2025-01-01');
+    });
+
+    it('should delete day override', async () => {
+      const result = await service.deleteDayOverride('2025-01-01');
+      expect(mockElectronAPI.deleteDayOverride).toHaveBeenCalledWith(
+        '2025-01-01',
+      );
+      expect(result.success).toBeTrue();
+    });
+  });
+
+  describe('Work Config', () => {
+    it('should get work config', async () => {
+      const result = await service.getWorkConfig();
+      expect(mockElectronAPI.getWorkConfig).toHaveBeenCalled();
+      expect(result.dailyMinutes).toBe(480);
+    });
+
+    it('should update work config', async () => {
+      const result = await service.updateWorkConfig({ dailyMinutes: 420 });
+      expect(mockElectronAPI.updateWorkConfig).toHaveBeenCalledWith({
+        dailyMinutes: 420,
+      });
+      expect(result.dailyMinutes).toBe(420);
+    });
+  });
+
+  describe('Month Config', () => {
+    it('should get month config', async () => {
+      const result = await service.getMonthConfig(2025, 12);
+      expect(mockElectronAPI.getMonthConfig).toHaveBeenCalledWith(2025, 12);
+      expect(result.year).toBe(2025);
+      expect(result.month).toBe(12);
+    });
+
+    it('should update month config', async () => {
+      const result = await service.updateMonthConfig(2025, 12, {
+        workDays: '1,2,3,4,5',
+      });
+      expect(mockElectronAPI.updateMonthConfig).toHaveBeenCalledWith(2025, 12, {
+        workDays: '1,2,3,4,5',
+      });
+      expect(result.year).toBe(2025);
+    });
+  });
+
+  describe('Action History', () => {
+    it('should get action history', async () => {
+      const result = await service.getActionHistory();
+      expect(mockElectronAPI.getActionHistory).toHaveBeenCalledWith(undefined);
+      expect(result).toEqual([]);
+    });
+
+    it('should get action history with limit', async () => {
+      const result = await service.getActionHistory(10);
+      expect(mockElectronAPI.getActionHistory).toHaveBeenCalledWith(10);
+      expect(result).toEqual([]);
+    });
+
+    it('should clear action history', async () => {
+      const result = await service.clearActionHistory();
+      expect(mockElectronAPI.clearActionHistory).toHaveBeenCalled();
+      expect(result.success).toBeTrue();
+    });
+  });
+
+  describe('Tags - update', () => {
+    it('should update tag', async () => {
+      const result = await service.updateTag('1', 'Updated Tag');
+      expect(mockElectronAPI.updateTag).toHaveBeenCalledWith(
+        '1',
+        'Updated Tag',
+      );
+      expect(result.name).toBe('Updated Tag');
     });
   });
 
@@ -519,6 +749,163 @@ describe('DatabaseService', () => {
       await expectAsync(service.getAuditLogs()).toBeRejectedWithError(
         /Electron API not available/,
       );
+    });
+
+    it('should throw ElectronApiError when getDayTypes and electronAPI is undefined', async () => {
+      await expectAsync(service.getDayTypes()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when createDayType and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.createDayType('Holiday', '#ff0000', 0),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when updateDayType and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.updateDayType('1', { name: 'Updated' }),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when deleteDayType and electronAPI is undefined', async () => {
+      await expectAsync(service.deleteDayType('1')).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when getDayOverrides and electronAPI is undefined', async () => {
+      await expectAsync(service.getDayOverrides()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when getDayOverride and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.getDayOverride('2025-01-01'),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when createDayOverride and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.createDayOverride('2025-01-01', 'dt1', 480, 'Note'),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when updateDayOverride and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.updateDayOverride('1', { minutes: 240 }),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when upsertDayOverride and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.upsertDayOverride('2025-01-01', 'dt1', 480, 'Note'),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when deleteDayOverride and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.deleteDayOverride('2025-01-01'),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when getWorkConfig and electronAPI is undefined', async () => {
+      await expectAsync(service.getWorkConfig()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when updateWorkConfig and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.updateWorkConfig({ dailyMinutes: 420 }),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when getMonthConfig and electronAPI is undefined', async () => {
+      await expectAsync(service.getMonthConfig(2025, 12)).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when updateMonthConfig and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.updateMonthConfig(2025, 12, { workDays: '1,2,3' }),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+
+    it('should throw ElectronApiError when getActionHistory and electronAPI is undefined', async () => {
+      await expectAsync(service.getActionHistory()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when clearActionHistory and electronAPI is undefined', async () => {
+      await expectAsync(service.clearActionHistory()).toBeRejectedWithError(
+        /Electron API not available/,
+      );
+    });
+
+    it('should throw ElectronApiError when updateTag and electronAPI is undefined', async () => {
+      await expectAsync(
+        service.updateTag('1', 'Updated'),
+      ).toBeRejectedWithError(/Electron API not available/);
+    });
+  });
+
+  describe('Signal state', () => {
+    it('should have lastError as null initially', () => {
+      expect(service.lastError()).toBeNull();
+    });
+
+    it('should set lastError when operation fails', async () => {
+      delete (globalThis as GlobalWithElectronAPI).electronAPI;
+
+      try {
+        await service.getProjects();
+      } catch {
+        // Expected error
+      }
+
+      expect(service.lastError()).toBeTruthy();
+    });
+
+    it('should clear lastError on successful operation', async () => {
+      // First cause an error
+      const originalAPI = mockElectronAPI;
+      delete (globalThis as GlobalWithElectronAPI).electronAPI;
+
+      try {
+        await service.getProjects();
+      } catch {
+        // Expected
+      }
+
+      // Restore and make successful call
+      Object.defineProperty(globalThis, 'electronAPI', {
+        writable: true,
+        configurable: true,
+        value: originalAPI,
+      });
+
+      await service.getProjects();
+      expect(service.lastError()).toBeNull();
+    });
+
+    it('should report isElectronAvailable correctly', () => {
+      expect(service.isElectronAvailable()).toBeTrue();
+    });
+  });
+
+  describe('wrapped error handling', () => {
+    it('should wrap non-ElectronApiError errors', async () => {
+      mockElectronAPI.getProjects = jasmine
+        .createSpy('getProjects')
+        .and.returnValue(Promise.reject(new Error('Network error')));
+
+      await expectAsync(service.getProjects()).toBeRejectedWithError();
+      expect(service.lastError()).toBeTruthy();
     });
   });
 });

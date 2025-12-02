@@ -384,4 +384,104 @@ describe('OpenProjects', () => {
       );
     });
   });
+
+  describe('Update project with existing data', () => {
+    it('should use previous data for undo when updating project', async () => {
+      const existingProject = createMockProject(
+        '1',
+        'Original',
+        'Original Desc',
+      );
+      component.projects.set([existingProject]);
+      mockDatabaseService.updateProject.and.returnValue(
+        Promise.resolve(createMockProject('1', 'Updated', 'Updated Desc')),
+      );
+      mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
+
+      component.projectForm = {
+        id: '1',
+        name: 'Updated',
+        description: 'Updated Desc',
+      };
+      await component.saveProject();
+
+      expect(mockDatabaseService.updateProject).toHaveBeenCalledWith(
+        '1',
+        'Updated',
+        'Updated Desc',
+      );
+    });
+
+    it('should handle update when project not found', async () => {
+      component.projects.set([]);
+      mockDatabaseService.updateProject.and.returnValue(
+        Promise.resolve(createMockProject('1', 'Updated', 'Updated Desc')),
+      );
+      mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
+
+      component.projectForm = {
+        id: '1',
+        name: 'Updated',
+        description: 'Updated Desc',
+      };
+      await component.saveProject();
+
+      expect(mockDatabaseService.updateProject).toHaveBeenCalled();
+    });
+  });
+
+  describe('Delete project with existing data', () => {
+    it('should capture project data for undo when deleting', async () => {
+      const existingProject = createMockProject('1', 'Test', 'Description');
+      component.projects.set([existingProject]);
+      mockDatabaseService.deleteProject.and.returnValue(
+        Promise.resolve({ success: true }),
+      );
+      mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
+
+      component.projectToDelete.set(existingProject);
+      await component.onDeleteConfirmed();
+
+      expect(mockDatabaseService.deleteProject).toHaveBeenCalledWith('1');
+    });
+
+    it('should handle delete when project not found', async () => {
+      const project = createMockProject('non-existent', 'Test', null);
+      component.projects.set([]);
+      mockDatabaseService.deleteProject.and.returnValue(
+        Promise.resolve({ success: true }),
+      );
+      mockDatabaseService.getProjects.and.returnValue(Promise.resolve([]));
+
+      component.projectToDelete.set(project);
+      await component.onDeleteConfirmed();
+
+      expect(mockDatabaseService.deleteProject).toHaveBeenCalledWith(
+        'non-existent',
+      );
+    });
+  });
+
+  describe('Search term edge cases', () => {
+    beforeEach(() => {
+      const projects = [
+        createMockProject('1', 'Active Project', 'Description A', false),
+        createMockProject('2', 'Active Test', null, false),
+      ];
+      component.projects.set(projects);
+    });
+
+    it('should filter when description is null', () => {
+      component.searchTerm.set('Test');
+      const filtered = component.filteredOpenProjects();
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].id).toBe('2');
+    });
+
+    it('should not match null description', () => {
+      component.searchTerm.set('some description');
+      const filtered = component.filteredOpenProjects();
+      expect(filtered.length).toBe(0);
+    });
+  });
 });

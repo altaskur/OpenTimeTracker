@@ -1,4 +1,12 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -11,13 +19,22 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ChipModule } from 'primeng/chip';
 import { ToastModule } from 'primeng/toast';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 
 import { DatabaseService } from '../../services';
-import { Task, Project, TaskStatus, Tag } from '../../../types/electron';
+import { ActionHistoryService } from '../../services/action-history.service';
+import {
+  Task,
+  Project,
+  TaskStatus,
+  Tag,
+  AuditLog,
+} from '../../../types/electron';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 import { OpenConfirmDeleteComponent } from '../../components/open-confirm-delete/open-confirm-delete';
 import { TaskTableComponent } from './components';
@@ -46,6 +63,9 @@ import { TaskWithTags, TaskForm } from '../../interfaces';
     OpenConfirmDeleteComponent,
     TaskTableComponent,
     TranslateModule,
+    TableModule,
+    TagModule,
+    DatePipe,
   ],
   providers: [MessageService],
   templateUrl: './open-tasks.html',
@@ -53,8 +73,18 @@ import { TaskWithTags, TaskForm } from '../../interfaces';
 })
 export class OpenTasks implements OnInit {
   private readonly dbService = inject(DatabaseService);
+  private readonly historyService = inject(ActionHistoryService);
   private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(MessageService);
+
+  constructor() {
+    effect(() => {
+      const change = this.historyService.dataChanged();
+      if (change.timestamp > 0 && ['Task', 'Tag'].includes(change.entityType)) {
+        void this.loadData();
+      }
+    });
+  }
 
   /** All tasks from database */
   tasks = signal<TaskWithTags[]>([]);
@@ -64,6 +94,18 @@ export class OpenTasks implements OnInit {
 
   /** Available task statuses */
   statuses = signal<TaskStatus[]>([]);
+
+  /**
+   * Statuses with translated display names
+   */
+  translatedStatuses = computed(() => {
+    return this.statuses().map((status) => ({
+      ...status,
+      displayName: status.name.startsWith('status.')
+        ? this.translateService.instant(status.name)
+        : status.name,
+    }));
+  });
 
   /** Available tags */
   tags = signal<Tag[]>([]);
@@ -82,6 +124,12 @@ export class OpenTasks implements OnInit {
   deleteTagDialogVisible = signal(false);
   tagToDelete = signal<Tag | null>(null);
 
+  /** Task details dialog state */
+  detailsDialogVisible = signal(false);
+  selectedTask = signal<TaskWithTags | null>(null);
+  taskHistory = signal<AuditLog[]>([]);
+  historyLoading = signal(false);
+
   /** New tag name for creation */
   newTagName = signal('');
 
@@ -97,7 +145,9 @@ export class OpenTasks implements OnInit {
     const allTasks = this.tasks();
     const pending = allTasks.filter(
       (task) =>
-        task.status?.name !== 'Completada' && task.status?.name !== 'Completed',
+        task.status?.name !== 'status.completed' &&
+        task.status?.name !== 'Completada' &&
+        task.status?.name !== 'Completed',
     );
     if (!filter) {
       return pending;
@@ -111,7 +161,9 @@ export class OpenTasks implements OnInit {
     const allTasks = this.tasks();
     const completed = allTasks.filter(
       (task) =>
-        task.status?.name === 'Completada' || task.status?.name === 'Completed',
+        task.status?.name === 'status.completed' ||
+        task.status?.name === 'Completada' ||
+        task.status?.name === 'Completed',
     );
     if (!filter) {
       return completed;
@@ -181,23 +233,85 @@ export class OpenTasks implements OnInit {
       const tagIds = this.taskForm.tags.map((tag) => tag.id);
 
       if (this.taskForm.id) {
-        await this.dbService.updateTask(this.taskForm.id, {
-          name: this.taskForm.name,
-          description: this.taskForm.description || undefined,
-          estimatedHours: this.taskForm.estimatedHours ?? undefined,
-          statusId: this.taskForm.statusId || undefined,
-          tagIds: tagIds,
+        const existingTask = this.tasks().find(
+          (t) => t.id === this.taskForm.id,
+        );
+        const previousData = existingTask ? { ...existingTask } : null;
+
+        await this.historyService.execute({
+          entityType: 'Task',
+          actionType: 'update',
+          entityId: this.taskForm.id,
+          description: this.translateService.instant(
+            'history.actions.updateTask',
+          ),
+          previousData,
+          newData: {
+            name: this.taskForm.name,
+            description: this.taskForm.description,
+            estimatedHours: this.taskForm.estimatedHours,
+            statusId: this.taskForm.statusId,
+            tagIds,
+          },
+          execute: async () => {
+            await this.dbService.updateTask(this.taskForm.id, {
+              name: this.taskForm.name,
+              description: this.taskForm.description || undefined,
+              estimatedHours: this.taskForm.estimatedHours ?? undefined,
+              statusId: this.taskForm.statusId || undefined,
+              tagIds: tagIds,
+            });
+          },
+          undo: async () => {
+            if (previousData) {
+              await this.dbService.updateTask(previousData.id, {
+                name: previousData.name,
+                description: previousData.description ?? undefined,
+                estimatedHours: previousData.estimatedHours ?? undefined,
+                statusId: previousData.statusId ?? undefined,
+                tagIds: previousData.tags?.map((t) => t.tag.id) ?? [],
+              });
+              await this.loadData();
+            }
+          },
         });
         this.showSuccess('toast.taskUpdated');
       } else {
-        await this.dbService.createTask(
-          this.taskForm.projectId,
-          this.taskForm.name,
-          this.taskForm.description || undefined,
-          this.taskForm.estimatedHours ?? undefined,
-          this.taskForm.statusId || undefined,
-          tagIds,
-        );
+        let createdId: string | null = null;
+        await this.historyService.execute({
+          entityType: 'Task',
+          actionType: 'create',
+          entityId: '',
+          description: this.translateService.instant(
+            'history.actions.createTask',
+          ),
+          previousData: null,
+          newData: {
+            projectId: this.taskForm.projectId,
+            name: this.taskForm.name,
+            description: this.taskForm.description,
+            estimatedHours: this.taskForm.estimatedHours,
+            statusId: this.taskForm.statusId,
+            tagIds,
+          },
+          execute: async () => {
+            const created = await this.dbService.createTask(
+              this.taskForm.projectId,
+              this.taskForm.name,
+              this.taskForm.description || undefined,
+              this.taskForm.estimatedHours ?? undefined,
+              this.taskForm.statusId || undefined,
+              tagIds,
+            );
+            createdId = created.id;
+          },
+          undo: async () => {
+            if (createdId) {
+              await this.dbService.deleteTask(createdId);
+              await this.loadData();
+            }
+          },
+        });
         this.showSuccess('toast.taskCreated');
       }
       this.dialogVisible.set(false);
@@ -240,7 +354,35 @@ export class OpenTasks implements OnInit {
    */
   private async deleteTask(id: string): Promise<void> {
     try {
-      await this.dbService.deleteTask(id);
+      const existingTask = this.tasks().find((t) => t.id === id);
+      const previousData = existingTask ? { ...existingTask } : null;
+
+      await this.historyService.execute({
+        entityType: 'Task',
+        actionType: 'delete',
+        entityId: id,
+        description: this.translateService.instant(
+          'history.actions.deleteTask',
+        ),
+        previousData,
+        newData: null,
+        execute: async () => {
+          await this.dbService.deleteTask(id);
+        },
+        undo: async () => {
+          if (previousData) {
+            await this.dbService.createTask(
+              previousData.projectId,
+              previousData.name,
+              previousData.description ?? undefined,
+              previousData.estimatedHours ?? undefined,
+              previousData.statusId ?? undefined,
+              previousData.tags?.map((t) => t.tag.id) ?? [],
+            );
+            await this.loadData();
+          }
+        },
+      });
       this.showSuccess('toast.taskDeleted');
       await this.loadData();
     } catch {
@@ -348,6 +490,205 @@ export class OpenTasks implements OnInit {
       statusId: '',
       tags: [],
     };
+  }
+
+  /**
+   * Opens the task details dialog with history
+   */
+  async openDetailsDialog(task: TaskWithTags): Promise<void> {
+    this.selectedTask.set(task);
+    this.detailsDialogVisible.set(true);
+    await this.loadTaskHistory(task.id);
+  }
+
+  /**
+   * Loads audit history for a specific task
+   */
+  private async loadTaskHistory(taskId: string): Promise<void> {
+    this.historyLoading.set(true);
+    try {
+      const history = await this.dbService.getAuditLogs(
+        undefined,
+        undefined,
+        taskId,
+      );
+      this.taskHistory.set(history);
+    } catch (error) {
+      console.error('Error loading task history:', error);
+      this.taskHistory.set([]);
+    } finally {
+      this.historyLoading.set(false);
+    }
+  }
+
+  /**
+   * Gets severity color for audit action type
+   */
+  getActionSeverity(
+    action: string,
+  ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+    switch (action.toLowerCase()) {
+      case 'create':
+        return 'success';
+      case 'update':
+        return 'info';
+      case 'delete':
+        return 'danger';
+      default:
+        return 'secondary';
+    }
+  }
+
+  /**
+   * Gets action label for display
+   */
+  getActionLabel(action: string): string {
+    const key = `history.actionTypes.${action.toLowerCase()}`;
+    const translated = this.translateService.instant(key);
+    return translated !== key ? translated : action;
+  }
+
+  /**
+   * Gets action icon
+   */
+  getActionIcon(action: string): string {
+    switch (action.toLowerCase()) {
+      case 'create':
+        return 'pi pi-plus';
+      case 'update':
+        return 'pi pi-pencil';
+      case 'delete':
+        return 'pi pi-trash';
+      default:
+        return 'pi pi-circle';
+    }
+  }
+
+  /**
+   * Gets entity type icon
+   */
+  getEntityIcon(entityType: string): string {
+    switch (entityType) {
+      case 'Task':
+        return 'pi pi-check-square';
+      case 'TimeEntry':
+        return 'pi pi-clock';
+      case 'Project':
+        return 'pi pi-folder';
+      default:
+        return 'pi pi-circle';
+    }
+  }
+
+  /**
+   * Gets entity type label
+   */
+  getEntityLabel(entityType: string): string {
+    const key = `history.entityTypes.${entityType}`;
+    const translated = this.translateService.instant(key);
+    return translated !== key ? translated : entityType;
+  }
+
+  /**
+   * Formats changes description for display
+   */
+  formatChangesDescription(log: AuditLog): string {
+    if (!log.changes) return '-';
+
+    try {
+      const changes = JSON.parse(log.changes);
+
+      if (log.entityType === 'TimeEntry') {
+        return this.formatTimeEntryChanges(log.action, changes);
+      }
+
+      if (log.entityType === 'Task') {
+        return this.formatTaskChanges(log.action, changes);
+      }
+
+      return '-';
+    } catch {
+      return '-';
+    }
+  }
+
+  /**
+   * Formats time entry changes
+   */
+  private formatTimeEntryChanges(
+    action: string,
+    changes: Record<string, unknown>,
+  ): string {
+    if (action.toLowerCase() === 'update' && changes['previous']) {
+      const prev = changes['previous'] as Record<string, unknown>;
+      const curr = changes['current'] as Record<string, unknown>;
+      const parts: string[] = [];
+
+      if (prev['hours'] !== curr['hours']) {
+        parts.push(`${String(prev['hours'])}h → ${String(curr['hours'])}h`);
+      }
+      if (prev['date'] !== curr['date']) {
+        parts.push(`${String(prev['date'])} → ${String(curr['date'])}`);
+      }
+      if (prev['notes'] !== curr['notes'] && curr['notes']) {
+        parts.push(`"${String(curr['notes'])}"`);
+      }
+
+      return parts.length > 0 ? parts.join(', ') : '-';
+    }
+
+    const hours = changes['hours'] ? String(changes['hours']) : '-';
+    const date = changes['date'] ? String(changes['date']) : '-';
+    const notes = changes['notes'] ? ` - "${String(changes['notes'])}"` : '';
+    return `${date}: ${hours}h${notes}`;
+  }
+
+  /**
+   * Formats task changes
+   */
+  private formatTaskChanges(
+    action: string,
+    changes: Record<string, unknown>,
+  ): string {
+    const actionLower = action.toLowerCase();
+
+    if (actionLower === 'create' || actionLower === 'delete') {
+      return changes['name'] ? `"${String(changes['name'])}"` : '-';
+    }
+
+    if (actionLower === 'update' && changes['previous']) {
+      return this.formatTaskUpdateChanges(changes);
+    }
+
+    return '-';
+  }
+
+  /**
+   * Formats task update changes
+   */
+  private formatTaskUpdateChanges(changes: Record<string, unknown>): string {
+    const prev = changes['previous'] as Record<string, unknown>;
+    const curr = changes['current'] as Record<string, unknown>;
+    const parts: string[] = [];
+
+    if (curr['name'] && prev['name'] !== curr['name']) {
+      parts.push(
+        `${this.translateService.instant('history.fields.name')}: "${String(prev['name'])}" → "${String(curr['name'])}"`,
+      );
+    }
+    if (curr['description'] !== undefined) {
+      parts.push(this.translateService.instant('history.fields.description'));
+    }
+    if (curr['statusId'] !== undefined) {
+      parts.push(this.translateService.instant('history.fields.status'));
+    }
+    if (curr['estimatedHours'] !== undefined) {
+      parts.push(
+        this.translateService.instant('history.fields.estimatedHours'),
+      );
+    }
+
+    return parts.length > 0 ? parts.join(', ') : '-';
   }
 
   /**

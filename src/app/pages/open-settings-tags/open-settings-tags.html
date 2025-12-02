@@ -1,0 +1,92 @@
+<app-open-layout>
+  <p-toast />
+  <ng-template pTemplate="header">
+    <header class="settings-tags-header">
+      <h2 class="settings-tags-header__title">
+        <i class="pi pi-tags"></i>
+        {{ "settings.tags.title" | translate }}
+      </h2>
+      <div class="settings-tags-header__actions">
+        <div class="p-inputgroup p-2">
+          <input
+            type="text"
+            pInputText
+            [placeholder]="'settings.tags.namePlaceholder' | translate"
+            [(ngModel)]="newTagName"
+            (keyup.enter)="addTag()"
+          />
+          <p-button
+            icon="pi pi-plus"
+            [label]="'settings.tags.add' | translate"
+            [disabled]="!canAdd()"
+            (click)="addTag()"
+          />
+        </div>
+      </div>
+    </header>
+  </ng-template>
+
+  @if (tags().length === 0 && !loading()) {
+    <div class="settings-tags__empty">
+      <i class="pi pi-tags"></i>
+      <p>{{ "settings.tags.empty" | translate }}</p>
+    </div>
+  } @else {
+    <p-table [value]="tags()" [loading]="loading()" styleClass="p-datatable-sm">
+      <ng-template pTemplate="body" let-tag>
+        <tr>
+          <td class="settings-tags__name-cell">
+            @if (editingId() === tag.id) {
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="editingName"
+                (keyup.enter)="saveEdit(tag)"
+                (keyup.escape)="cancelEdit()"
+                class="settings-tags__edit-input"
+              />
+            } @else {
+              <span>{{ tag.name }}</span>
+            }
+          </td>
+          <td class="settings-tags__actions-cell">
+            @if (editingId() === tag.id) {
+              <p-button
+                icon="pi pi-check"
+                severity="success"
+                [text]="true"
+                size="small"
+                [pTooltip]="'common.save' | translate"
+                (click)="saveEdit(tag)"
+              />
+              <p-button
+                icon="pi pi-times"
+                severity="secondary"
+                [text]="true"
+                size="small"
+                [pTooltip]="'common.cancel' | translate"
+                (click)="cancelEdit()"
+              />
+            } @else {
+              <p-button
+                icon="pi pi-pencil"
+                [text]="true"
+                size="small"
+                [pTooltip]="'common.edit' | translate"
+                (click)="startEdit(tag)"
+              />
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                size="small"
+                [pTooltip]="'common.delete' | translate"
+                (click)="deleteTag(tag)"
+              />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  }
+</app-open-layout>

@@ -1,164 +1,172 @@
 @if (visible()) {
-  <p-dialog
-    [header]="'dayTypes.title' | translate"
-    [visible]="true"
-    (visibleChange)="onVisibleChange($event)"
-    [modal]="true"
-    [closable]="true"
-    [draggable]="false"
-    [resizable]="false"
-    [style]="{ width: '600px' }"
-  >
-    <div class="day-types">
-      <div class="day-types__form">
-        <div class="day-types__form-row">
-          <div class="day-types__field day-types__field--color">
-            <label class="day-types__label" for="newColorPicker">{{
-              "dayTypes.color" | translate
-            }}</label>
-            <p-colorPicker [(ngModel)]="newColor" inputId="newColorPicker" />
-          </div>
-          <div class="day-types__field day-types__field--name">
-            <label class="day-types__label" for="newNameInput">{{
-              "dayTypes.name" | translate
-            }}</label>
-            <input
-              type="text"
-              pInputText
-              [(ngModel)]="newName"
-              [placeholder]="'dayTypes.namePlaceholder' | translate"
-              class="day-types__input"
-              id="newNameInput"
-            />
-          </div>
-          <div class="day-types__field day-types__field--hours">
-            <label class="day-types__label" for="newHoursInput">{{
-              "dayTypes.defaultHours" | translate
-            }}</label>
-            <p-inputNumber
-              [(ngModel)]="newHours"
-              [min]="0"
-              [max]="24"
-              [showButtons]="true"
-              buttonLayout="horizontal"
-              spinnerMode="horizontal"
-              decrementButtonClass="p-button-secondary"
-              incrementButtonClass="p-button-secondary"
-              incrementButtonIcon="pi pi-plus"
-              decrementButtonIcon="pi pi-minus"
-              [inputStyle]="{ width: '60px', textAlign: 'center' }"
-              suffix="h"
-              inputId="newHoursInput"
-            />
-          </div>
-          <div class="day-types__field day-types__field--action">
-            <p-button
-              icon="pi pi-plus"
-              [rounded]="true"
-              (onClick)="onCreate()"
-              [disabled]="!isNewFormValid()"
-              [pTooltip]="'dayTypes.add' | translate"
-            />
-          </div>
-        </div>
-      </div>
+  @if (embedded()) {
+    <ng-container *ngTemplateOutlet="dayTypesContent" />
+  } @else {
+    <p-dialog
+      [header]="'dayTypes.title' | translate"
+      [visible]="true"
+      (visibleChange)="onVisibleChange($event)"
+      [modal]="true"
+      [closable]="true"
+      [draggable]="false"
+      [resizable]="false"
+      [style]="{ width: '600px' }"
+    >
+      <ng-container *ngTemplateOutlet="dayTypesContent" />
 
-      <div class="day-types__list">
-        @for (dayType of dayTypes(); track dayType.id) {
-          <div class="day-types__item">
-            @if (editingId() === dayType.id) {
-              <div class="day-types__item-edit">
-                <div class="day-types__field day-types__field--color">
-                  <p-colorPicker [(ngModel)]="editColor" />
-                </div>
-                <div class="day-types__field day-types__field--name">
-                  <input
-                    type="text"
-                    pInputText
-                    [(ngModel)]="editName"
-                    class="day-types__input"
-                  />
-                </div>
-                <div class="day-types__field day-types__field--hours">
-                  <p-inputNumber
-                    [(ngModel)]="editHours"
-                    [min]="0"
-                    [max]="24"
-                    [showButtons]="true"
-                    buttonLayout="horizontal"
-                    spinnerMode="horizontal"
-                    decrementButtonClass="p-button-secondary"
-                    incrementButtonClass="p-button-secondary"
-                    incrementButtonIcon="pi pi-plus"
-                    decrementButtonIcon="pi pi-minus"
-                    [inputStyle]="{ width: '60px', textAlign: 'center' }"
-                    suffix="h"
-                  />
-                </div>
-                <div class="day-types__item-actions">
-                  <p-button
-                    icon="pi pi-check"
-                    severity="success"
-                    [rounded]="true"
-                    [text]="true"
-                    (onClick)="saveEdit()"
-                    [disabled]="!isEditFormValid()"
-                  />
-                  <p-button
-                    icon="pi pi-times"
-                    severity="secondary"
-                    [rounded]="true"
-                    [text]="true"
-                    (onClick)="cancelEdit()"
-                  />
-                </div>
-              </div>
-            } @else {
-              <div class="day-types__item-view">
-                <span
-                  class="day-types__item-color"
-                  [style.background-color]="dayType.color"
-                ></span>
-                <span class="day-types__item-name">{{ dayType.name }}</span>
-                <span class="day-types__item-hours"
-                  >{{ dayType.defaultMinutes / 60 }}h</span
-                >
-                <div class="day-types__item-actions">
-                  <p-button
-                    icon="pi pi-pencil"
-                    severity="secondary"
-                    [rounded]="true"
-                    [text]="true"
-                    (onClick)="startEdit(dayType)"
-                    [pTooltip]="'common.edit' | translate"
-                  />
-                  <p-button
-                    icon="pi pi-trash"
-                    severity="danger"
-                    [rounded]="true"
-                    [text]="true"
-                    (onClick)="onDelete(dayType.id)"
-                    [pTooltip]="'common.delete' | translate"
-                  />
-                </div>
-              </div>
-            }
-          </div>
-        } @empty {
-          <div class="day-types__empty">
-            {{ "dayTypes.empty" | translate }}
-          </div>
-        }
+      <ng-template pTemplate="footer">
+        <p-button
+          [label]="'common.close' | translate"
+          severity="secondary"
+          icon="pi pi-times"
+          (onClick)="onClose()"
+        />
+      </ng-template>
+    </p-dialog>
+  }
+}
+
+<ng-template #dayTypesContent>
+  <div class="day-types">
+    <div class="day-types__form">
+      <div class="day-types__form-row">
+        <div class="day-types__field day-types__field--color">
+          <label class="day-types__label" for="newColorPicker">{{
+            "dayTypes.color" | translate
+          }}</label>
+          <p-colorPicker [(ngModel)]="newColor" inputId="newColorPicker" />
+        </div>
+        <div class="day-types__field day-types__field--name">
+          <label class="day-types__label" for="newNameInput">{{
+            "dayTypes.name" | translate
+          }}</label>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="newName"
+            [placeholder]="'dayTypes.namePlaceholder' | translate"
+            class="day-types__input"
+            id="newNameInput"
+          />
+        </div>
+        <div class="day-types__field day-types__field--hours">
+          <label class="day-types__label" for="newHoursInput">{{
+            "dayTypes.defaultHours" | translate
+          }}</label>
+          <p-inputNumber
+            [(ngModel)]="newHours"
+            [min]="0"
+            [max]="24"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            spinnerMode="horizontal"
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            [inputStyle]="{ width: '60px', textAlign: 'center' }"
+            suffix="h"
+            inputId="newHoursInput"
+          />
+        </div>
+        <div class="day-types__field day-types__field--action">
+          <p-button
+            icon="pi pi-plus"
+            [rounded]="true"
+            (onClick)="onCreate()"
+            [disabled]="!isNewFormValid()"
+            [pTooltip]="'dayTypes.add' | translate"
+          />
+        </div>
       </div>
     </div>
 
-    <ng-template pTemplate="footer">
-      <p-button
-        [label]="'common.close' | translate"
-        severity="secondary"
-        icon="pi pi-times"
-        (onClick)="onClose()"
-      />
-    </ng-template>
-  </p-dialog>
-}
+    <div class="day-types__list">
+      @for (dayType of dayTypes(); track dayType.id) {
+        <div class="day-types__item">
+          @if (editingId() === dayType.id) {
+            <div class="day-types__item-edit">
+              <div class="day-types__field day-types__field--color">
+                <p-colorPicker [(ngModel)]="editColor" />
+              </div>
+              <div class="day-types__field day-types__field--name">
+                <input
+                  type="text"
+                  pInputText
+                  [(ngModel)]="editName"
+                  class="day-types__input"
+                />
+              </div>
+              <div class="day-types__field day-types__field--hours">
+                <p-inputNumber
+                  [(ngModel)]="editHours"
+                  [min]="0"
+                  [max]="24"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  decrementButtonClass="p-button-secondary"
+                  incrementButtonClass="p-button-secondary"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  [inputStyle]="{ width: '60px', textAlign: 'center' }"
+                  suffix="h"
+                />
+              </div>
+              <div class="day-types__item-actions">
+                <p-button
+                  icon="pi pi-check"
+                  severity="success"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="saveEdit()"
+                  [disabled]="!isEditFormValid()"
+                />
+                <p-button
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="cancelEdit()"
+                />
+              </div>
+            </div>
+          } @else {
+            <div class="day-types__item-view">
+              <span
+                class="day-types__item-color"
+                [style.background-color]="dayType.color"
+              ></span>
+              <span class="day-types__item-name">{{ dayType.name }}</span>
+              <span class="day-types__item-hours"
+                >{{ dayType.defaultMinutes / 60 }}h</span
+              >
+              <div class="day-types__item-actions">
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="startEdit(dayType)"
+                  [pTooltip]="'common.edit' | translate"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="onDelete(dayType.id)"
+                  [pTooltip]="'common.delete' | translate"
+                />
+              </div>
+            </div>
+          }
+        </div>
+      } @empty {
+        <div class="day-types__empty">
+          {{ "dayTypes.empty" | translate }}
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>

@@ -1,16 +1,28 @@
 .calendar-section {
-  padding: 1rem;
+  padding: 0;
   height: 100%;
+  position: relative;
 }
 
-.loading-container {
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 400px;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  border-radius: 8px;
 }
 
 .loading-text {
-  color: var(--text-color-secondary);
+  color: var(--text-color);
   font-size: 1.1rem;
+  background: var(--surface-card);
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }

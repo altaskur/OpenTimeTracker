@@ -29,7 +29,12 @@ describe('OpenTimeEntryDialogComponent', () => {
       estimatedHours: 8,
       createdAt: today,
       updatedAt: today,
-      status: { id: 's1', name: 'In Progress' },
+      status: {
+        id: 's1',
+        name: 'In Progress',
+        color: '#3b82f6',
+        isDefault: true,
+      },
       tags: [],
     },
   ];

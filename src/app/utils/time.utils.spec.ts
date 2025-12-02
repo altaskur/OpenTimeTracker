@@ -109,4 +109,48 @@ describe('time.utils', () => {
       expect(minutesToHours(0)).toBe(0);
     });
   });
+
+  describe('parseTimeToMinutes additional cases', () => {
+    it('should parse single digit hour with colon format', () => {
+      expect(parseTimeToMinutes('1:00')).toBe(60);
+    });
+
+    it('should parse single digit minutes with colon format', () => {
+      expect(parseTimeToMinutes('0:5')).toBe(5);
+    });
+
+    it('should handle uppercase input', () => {
+      expect(parseTimeToMinutes('2H')).toBe(120);
+    });
+
+    it('should handle mixed case hours and minutes', () => {
+      expect(parseTimeToMinutes('2H 30M')).toBe(150);
+    });
+
+    it('should handle spaces around input', () => {
+      expect(parseTimeToMinutes('  2h  ')).toBe(120);
+    });
+  });
+
+  describe('formatMinutes edge cases', () => {
+    it('should handle 1 minute', () => {
+      expect(formatMinutes(1)).toBe('1m');
+    });
+
+    it('should handle 59 minutes', () => {
+      expect(formatMinutes(59)).toBe('59m');
+    });
+
+    it('should handle 61 minutes', () => {
+      expect(formatMinutes(61)).toBe('1h 1m');
+    });
+
+    it('should handle exactly 1 hour', () => {
+      expect(formatMinutes(60)).toBe('1h');
+    });
+
+    it('should handle large values', () => {
+      expect(formatMinutes(1440)).toBe('24h');
+    });
+  });
 });

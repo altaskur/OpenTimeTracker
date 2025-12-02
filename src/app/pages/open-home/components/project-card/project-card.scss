@@ -1,0 +1,30 @@
+.project-card {
+  height: 100%;
+  width: 100%;
+
+  ::ng-deep .p-card {
+    height: 100%;
+  }
+
+  ::ng-deep .p-card-body {
+    height: 100%;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 1.5rem;
+      color: var(--p-primary-color);
+    }
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+  }
+}

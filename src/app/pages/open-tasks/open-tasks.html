@@ -42,6 +42,7 @@
     [tasks]="filteredPendingTasks()"
     [loading]="loading()"
     [emptyMessage]="'tasks.emptyPending'"
+    (viewTask)="openDetailsDialog($event)"
     (editTask)="openEditDialog($event)"
     (deleteTask)="confirmDeleteTask($event)"
   />
@@ -53,6 +54,7 @@
     [tasks]="filteredCompletedTasks()"
     [loading]="loading()"
     [emptyMessage]="'tasks.emptyCompleted'"
+    (viewTask)="openDetailsDialog($event)"
     (editTask)="openEditDialog($event)"
     (deleteTask)="confirmDeleteTask($event)"
   />
@@ -98,9 +100,9 @@
         }}</label>
         <p-select
           id="taskStatus"
-          [options]="statuses()"
+          [options]="translatedStatuses()"
           [(ngModel)]="taskForm.statusId"
-          optionLabel="name"
+          optionLabel="displayName"
           optionValue="id"
           [placeholder]="'tasks.dialog.selectStatus' | translate"
           [showClear]="true"
@@ -201,6 +203,141 @@
         [label]="'common.save' | translate"
         [disabled]="!taskForm.name || !taskForm.projectId"
         (onClick)="saveTask()"
+      />
+    </ng-template>
+  </p-dialog>
+
+  <p-dialog
+    [header]="'tasks.details.title' | translate"
+    [(visible)]="detailsDialogVisible"
+    [modal]="true"
+    [style]="{ width: '700px' }"
+  >
+    @if (selectedTask()) {
+      <div class="task-details">
+        <div class="task-details__info">
+          <div class="task-details__field">
+            <span class="task-details__label">{{
+              "table.name" | translate
+            }}</span>
+            <span class="task-details__value">{{ selectedTask()!.name }}</span>
+          </div>
+          <div class="task-details__field">
+            <span class="task-details__label">{{
+              "table.project" | translate
+            }}</span>
+            <span class="task-details__value">{{
+              selectedTask()!.project?.name || ("table.unassigned" | translate)
+            }}</span>
+          </div>
+          <div class="task-details__field">
+            <span class="task-details__label">{{
+              "table.status" | translate
+            }}</span>
+            @if (selectedTask()!.status?.name) {
+              <p-tag
+                [value]="selectedTask()!.status!.name"
+                [severity]="getStatusSeverity(selectedTask()!.status?.name)"
+              />
+            } @else {
+              <span class="task-details__value">{{
+                "table.noData" | translate
+              }}</span>
+            }
+          </div>
+          <div class="task-details__field">
+            <span class="task-details__label">{{
+              "table.estimatedHours" | translate
+            }}</span>
+            <span class="task-details__value">
+              @if (selectedTask()!.estimatedHours) {
+                {{ selectedTask()!.estimatedHours }}h
+              } @else {
+                {{ "table.noData" | translate }}
+              }
+            </span>
+          </div>
+          @if (selectedTask()!.description) {
+            <div class="task-details__field task-details__field--full">
+              <span class="task-details__label">{{
+                "table.description" | translate
+              }}</span>
+              <span class="task-details__value">{{
+                selectedTask()!.description
+              }}</span>
+            </div>
+          }
+          @if (selectedTask()!.tags?.length) {
+            <div class="task-details__field task-details__field--full">
+              <span class="task-details__label">{{
+                "table.tags" | translate
+              }}</span>
+              <div class="task-details__tags">
+                @for (taskTag of selectedTask()!.tags; track taskTag.tag.id) {
+                  <p-chip [label]="taskTag.tag.name" />
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <h4 class="task-details__history-title">
+          {{ "tasks.details.history" | translate }}
+        </h4>
+        <p-table
+          [value]="taskHistory()"
+          [loading]="historyLoading()"
+          styleClass="p-datatable-sm"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th scope="col">{{ "history.fields.date" | translate }}</th>
+              <th scope="col">{{ "history.columns.entity" | translate }}</th>
+              <th scope="col">{{ "history.fields.action" | translate }}</th>
+              <th scope="col">
+                {{ "history.columns.description" | translate }}
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-log>
+            <tr>
+              <td>{{ log.createdAt | date: "dd/MM/yyyy HH:mm" }}</td>
+              <td>
+                <span class="task-details__entity">
+                  <i [class]="getEntityIcon(log.entityType)"></i>
+                  {{ getEntityLabel(log.entityType) }}
+                </span>
+              </td>
+              <td>
+                <p-tag
+                  [value]="getActionLabel(log.action)"
+                  [severity]="getActionSeverity(log.action)"
+                  [icon]="getActionIcon(log.action)"
+                />
+              </td>
+              <td>
+                <span class="task-details__changes">
+                  {{ formatChangesDescription(log) }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="4" class="task-details__empty">
+                {{ "tasks.details.noHistory" | translate }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+
+    <ng-template pTemplate="footer">
+      <p-button
+        [label]="'common.close' | translate"
+        severity="secondary"
+        (onClick)="detailsDialogVisible.set(false)"
       />
     </ng-template>
   </p-dialog>

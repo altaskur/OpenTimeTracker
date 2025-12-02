@@ -1,23 +1,22 @@
 <app-open-layout>
   <section class="calendar-section">
     @if (loading()) {
-      <div class="loading-container">
+      <div class="loading-overlay">
         <p class="loading-text">{{ "home.loading" | translate }}</p>
       </div>
-    } @else {
-      <app-open-calendar
-        [tasks]="tasks()"
-        [timeEntries]="timeEntries()"
-        [monthConfig]="monthConfig()"
-        [dayOverrides]="dayOverrides()"
-        [dayTypes]="dayTypes()"
-        (timeEntryClicked)="onTimeEntryClicked($event)"
-        (dayClicked)="onDayClicked($event)"
-        (settingsClicked)="onSettingsClicked()"
-        (addTimeClicked)="onAddTimeClicked($event)"
-        (monthChanged)="onMonthChanged($event)"
-      />
     }
+    <app-open-calendar
+      [tasks]="tasks()"
+      [timeEntries]="timeEntries()"
+      [monthConfig]="monthConfig()"
+      [dayOverrides]="dayOverrides()"
+      [dayTypes]="dayTypes()"
+      (timeEntryClicked)="onTimeEntryClicked($event)"
+      (dayClicked)="onDayClicked($event)"
+      (settingsClicked)="onSettingsClicked()"
+      (addTimeClicked)="onAddTimeClicked($event)"
+      (monthChanged)="onMonthChanged($event)"
+    />
   </section>
 </app-open-layout>
 

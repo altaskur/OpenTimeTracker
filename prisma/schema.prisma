@@ -24,9 +24,11 @@ model Project {
 }
 
 model TaskStatus {
-  id    String @id @default(uuid())
-  name  String @unique
-  tasks Task[]
+  id        String  @id @default(uuid())
+  name      String  @unique
+  color     String  @default("#6b7280")
+  isDefault Boolean @default(false) @map("is_default")
+  tasks     Task[]
 
   @@map("task_status")
 }
@@ -171,4 +173,19 @@ model AuditLog {
   task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@map("audit_logs")
+}
+
+/// Action history for undo/redo functionality
+model ActionHistory {
+  id           String   @id @default(uuid())
+  entityType   String   @map("entity_type")
+  entityId     String   @map("entity_id")
+  actionType   String   @map("action_type")
+  description  String
+  previousData String?  @map("previous_data")
+  newData      String?  @map("new_data")
+  undone       Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("action_history")
 }

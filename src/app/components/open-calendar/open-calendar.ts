@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ChipModule } from 'primeng/chip';
 import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   Task,
@@ -86,6 +87,7 @@ interface WeekSummary {
     ChipModule,
     TooltipModule,
     TranslateModule,
+    DialogModule,
   ],
   templateUrl: './open-calendar.html',
   styleUrl: './open-calendar.scss',
@@ -108,6 +110,10 @@ export class OpenCalendar implements OnInit {
   currentDate = signal(new Date());
   weekDays = signal<string[]>([]);
   monthYearLabel = signal<string>('');
+
+  /** Day entries dialog state */
+  showDayEntriesDialog = signal(false);
+  selectedDayEntries = signal<CalendarDay | null>(null);
 
   /**
    * Computes total worked minutes for the current month
@@ -509,10 +515,65 @@ export class OpenCalendar implements OnInit {
   }
 
   /**
-   * Handles day click event
+   * Handles day click event (special day button)
    */
   onDayClick(day: CalendarDay): void {
     this.dayClicked.emit(day.date);
+  }
+
+  /**
+   * Handles click on day area
+   * If day has special day override -> open special day dialog
+   * If day is empty (no time entries) -> open add time dialog
+   */
+  onDayAreaClick(day: CalendarDay, _event: Event): void {
+    if (!day.isCurrentMonth) {
+      return;
+    }
+
+    if (day.dayOverride) {
+      this.dayClicked.emit(day.date);
+    } else if (day.timeEntries.length === 0) {
+      this.addTimeClicked.emit(day.date);
+    }
+  }
+
+  /**
+   * Gets preview text of all entries for a day tooltip
+   */
+  getEntriesPreview(day: CalendarDay): string {
+    return day.timeEntries
+      .map((entry) => {
+        const taskName =
+          entry.task?.name || this.translate.instant('timeEntry.noTask');
+        return `${taskName}: ${this.formatTime(entry.minutes)}`;
+      })
+      .join('\n');
+  }
+
+  /**
+   * Handles click on "more entries" to show all entries dialog
+   */
+  onShowAllEntries(day: CalendarDay, event: Event): void {
+    event.stopPropagation();
+    this.selectedDayEntries.set(day);
+    this.showDayEntriesDialog.set(true);
+  }
+
+  /**
+   * Closes the day entries dialog
+   */
+  closeDayEntriesDialog(): void {
+    this.showDayEntriesDialog.set(false);
+    this.selectedDayEntries.set(null);
+  }
+
+  /**
+   * Handles click on entry in day entries dialog
+   */
+  onDialogEntryClick(entryId: string): void {
+    this.closeDayEntriesDialog();
+    this.timeEntryClicked.emit(entryId);
   }
 
   /**
@@ -522,15 +583,19 @@ export class OpenCalendar implements OnInit {
     statusName?: string,
   ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (statusName) {
+      case 'status.completed':
       case 'Completada':
       case 'Completed':
         return 'success';
+      case 'status.inProgress':
       case 'En progreso':
       case 'In Progress':
         return 'info';
+      case 'status.pending':
       case 'Pendiente':
       case 'Pending':
         return 'warn';
+      case 'status.blocked':
       case 'Bloqueada':
       case 'Blocked':
         return 'danger';
@@ -544,15 +609,19 @@ export class OpenCalendar implements OnInit {
    */
   getStatusColor(statusName?: string): string {
     switch (statusName) {
+      case 'status.completed':
       case 'Completada':
       case 'Completed':
         return 'status-completed';
+      case 'status.inProgress':
       case 'En progreso':
       case 'In Progress':
         return 'status-progress';
+      case 'status.pending':
       case 'Pendiente':
       case 'Pending':
         return 'status-pending';
+      case 'status.blocked':
       case 'Bloqueada':
       case 'Blocked':
         return 'status-blocked';

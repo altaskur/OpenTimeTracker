@@ -96,16 +96,86 @@ export class DatabaseManager {
    * @internal Called during initialization - do not call ensureInitialized().
    */
   private async seedDefaultTaskStatuses(): Promise<void> {
-    const statusCount = await this.prisma.taskStatus.count();
-    if (statusCount === 0) {
-      await this.prisma.taskStatus.createMany({
-        data: [
-          { name: 'Pendiente' },
-          { name: 'En progreso' },
-          { name: 'Completada' },
-          { name: 'Bloqueada' },
-        ],
+    const defaultStatuses = [
+      { name: 'status.pending', color: '#f59e0b', isDefault: true },
+      { name: 'status.inProgress', color: '#3b82f6', isDefault: true },
+      { name: 'status.completed', color: '#6b7280', isDefault: true },
+      { name: 'status.blocked', color: '#ef4444', isDefault: true },
+    ];
+
+    for (const status of defaultStatuses) {
+      const existing = await this.prisma.taskStatus.findUnique({
+        where: { name: status.name },
       });
+      if (!existing) {
+        await this.prisma.taskStatus.create({ data: status });
+      } else if (existing.color !== status.color) {
+        await this.prisma.taskStatus.update({
+          where: { name: status.name },
+          data: { color: status.color, isDefault: status.isDefault },
+        });
+      }
+    }
+
+    /**
+     * Migrate old status names to new translation keys
+     */
+    const oldToNewMapping: Record<string, { newName: string; color: string }> =
+      {
+        Pendiente: { newName: 'status.pending', color: '#f59e0b' },
+        Pending: { newName: 'status.pending', color: '#f59e0b' },
+        'En progreso': { newName: 'status.inProgress', color: '#3b82f6' },
+        'In Progress': { newName: 'status.inProgress', color: '#3b82f6' },
+        Completada: { newName: 'status.completed', color: '#6b7280' },
+        Completed: { newName: 'status.completed', color: '#6b7280' },
+        Bloqueada: { newName: 'status.blocked', color: '#ef4444' },
+        Blocked: { newName: 'status.blocked', color: '#ef4444' },
+      };
+
+    for (const [oldName, { newName, color }] of Object.entries(
+      oldToNewMapping,
+    )) {
+      const oldStatus = await this.prisma.taskStatus.findUnique({
+        where: { name: oldName },
+      });
+
+      if (oldStatus) {
+        const newStatus = await this.prisma.taskStatus.findUnique({
+          where: { name: newName },
+        });
+
+        if (newStatus) {
+          await this.prisma.task.updateMany({
+            where: { statusId: oldStatus.id },
+            data: { statusId: newStatus.id },
+          });
+          await this.prisma.taskStatus.delete({ where: { id: oldStatus.id } });
+        } else {
+          await this.prisma.taskStatus.update({
+            where: { id: oldStatus.id },
+            data: { name: newName, color, isDefault: true },
+          });
+        }
+      }
+    }
+
+    /**
+     * Assign pending status to tasks without any status
+     */
+    const pendingStatus = await this.prisma.taskStatus.findUnique({
+      where: { name: 'status.pending' },
+    });
+
+    if (pendingStatus) {
+      const result = await this.prisma.task.updateMany({
+        where: { statusId: null },
+        data: { statusId: pendingStatus.id },
+      });
+      if (result.count > 0) {
+        console.log(
+          `Migrated ${result.count} tasks to pending status (${pendingStatus.id})`,
+        );
+      }
     }
   }
 
@@ -179,7 +249,7 @@ export class DatabaseManager {
       where: {
         projectId: id,
         status: {
-          name: { not: 'Completada' },
+          name: { notIn: ['status.completed', 'Completada', 'Completed'] },
         },
       },
     });
@@ -261,7 +331,7 @@ export class DatabaseManager {
     tagIds?: string[],
   ) {
     await this.ensureInitialized();
-    return this.prisma.task.create({
+    const task = await this.prisma.task.create({
       data: {
         projectId,
         name,
@@ -283,6 +353,17 @@ export class DatabaseManager {
         },
       },
     });
+
+    await this.createAuditLog({
+      entityType: 'Task',
+      entityId: task.id,
+      action: 'CREATE',
+      changes: JSON.stringify({ name, description, estimatedHours, statusId }),
+      projectId,
+      taskId: task.id,
+    });
+
+    return task;
   }
 
   public async updateTask(
@@ -301,7 +382,12 @@ export class DatabaseManager {
     statusId?: string,
   ) {
     await this.ensureInitialized();
-    // Soportar ambas formas: objeto o parámetros individuales
+
+    const previousTask = await this.prisma.task.findUnique({
+      where: { id },
+      include: { tags: { include: { tag: true } } },
+    });
+
     const data =
       typeof dataOrName === 'string'
         ? {
@@ -315,7 +401,7 @@ export class DatabaseManager {
     const tagIds =
       typeof dataOrName === 'object' ? dataOrName?.tagIds : undefined;
 
-    return this.prisma.task.update({
+    const task = await this.prisma.task.update({
       where: { id },
       data: {
         ...(data.name !== undefined && { name: data.name }),
@@ -341,20 +427,88 @@ export class DatabaseManager {
         },
       },
     });
+
+    await this.createAuditLog({
+      entityType: 'Task',
+      entityId: id,
+      action: 'UPDATE',
+      changes: JSON.stringify({
+        previous: previousTask,
+        current: data,
+      }),
+      projectId: task.projectId,
+      taskId: id,
+    });
+
+    return task;
   }
 
   public async deleteTask(id: string) {
     await this.ensureInitialized();
-    return this.prisma.task.delete({
+
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: { tags: { include: { tag: true } } },
+    });
+
+    const deleted = await this.prisma.task.delete({
       where: { id },
     });
+
+    if (task) {
+      await this.createAuditLog({
+        entityType: 'Task',
+        entityId: id,
+        action: 'DELETE',
+        changes: JSON.stringify(task),
+        projectId: task.projectId,
+      });
+    }
+
+    return deleted;
   }
 
   // ==================== TASK STATUSES ====================
 
   public async getTaskStatuses() {
     await this.ensureInitialized();
-    return this.prisma.taskStatus.findMany();
+    return this.prisma.taskStatus.findMany({
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  public async createTaskStatus(name: string, color: string) {
+    await this.ensureInitialized();
+    return this.prisma.taskStatus.create({
+      data: { name, color, isDefault: false },
+    });
+  }
+
+  public async updateTaskStatus(id: string, name: string, color: string) {
+    await this.ensureInitialized();
+    return this.prisma.taskStatus.update({
+      where: { id },
+      data: { name, color },
+    });
+  }
+
+  public async deleteTaskStatus(id: string) {
+    await this.ensureInitialized();
+    const status = await this.prisma.taskStatus.findUnique({
+      where: { id },
+    });
+
+    if (!status) {
+      return null;
+    }
+
+    if (status.isDefault) {
+      throw new Error('Cannot delete default status');
+    }
+
+    return this.prisma.taskStatus.delete({
+      where: { id },
+    });
   }
 
   // ==================== TIME ENTRIES ====================
@@ -363,6 +517,14 @@ export class DatabaseManager {
     await this.ensureInitialized();
     return this.prisma.timeEntry.findMany({
       where: taskId ? { taskId } : undefined,
+      include: {
+        task: {
+          include: {
+            project: true,
+            status: true,
+          },
+        },
+      },
       orderBy: { date: 'desc' },
     });
   }
@@ -376,7 +538,14 @@ export class DatabaseManager {
           lte: endDate,
         },
       },
-      include: { task: true },
+      include: {
+        task: {
+          include: {
+            project: true,
+            status: true,
+          },
+        },
+      },
       orderBy: { date: 'asc' },
     });
   }
@@ -385,7 +554,14 @@ export class DatabaseManager {
     await this.ensureInitialized();
     return this.prisma.timeEntry.findMany({
       where: { date },
-      include: { task: true },
+      include: {
+        task: {
+          include: {
+            project: true,
+            status: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -405,14 +581,33 @@ export class DatabaseManager {
     notes?: string,
   ) {
     await this.ensureInitialized();
-    return this.prisma.timeEntry.create({
+    const entry = await this.prisma.timeEntry.create({
       data: {
         date,
         minutes,
         taskId,
         notes,
       },
+      include: {
+        task: true,
+      },
     });
+
+    await this.createAuditLog({
+      entityType: 'TimeEntry',
+      entityId: entry.id,
+      action: 'CREATE',
+      changes: JSON.stringify({
+        date,
+        minutes,
+        hours: (minutes / 60).toFixed(2),
+        taskName: entry.task?.name,
+        notes,
+      }),
+      taskId: taskId,
+    });
+
+    return entry;
   }
 
   public async updateTimeEntry(
@@ -429,6 +624,12 @@ export class DatabaseManager {
     notes?: string,
   ) {
     await this.ensureInitialized();
+
+    const previousEntry = await this.prisma.timeEntry.findUnique({
+      where: { id },
+      include: { task: true },
+    });
+
     const data =
       typeof dataOrDate === 'string'
         ? {
@@ -438,7 +639,7 @@ export class DatabaseManager {
           }
         : dataOrDate;
 
-    return this.prisma.timeEntry.update({
+    const entry = await this.prisma.timeEntry.update({
       where: { id },
       data: {
         ...(data.taskId !== undefined && { taskId: data.taskId }),
@@ -446,14 +647,70 @@ export class DatabaseManager {
         ...(data.minutes !== undefined && { minutes: data.minutes }),
         ...(data.notes !== undefined && { notes: data.notes }),
       },
+      include: {
+        task: true,
+      },
     });
+
+    await this.createAuditLog({
+      entityType: 'TimeEntry',
+      entityId: id,
+      action: 'UPDATE',
+      changes: JSON.stringify({
+        previous: {
+          date: previousEntry?.date,
+          minutes: previousEntry?.minutes,
+          hours: previousEntry ? (previousEntry.minutes / 60).toFixed(2) : null,
+          taskName: previousEntry?.task?.name,
+          notes: previousEntry?.notes,
+        },
+        current: {
+          date: entry.date,
+          minutes: entry.minutes,
+          hours: (entry.minutes / 60).toFixed(2),
+          taskName: entry.task?.name,
+          notes: entry.notes,
+        },
+      }),
+      taskId: entry.taskId ?? undefined,
+    });
+
+    return entry;
   }
 
   public async deleteTimeEntry(id: string) {
     await this.ensureInitialized();
-    return this.prisma.timeEntry.delete({
+
+    const entry = await this.prisma.timeEntry.findUnique({
+      where: { id },
+      include: { task: true },
+    });
+
+    if (!entry) {
+      return null;
+    }
+
+    const deleted = await this.prisma.timeEntry.delete({
       where: { id },
     });
+
+    if (deleted) {
+      await this.createAuditLog({
+        entityType: 'TimeEntry',
+        entityId: id,
+        action: 'DELETE',
+        changes: JSON.stringify({
+          date: entry.date,
+          minutes: entry.minutes,
+          hours: (entry.minutes / 60).toFixed(2),
+          taskName: entry.task?.name,
+          notes: entry.notes,
+        }),
+        taskId: entry.taskId ?? undefined,
+      });
+    }
+
+    return deleted;
   }
 
   // ==================== WORK PERIODS ====================
@@ -769,6 +1026,14 @@ export class DatabaseManager {
     });
   }
 
+  public async updateTag(id: string, name: string) {
+    await this.ensureInitialized();
+    return this.prisma.tag.update({
+      where: { id },
+      data: { name },
+    });
+  }
+
   public async deleteTag(id: string) {
     await this.ensureInitialized();
     return this.prisma.tag.delete({
@@ -821,16 +1086,127 @@ export class DatabaseManager {
   }
 
   /**
-   * Gets audit logs filtered by entity type and/or entity id
+   * Gets audit logs filtered by entity type and/or entity id or task id
    */
-  public async getAuditLogs(entityType?: string, entityId?: string) {
+  public async getAuditLogs(
+    entityType?: string,
+    entityId?: string,
+    taskId?: string,
+  ) {
     await this.ensureInitialized();
     return this.prisma.auditLog.findMany({
       where: {
-        ...(entityType && { entityType }),
-        ...(entityId && { entityId }),
+        ...(entityType && !taskId && { entityType }),
+        ...(entityId && !taskId && { entityId }),
+        ...(taskId && {
+          OR: [{ entityType: 'Task', entityId: taskId }, { taskId: taskId }],
+        }),
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // ==================== ACTION HISTORY ====================
+
+  /**
+   * Creates a new action history entry
+   */
+  public async createActionHistory(data: {
+    entityType: string;
+    entityId: string;
+    actionType: string;
+    description: string;
+    previousData?: string;
+    newData?: string;
+  }) {
+    await this.ensureInitialized();
+    return this.prisma.actionHistory.create({
+      data: {
+        entityType: data.entityType,
+        entityId: data.entityId,
+        actionType: data.actionType,
+        description: data.description,
+        previousData: data.previousData,
+        newData: data.newData,
+        undone: false,
+      },
+    });
+  }
+
+  /**
+   * Gets action history entries
+   */
+  public async getActionHistory(limit = 50) {
+    await this.ensureInitialized();
+    return this.prisma.actionHistory.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+  }
+
+  /**
+   * Gets the last action that can be undone
+   */
+  public async getLastUndoableAction() {
+    await this.ensureInitialized();
+    return this.prisma.actionHistory.findFirst({
+      where: { undone: false },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Gets the last action that can be redone
+   */
+  public async getLastRedoableAction() {
+    await this.ensureInitialized();
+    return this.prisma.actionHistory.findFirst({
+      where: { undone: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Marks an action as undone
+   */
+  public async markActionUndone(id: string) {
+    await this.ensureInitialized();
+    return this.prisma.actionHistory.update({
+      where: { id },
+      data: { undone: true },
+    });
+  }
+
+  /**
+   * Marks an action as redone (not undone)
+   */
+  public async markActionRedone(id: string) {
+    await this.ensureInitialized();
+    return this.prisma.actionHistory.update({
+      where: { id },
+      data: { undone: false },
+    });
+  }
+
+  /**
+   * Clears all action history
+   */
+  public async clearActionHistory() {
+    await this.ensureInitialized();
+    return this.prisma.actionHistory.deleteMany();
+  }
+
+  /**
+   * Clears actions older than specified days
+   */
+  public async cleanOldActionHistory(daysOld = 30) {
+    await this.ensureInitialized();
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+    return this.prisma.actionHistory.deleteMany({
+      where: {
+        createdAt: { lt: cutoffDate },
+      },
     });
   }
 

@@ -1,0 +1,198 @@
+<app-open-layout>
+  <p-toast />
+  <p-confirmDialog />
+
+  <ng-template pTemplate="header">
+    <header class="history-header">
+      <h2 class="history-header__title">
+        <i class="pi pi-history"></i>
+        {{ "history.title" | translate }}
+      </h2>
+      <div class="history-header__actions">
+        <p-button
+          icon="pi pi-replay"
+          [label]="'history.undo' | translate"
+          [disabled]="!canUndo()"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="onUndo()"
+          [pTooltip]="'Ctrl+Z'"
+        />
+        <p-button
+          icon="pi pi-refresh"
+          [label]="'history.redo' | translate"
+          [disabled]="!canRedo()"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="onRedo()"
+          [pTooltip]="'Ctrl+Y'"
+        />
+        <p-button
+          icon="pi pi-trash"
+          [label]="'history.clear' | translate"
+          severity="danger"
+          [outlined]="true"
+          (onClick)="onClearHistory()"
+          [disabled]="recordCount() === 0"
+        />
+      </div>
+    </header>
+  </ng-template>
+
+  <p-card>
+    @if (loading()) {
+      <div class="history-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        {{ "common.loading" | translate }}
+      </div>
+    } @else if (historyRecords().length === 0) {
+      <div class="history-empty">
+        <i class="pi pi-inbox"></i>
+        <p>{{ "history.empty" | translate }}</p>
+      </div>
+    } @else {
+      <p-table
+        [value]="historyRecords()"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        styleClass="p-datatable-sm"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ "history.columns.date" | translate }}</th>
+            <th>{{ "history.columns.action" | translate }}</th>
+            <th>{{ "history.columns.entity" | translate }}</th>
+            <th>{{ "history.columns.description" | translate }}</th>
+            <th>{{ "history.columns.status" | translate }}</th>
+            <th style="width: 80px"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-record>
+          <tr [class.undone]="record.undone">
+            <td>
+              {{ record.createdAt | date: "dd/MM/yyyy HH:mm" }}
+            </td>
+            <td>
+              <p-tag
+                [value]="getActionLabel(record.actionType)"
+                [severity]="getActionSeverity(record.actionType)"
+                [icon]="getActionIcon(record.actionType)"
+              />
+            </td>
+            <td>
+              <span class="entity-cell">
+                <i [class]="getEntityIcon(record.entityType)"></i>
+                {{ getEntityLabel(record.entityType) }}
+              </span>
+            </td>
+            <td>{{ record.description }}</td>
+            <td>
+              @if (record.undone) {
+                <p-tag
+                  [value]="'history.statusUndone' | translate"
+                  severity="warn"
+                  icon="pi pi-undo"
+                />
+              } @else {
+                <p-tag
+                  [value]="'history.statusDone' | translate"
+                  severity="success"
+                  icon="pi pi-check"
+                />
+              }
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-eye"
+                [rounded]="true"
+                [text]="true"
+                severity="secondary"
+                (onClick)="onViewDetail(record)"
+                [pTooltip]="'history.viewDetail' | translate"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  </p-card>
+
+  <p-dialog
+    [header]="'history.detailTitle' | translate"
+    [(visible)]="showDetailDialog"
+    [modal]="true"
+    [style]="{ width: '700px', maxHeight: '80vh' }"
+    [dismissableMask]="true"
+  >
+    @if (selectedRecord(); as record) {
+      <div class="detail-content">
+        <div class="detail-row">
+          <span class="detail-label"
+            >{{ "history.columns.date" | translate }}:</span
+          >
+          <span>{{ record.createdAt | date: "dd/MM/yyyy HH:mm:ss" }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"
+            >{{ "history.columns.action" | translate }}:</span
+          >
+          <p-tag
+            [value]="getActionLabel(record.actionType)"
+            [severity]="getActionSeverity(record.actionType)"
+            [icon]="getActionIcon(record.actionType)"
+          />
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"
+            >{{ "history.columns.entity" | translate }}:</span
+          >
+          <span class="entity-cell">
+            <i [class]="getEntityIcon(record.entityType)"></i>
+            {{ getEntityLabel(record.entityType) }}
+          </span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"
+            >{{ "history.columns.description" | translate }}:</span
+          >
+          <span>{{ record.description }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="detail-label"
+            >{{ "history.columns.status" | translate }}:</span
+          >
+          @if (record.undone) {
+            <p-tag
+              [value]="'history.statusUndone' | translate"
+              severity="warn"
+              icon="pi pi-undo"
+            />
+          } @else {
+            <p-tag
+              [value]="'history.statusDone' | translate"
+              severity="success"
+              icon="pi pi-check"
+            />
+          }
+        </div>
+
+        <p-divider />
+
+        <div class="detail-section">
+          <h4>{{ "history.previousData" | translate }}</h4>
+          <pre class="json-display">{{
+            formatJson(selectedPreviousData())
+          }}</pre>
+        </div>
+
+        <div class="detail-section">
+          <h4>{{ "history.newData" | translate }}</h4>
+          <pre class="json-display">{{ formatJson(selectedNewData()) }}</pre>
+        </div>
+      </div>
+    }
+  </p-dialog>
+</app-open-layout>

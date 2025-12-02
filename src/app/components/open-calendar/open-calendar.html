@@ -80,29 +80,57 @@
           [class.calendar__day--today]="day.isToday"
           [class.calendar__day--non-work]="!day.isWorkDay"
           [class.calendar__day--has-override]="day.dayOverride"
+          [class.calendar__day--has-tasks]="day.timeEntries.length > 0"
           [class.calendar__day--last-work]="day.isLastWorkDayOfWeek"
           [style.--day-type-color]="getDayTypeColor(day)"
-          (click)="onDayClick(day)"
-          (keydown.enter)="onDayClick(day)"
+          (click)="onDayAreaClick(day, $event)"
+          (keydown.enter)="onDayAreaClick(day, $event)"
           tabindex="0"
           role="button"
         >
           <div class="calendar__day-header">
             <span class="calendar__day-number">{{ day.dayNumber }}</span>
-            @if (day.dayOverride?.dayType) {
-              <span
-                class="calendar__day-type"
-                [style.background-color]="day.dayOverride?.dayType?.color"
-                [pTooltip]="day.dayOverride?.dayType?.name"
-              >
-                {{ day.dayOverride?.dayType?.name?.charAt(0) }}
-              </span>
+            @if (day.isCurrentMonth) {
+              <div class="calendar__day-actions">
+                <p-button
+                  [icon]="
+                    day.dayOverride?.dayType
+                      ? 'pi pi-calendar'
+                      : 'pi pi-calendar-plus'
+                  "
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  [style.color]="day.dayOverride?.dayType?.color"
+                  (onClick)="onDayClick(day)"
+                  [pTooltip]="
+                    day.dayOverride?.dayType?.name ||
+                    ('calendar.addSpecialDay' | translate)
+                  "
+                />
+                <p-button
+                  icon="pi pi-plus"
+                  [rounded]="true"
+                  [text]="true"
+                  size="small"
+                  (onClick)="onAddTimeClick(day, $event)"
+                  [pTooltip]="'calendar.addTime' | translate"
+                />
+              </div>
             }
           </div>
 
           @if (day.isCurrentMonth) {
-            <div class="calendar__hours">
-              @if (day.workedMinutes > 0 || day.plannedMinutes > 0) {
+            @if (day.dayOverride?.note) {
+              <div
+                class="calendar__day-note"
+                [pTooltip]="day.dayOverride?.note ?? ''"
+              >
+                {{ day.dayOverride?.note }}
+              </div>
+            }
+            @if (day.workedMinutes > 0 || day.plannedMinutes > 0) {
+              <div class="calendar__hours">
                 <span
                   class="calendar__hours-worked"
                   [class.calendar__hours--complete]="
@@ -122,29 +150,16 @@
                     formatTime(day.plannedMinutes)
                   }}</span>
                 }
-              }
-            </div>
-
-            <p-button
-              icon="pi pi-plus"
-              [rounded]="true"
-              [text]="true"
-              size="small"
-              class="calendar__add-time"
-              (onClick)="onAddTimeClick(day, $event)"
-              [pTooltip]="'calendar.addTime' | translate"
-            />
+              </div>
+            }
           }
 
           <div class="calendar__tasks">
             @for (entry of day.timeEntries.slice(0, 2); track entry.id) {
               <div
                 class="calendar__task"
-                [class]="
-                  entry.task
-                    ? getStatusColor(entry.task.status?.name)
-                    : 'calendar__task--no-task'
-                "
+                [class.calendar__task--no-task]="!entry.task"
+                [style.--status-color]="entry.task?.status?.color || '#6b7280'"
                 [pTooltip]="
                   entry.task?.name || ('timeEntry.noTask' | translate)
                 "
@@ -162,7 +177,15 @@
               </div>
             }
             @if (day.timeEntries.length > 2) {
-              <div class="calendar__more">
+              <div
+                class="calendar__more"
+                (click)="onShowAllEntries(day, $event)"
+                (keydown.enter)="onShowAllEntries(day, $event)"
+                tabindex="0"
+                role="button"
+                [pTooltip]="getEntriesPreview(day)"
+                tooltipPosition="top"
+              >
                 +{{ day.timeEntries.length - 2 }}
                 {{ "calendar.more" | translate }}
               </div>
@@ -190,3 +213,74 @@
     </div>
   </div>
 </div>
+
+<!-- Day Entries Dialog -->
+<p-dialog
+  [header]="
+    selectedDayEntries()
+      ? selectedDayEntries()!.dayNumber + ' ' + monthYearLabel()
+      : ''
+  "
+  [(visible)]="showDayEntriesDialog"
+  [modal]="true"
+  [style]="{ width: '500px', maxHeight: '80vh' }"
+  [dismissableMask]="true"
+  (onHide)="closeDayEntriesDialog()"
+>
+  @if (selectedDayEntries(); as day) {
+    <div class="day-entries-dialog">
+      <div class="day-entries-dialog__summary">
+        <span class="day-entries-dialog__total">
+          {{ "calendar.totalWorked" | translate }}:
+          <strong>{{ formatTime(day.workedMinutes) }}</strong>
+        </span>
+        @if (day.plannedMinutes > 0) {
+          <span class="day-entries-dialog__planned">
+            / {{ formatTime(day.plannedMinutes) }}
+          </span>
+        }
+      </div>
+
+      <div class="day-entries-dialog__list">
+        @for (entry of day.timeEntries; track entry.id) {
+          <div
+            class="day-entries-dialog__entry"
+            [class.calendar__task--no-task]="!entry.task"
+            [style.--status-color]="entry.task?.status?.color || '#6b7280'"
+            (click)="onDialogEntryClick(entry.id)"
+            (keydown.enter)="onDialogEntryClick(entry.id)"
+            tabindex="0"
+            role="button"
+          >
+            <div class="day-entries-dialog__entry-info">
+              <span class="day-entries-dialog__entry-name">
+                @if (entry.task?.project?.name) {
+                  <span class="day-entries-dialog__entry-prefix"
+                    >[{{
+                      entry.task!.project!.name.substring(0, 3).toUpperCase()
+                    }}]</span
+                  >
+                }
+                {{ entry.task?.name || ("timeEntry.noTask" | translate) }}
+              </span>
+              @if (entry.notes) {
+                <span class="day-entries-dialog__entry-notes">
+                  {{ entry.notes }}
+                </span>
+              }
+            </div>
+            <span class="day-entries-dialog__entry-time">
+              {{ formatTime(entry.minutes) }}
+            </span>
+          </div>
+        }
+      </div>
+
+      @if (day.timeEntries.length === 0) {
+        <div class="day-entries-dialog__empty">
+          {{ "calendar.noEntries" | translate }}
+        </div>
+      }
+    </div>
+  }
+</p-dialog>

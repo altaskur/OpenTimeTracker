@@ -1,9 +1,13 @@
 .open-layout {
-    display: block;
-    width: 100%;
-    min-height: 100vh;
-    padding: 2rem;
-    margin: 0 auto;
-    max-width: 1400px;
-    box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  padding: 1rem 2rem;
+  margin: 0 auto;
+  max-width: 1400px;
+  box-sizing: border-box;
+}
+
+.open-layout__header {
+  margin-bottom: 0.5rem;
 }

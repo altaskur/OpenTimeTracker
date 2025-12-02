@@ -3,7 +3,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
   flex-wrap: wrap;
   gap: 1rem;
 
@@ -157,5 +156,75 @@
 
   .task-form__multiselect--elevated .p-overlay {
     z-index: 10000 !important;
+  }
+}
+
+/* ==================== TASK DETAILS DIALOG ==================== */
+.task-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+  }
+
+  &__value {
+    font-size: 1rem;
+    color: var(--text-color);
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__history-title {
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--surface-border);
+    color: var(--primary-color);
+    font-size: 1.1rem;
+  }
+
+  &__empty {
+    text-align: center;
+    color: var(--text-color-secondary);
+    font-style: italic;
+    padding: 1rem;
+  }
+
+  &__entity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  &__changes {
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
   }
 }

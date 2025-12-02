@@ -17,10 +17,19 @@
     "english": "English"
   },
   "home": {
-    "title": "Tareas Pendientes",
+    "title": "Panel Principal",
+    "pendingTasks": "Tareas Pendientes",
+    "openProjects": "Proyectos Abiertos",
     "loading": "Cargando tareas...",
     "empty": "No hay tareas pendientes",
-    "noProject": "Sin proyecto"
+    "emptyProjects": "No hay proyectos abiertos",
+    "noProject": "Sin proyecto",
+    "stats": {
+      "today": "Hoy",
+      "week": "Esta semana",
+      "remaining": "Restante",
+      "tasksToday": "Tareas hoy"
+    }
   },
   "projects": {
     "title": "Proyectos",
@@ -60,6 +69,11 @@
       "selectStatus": "Seleccionar estado",
       "selectTags": "Seleccionar etiquetas",
       "newTagPlaceholder": "Nueva etiqueta..."
+    },
+    "details": {
+      "title": "Detalles de la Tarea",
+      "history": "Historial de Actividad",
+      "noHistory": "No hay actividad registrada"
     }
   },
   "table": {
@@ -88,7 +102,8 @@
     "no": "No",
     "success": "Éxito",
     "error": "Error",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "viewDetails": "Ver detalles"
   },
   "toast": {
     "projectCreated": "Proyecto creado correctamente",
@@ -149,12 +164,15 @@
     "more": "más",
     "settings": "Configurar horas",
     "addTime": "Registrar tiempo",
+    "addSpecialDay": "Añadir día especial",
     "workedHours": "Trabajadas",
     "plannedHours": "Planificadas",
     "balance": "Balance",
     "positive": "A favor",
     "negative": "En contra",
     "weekSummary": "Semana",
+    "totalWorked": "Total trabajado",
+    "noEntries": "No hay registros de tiempo para este día",
     "months": {
       "january": "Enero",
       "february": "Febrero",
@@ -244,5 +262,109 @@
     "notePlaceholder": "Nota opcional...",
     "effectiveHours": "Horas efectivas",
     "clearDay": "Quitar marcado"
+  },
+  "history": {
+    "title": "Historial",
+    "empty": "No hay acciones recientes",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "undoTo": "Deshacer hasta aquí",
+    "clear": "Limpiar historial",
+    "undone": "Acción deshecha",
+    "redone": "Acción rehecha",
+    "cleared": "Historial limpiado",
+    "loadError": "Error al cargar el historial",
+    "clearError": "Error al limpiar el historial",
+    "clearConfirmTitle": "Limpiar Historial",
+    "clearConfirmMessage": "¿Estás seguro de que quieres limpiar todo el historial? Esta acción no se puede deshacer.",
+    "statusDone": "Realizada",
+    "statusUndone": "Deshecha",
+    "viewDetail": "Ver detalle",
+    "detailTitle": "Detalle de acción",
+    "previousData": "Datos anteriores",
+    "newData": "Datos nuevos",
+    "columns": {
+      "date": "Fecha",
+      "action": "Acción",
+      "entity": "Entidad",
+      "description": "Descripción",
+      "status": "Estado"
+    },
+    "actionTypes": {
+      "create": "Crear",
+      "update": "Actualizar",
+      "delete": "Eliminar"
+    },
+    "entityTypes": {
+      "Project": "Proyecto",
+      "Task": "Tarea",
+      "TimeEntry": "Registro de tiempo",
+      "DayOverride": "Día especial",
+      "MonthConfig": "Configuración mensual",
+      "Tag": "Etiqueta"
+    },
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "status": "Estado",
+      "closed": "Cerrado",
+      "open": "Abierto",
+      "estimatedHours": "Horas estimadas",
+      "date": "Fecha",
+      "action": "Acción",
+      "user": "Usuario",
+      "duration": "Duración",
+      "notes": "Notas",
+      "task": "Tarea",
+      "workMinutes": "Tiempo de trabajo",
+      "color": "Color",
+      "defaultHours": "Horas por defecto"
+    },
+    "actions": {
+      "createTimeEntry": "Tiempo registrado",
+      "updateTimeEntry": "Tiempo actualizado",
+      "deleteTimeEntry": "Tiempo eliminado",
+      "createDayOverride": "Día especial creado",
+      "updateDayOverride": "Día especial actualizado",
+      "deleteDayOverride": "Día especial eliminado",
+      "createProject": "Proyecto creado",
+      "updateProject": "Proyecto actualizado",
+      "deleteProject": "Proyecto eliminado",
+      "createTask": "Tarea creada",
+      "updateTask": "Tarea actualizada",
+      "deleteTask": "Tarea eliminada"
+    }
+  },
+  "status": {
+    "pending": "Pendiente",
+    "inProgress": "En progreso",
+    "completed": "Completada",
+    "blocked": "Bloqueada"
+  },
+  "settings": {
+    "tags": {
+      "title": "Gestión de Etiquetas",
+      "new": "Nueva etiqueta",
+      "namePlaceholder": "Nombre de la etiqueta...",
+      "empty": "No hay etiquetas configuradas",
+      "add": "Añadir",
+      "cannotDeleteInUse": "No se puede eliminar: la etiqueta está en uso"
+    },
+    "dayTypes": {
+      "title": "Tipos de Día Especial",
+      "subtitle": "Configura los tipos de día especial que puedes asignar en el calendario",
+      "new": "Nuevo tipo",
+      "empty": "No hay tipos de día configurados"
+    },
+    "statuses": {
+      "title": "Estados de Tarea",
+      "subtitle": "Configura los estados disponibles para las tareas",
+      "new": "Nuevo estado",
+      "namePlaceholder": "Nombre del estado...",
+      "empty": "No hay estados configurados",
+      "add": "Añadir",
+      "cannotDeleteDefault": "No se pueden eliminar los estados predeterminados",
+      "cannotDeleteInUse": "No se puede eliminar: el estado está en uso"
+    }
   }
 }

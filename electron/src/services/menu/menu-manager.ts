@@ -23,6 +23,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     calendar: 'Calendario',
     projects: 'Proyectos',
     tasks: 'Tareas',
+    history: 'Historial',
     darkLightMode: 'Modo Claro/Oscuro',
     language: 'Idioma',
     spanish: 'Español',
@@ -45,6 +46,14 @@ const menuTranslations: Record<string, Record<string, string>> = {
     settings: 'Configuración',
     devTools: 'Abrir Herramientas de Desarrollador',
     reload: 'Recargar Aplicación',
+    edit: 'Editar',
+    undo: 'Deshacer',
+    redo: 'Rehacer',
+    clearHistory: 'Limpiar Historial',
+    maintenance: 'Mantenimiento',
+    tags: 'Etiquetas',
+    dayTypes: 'Tipos de Día',
+    taskStatuses: 'Estados de Tarea',
   },
   en: {
     home: 'Home',
@@ -52,6 +61,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     calendar: 'Calendar',
     projects: 'Projects',
     tasks: 'Tasks',
+    history: 'History',
     darkLightMode: 'Dark/Light Mode',
     language: 'Language',
     spanish: 'Español',
@@ -74,6 +84,14 @@ const menuTranslations: Record<string, Record<string, string>> = {
     settings: 'Settings',
     devTools: 'Open Developer Tools',
     reload: 'Reload Application',
+    edit: 'Edit',
+    undo: 'Undo',
+    redo: 'Redo',
+    clearHistory: 'Clear History',
+    maintenance: 'Maintenance',
+    tags: 'Tags',
+    dayTypes: 'Day Types',
+    taskStatuses: 'Task Statuses',
   },
 };
 
@@ -165,6 +183,34 @@ export class MenuManager {
       },
 
       {
+        label: this.t('edit'),
+        submenu: [
+          {
+            label: this.t('undo'),
+            accelerator: 'CmdOrCtrl+Z',
+            click: (): void => {
+              this.window.webContents.send('undo-action');
+            },
+          },
+          {
+            label: this.t('redo'),
+            accelerator: 'CmdOrCtrl+Y',
+            click: (): void => {
+              this.window.webContents.send('redo-action');
+            },
+          },
+          { type: 'separator' },
+          {
+            label: this.t('history'),
+            accelerator: 'CmdOrCtrl+5',
+            click: (): void => {
+              this.navigateTo('/history');
+            },
+          },
+        ],
+      },
+
+      {
         label: this.t('settings'),
         submenu: [
           {
@@ -192,6 +238,30 @@ export class MenuManager {
                 checked: currentLang === 'en',
                 click: (): void => {
                   void this.changeLanguage('en');
+                },
+              },
+            ],
+          },
+          { type: 'separator' },
+          {
+            label: this.t('maintenance'),
+            submenu: [
+              {
+                label: this.t('tags'),
+                click: (): void => {
+                  this.navigateTo('/settings/tags');
+                },
+              },
+              {
+                label: this.t('dayTypes'),
+                click: (): void => {
+                  this.navigateTo('/settings/day-types');
+                },
+              },
+              {
+                label: this.t('taskStatuses'),
+                click: (): void => {
+                  this.navigateTo('/settings/statuses');
                 },
               },
             ],

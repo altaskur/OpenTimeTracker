@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
 
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +20,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 
 import { DatabaseService } from '../../services';
+import { ActionHistoryService } from '../../services/action-history.service';
 import { Project } from '../../../types/electron';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 import { OpenConfirmDeleteComponent } from '../../components/open-confirm-delete/open-confirm-delete';
@@ -44,8 +52,18 @@ import { ProjectTableComponent } from './components';
 })
 export class OpenProjects implements OnInit {
   private readonly dbService = inject(DatabaseService);
+  private readonly historyService = inject(ActionHistoryService);
   private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(MessageService);
+
+  constructor() {
+    effect(() => {
+      const change = this.historyService.dataChanged();
+      if (change.timestamp > 0 && change.entityType === 'Project') {
+        void this.loadProjects();
+      }
+    });
+  }
 
   projects = signal<Project[]>([]);
   loading = signal(false);
@@ -123,17 +141,70 @@ export class OpenProjects implements OnInit {
   async saveProject(): Promise<void> {
     try {
       if (this.projectForm.id) {
-        await this.dbService.updateProject(
-          this.projectForm.id,
-          this.projectForm.name,
-          this.projectForm.description,
+        const existingProject = this.projects().find(
+          (p) => p.id === this.projectForm.id,
         );
+        const previousData = existingProject ? { ...existingProject } : null;
+
+        await this.historyService.execute({
+          entityType: 'Project',
+          actionType: 'update',
+          entityId: this.projectForm.id,
+          description: this.translateService.instant(
+            'history.actions.updateProject',
+          ),
+          previousData,
+          newData: {
+            name: this.projectForm.name,
+            description: this.projectForm.description,
+          },
+          execute: async () => {
+            await this.dbService.updateProject(
+              this.projectForm.id,
+              this.projectForm.name,
+              this.projectForm.description,
+            );
+          },
+          undo: async () => {
+            if (previousData) {
+              await this.dbService.updateProject(
+                previousData.id,
+                previousData.name,
+                previousData.description ?? '',
+              );
+              await this.loadProjects();
+            }
+          },
+        });
         this.showSuccess('toast.projectUpdated');
       } else {
-        await this.dbService.createProject(
-          this.projectForm.name,
-          this.projectForm.description,
-        );
+        let createdId: string | null = null;
+        await this.historyService.execute({
+          entityType: 'Project',
+          actionType: 'create',
+          entityId: '',
+          description: this.translateService.instant(
+            'history.actions.createProject',
+          ),
+          previousData: null,
+          newData: {
+            name: this.projectForm.name,
+            description: this.projectForm.description,
+          },
+          execute: async () => {
+            const created = await this.dbService.createProject(
+              this.projectForm.name,
+              this.projectForm.description,
+            );
+            createdId = created.id;
+          },
+          undo: async () => {
+            if (createdId) {
+              await this.dbService.deleteProject(createdId);
+              await this.loadProjects();
+            }
+          },
+        });
         this.showSuccess('toast.projectCreated');
       }
       this.dialogVisible.set(false);
@@ -176,7 +247,31 @@ export class OpenProjects implements OnInit {
    */
   private async deleteProject(id: string): Promise<void> {
     try {
-      await this.dbService.deleteProject(id);
+      const existingProject = this.projects().find((p) => p.id === id);
+      const previousData = existingProject ? { ...existingProject } : null;
+
+      await this.historyService.execute({
+        entityType: 'Project',
+        actionType: 'delete',
+        entityId: id,
+        description: this.translateService.instant(
+          'history.actions.deleteProject',
+        ),
+        previousData,
+        newData: null,
+        execute: async () => {
+          await this.dbService.deleteProject(id);
+        },
+        undo: async () => {
+          if (previousData) {
+            await this.dbService.createProject(
+              previousData.name,
+              previousData.description ?? '',
+            );
+            await this.loadProjects();
+          }
+        },
+      });
       this.showSuccess('toast.projectDeleted');
       await this.loadProjects();
     } catch {

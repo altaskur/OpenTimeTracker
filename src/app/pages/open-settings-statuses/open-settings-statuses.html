@@ -1,0 +1,120 @@
+<app-open-layout>
+  <p-toast />
+  <ng-template pTemplate="header">
+    <header class="settings-statuses-header">
+      <div class="settings-statuses-header__title-section">
+        <h2 class="settings-statuses-header__title">
+          <i class="pi pi-flag"></i>
+          {{ "settings.statuses.title" | translate }}
+        </h2>
+        <p class="settings-statuses-header__subtitle">
+          {{ "settings.statuses.subtitle" | translate }}
+        </p>
+      </div>
+      <div class="settings-statuses-header__actions">
+        <div class="settings-statuses-header__form-row">
+          <p-colorPicker [(ngModel)]="newStatusColor" />
+          <input
+            type="text"
+            pInputText
+            [placeholder]="'settings.statuses.namePlaceholder' | translate"
+            [(ngModel)]="newStatusName"
+            (keyup.enter)="addStatus()"
+          />
+          <p-button
+            icon="pi pi-plus"
+            [label]="'settings.statuses.add' | translate"
+            [disabled]="!canAdd()"
+            (click)="addStatus()"
+          />
+        </div>
+      </div>
+    </header>
+  </ng-template>
+
+  @if (statuses().length === 0 && !loading()) {
+    <div class="settings-statuses__empty">
+      <i class="pi pi-flag"></i>
+      <p>{{ "settings.statuses.empty" | translate }}</p>
+    </div>
+  } @else {
+    <div class="settings-statuses__list">
+      @for (status of statuses(); track status.id) {
+        <div class="settings-statuses__item">
+          @if (editingId() === status.id) {
+            <div class="settings-statuses__item-edit">
+              <p-colorPicker [(ngModel)]="editingColor" />
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="editingName"
+                [disabled]="status.isDefault"
+                (keyup.enter)="saveEdit(status)"
+                (keyup.escape)="cancelEdit()"
+                class="settings-statuses__edit-input"
+              />
+              <div class="settings-statuses__item-actions">
+                <p-button
+                  icon="pi pi-check"
+                  severity="success"
+                  [text]="true"
+                  [rounded]="true"
+                  [pTooltip]="'common.save' | translate"
+                  (click)="saveEdit(status)"
+                />
+                <p-button
+                  icon="pi pi-times"
+                  severity="secondary"
+                  [text]="true"
+                  [rounded]="true"
+                  [pTooltip]="'common.cancel' | translate"
+                  (click)="cancelEdit()"
+                />
+              </div>
+            </div>
+          } @else {
+            <div class="settings-statuses__item-view">
+              <span
+                class="settings-statuses__item-color"
+                [style.background-color]="status.color"
+              ></span>
+              <span class="settings-statuses__item-name">
+                {{ getStatusDisplayName(status) }}
+                @if (status.isDefault) {
+                  <i
+                    class="pi pi-lock"
+                    [pTooltip]="
+                      'settings.statuses.cannotDeleteDefault' | translate
+                    "
+                  ></i>
+                }
+              </span>
+              <div class="settings-statuses__item-actions">
+                <p-button
+                  icon="pi pi-pencil"
+                  [text]="true"
+                  [rounded]="true"
+                  [pTooltip]="'common.edit' | translate"
+                  (click)="startEdit(status)"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  [pTooltip]="
+                    status.isDefault
+                      ? ('settings.statuses.cannotDeleteDefault' | translate)
+                      : ('common.delete' | translate)
+                  "
+                  [disabled]="status.isDefault"
+                  (click)="deleteStatus(status)"
+                />
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</app-open-layout>

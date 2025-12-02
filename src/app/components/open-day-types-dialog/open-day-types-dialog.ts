@@ -7,6 +7,7 @@ import {
   untracked,
   inject,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -24,6 +25,7 @@ import { DayType } from '../../../types/electron';
 @Component({
   selector: 'app-open-day-types-dialog',
   imports: [
+    CommonModule,
     FormsModule,
     ButtonModule,
     DialogModule,
@@ -42,6 +44,9 @@ export class OpenDayTypesDialogComponent {
 
   /** Whether the dialog is visible */
   visible = input.required<boolean>();
+
+  /** Whether to render as embedded (no dialog wrapper) */
+  embedded = input<boolean>(false);
 
   /** Available day types */
   dayTypes = input<DayType[]>([]);

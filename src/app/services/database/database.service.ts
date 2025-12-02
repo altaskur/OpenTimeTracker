@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import {
+  ActionHistory,
   AuditLog,
   DayOverride,
   DayType,
@@ -149,6 +150,28 @@ export class DatabaseService {
   async getTaskStatuses(): Promise<TaskStatus[]> {
     return this.executeWithErrorHandling('get task statuses', async () => {
       return globalThis.window.electronAPI.getTaskStatuses();
+    });
+  }
+
+  async createTaskStatus(name: string, color: string): Promise<TaskStatus> {
+    return this.executeWithErrorHandling('create task status', async () => {
+      return globalThis.window.electronAPI.createTaskStatus(name, color);
+    });
+  }
+
+  async updateTaskStatus(
+    id: string,
+    name: string,
+    color: string,
+  ): Promise<TaskStatus> {
+    return this.executeWithErrorHandling('update task status', async () => {
+      return globalThis.window.electronAPI.updateTaskStatus(id, name, color);
+    });
+  }
+
+  async deleteTaskStatus(id: string): Promise<TaskStatus | null> {
+    return this.executeWithErrorHandling('delete task status', async () => {
+      return globalThis.window.electronAPI.deleteTaskStatus(id);
     });
   }
 
@@ -424,6 +447,12 @@ export class DatabaseService {
     });
   }
 
+  async updateTag(id: string, name: string): Promise<Tag> {
+    return this.executeWithErrorHandling('update tag', async () => {
+      return globalThis.window.electronAPI.updateTag(id, name);
+    });
+  }
+
   async deleteTag(id: string): Promise<DeleteResult> {
     return this.executeWithErrorHandling('delete tag', async () => {
       return globalThis.window.electronAPI.deleteTag(id);
@@ -447,9 +476,28 @@ export class DatabaseService {
   async getAuditLogs(
     entityType?: string,
     entityId?: string,
+    taskId?: string,
   ): Promise<AuditLog[]> {
     return this.executeWithErrorHandling('get audit logs', async () => {
-      return globalThis.window.electronAPI.getAuditLogs(entityType, entityId);
+      return globalThis.window.electronAPI.getAuditLogs(
+        entityType,
+        entityId,
+        taskId,
+      );
+    });
+  }
+
+  // ==================== ACTION HISTORY ====================
+
+  async getActionHistory(limit?: number): Promise<ActionHistory[]> {
+    return this.executeWithErrorHandling('get action history', async () => {
+      return globalThis.window.electronAPI.getActionHistory(limit);
+    });
+  }
+
+  async clearActionHistory(): Promise<DeleteResult> {
+    return this.executeWithErrorHandling('clear action history', async () => {
+      return globalThis.window.electronAPI.clearActionHistory();
     });
   }
 }

@@ -71,8 +71,8 @@ export class WindowManager {
    * Sets up development tools
    */
   private setupDevTools(): void {
-    // Always open DevTools in development
-    this.mainWindow?.webContents.openDevTools();
+    // DevTools can be opened manually from the menu (Ctrl+Shift+I)
+    // this.mainWindow?.webContents.openDevTools();
   }
 
   /**

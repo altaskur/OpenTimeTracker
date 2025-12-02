@@ -57,7 +57,9 @@ describe('DatabaseManager', () => {
     await testPrisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "task_status" (
         "id" TEXT NOT NULL PRIMARY KEY,
-        "name" TEXT NOT NULL UNIQUE
+        "name" TEXT NOT NULL UNIQUE,
+        "color" TEXT NOT NULL DEFAULT '#6b7280',
+        "is_default" INTEGER NOT NULL DEFAULT 0
       );
     `);
 
@@ -131,8 +133,8 @@ describe('DatabaseManager', () => {
         "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "project_id" TEXT,
         "task_id" TEXT,
-        FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE,
-        FOREIGN KEY ("task_id") REFERENCES "tasks"("id") ON DELETE CASCADE
+        FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE SET NULL,
+        FOREIGN KEY ("task_id") REFERENCES "tasks"("id") ON DELETE SET NULL
       );
     `);
 
@@ -173,16 +175,39 @@ describe('DatabaseManager', () => {
 
     // Seed default task statuses
     await testPrisma.taskStatus.create({
-      data: { id: '1', name: 'Pendiente' },
+      data: {
+        id: '1',
+        name: 'status.pending',
+        color: '#f59e0b',
+        isDefault: true,
+      },
     });
     await testPrisma.taskStatus.create({
-      data: { id: '2', name: 'En progreso' },
+      data: {
+        id: '2',
+        name: 'status.inProgress',
+        color: '#3b82f6',
+        isDefault: true,
+      },
     });
     await testPrisma.taskStatus.create({
-      data: { id: '3', name: 'Completada' },
+      data: {
+        id: '3',
+        name: 'status.completed',
+        color: '#22c55e',
+        isDefault: true,
+      },
     });
     await testPrisma.taskStatus.create({
-      data: { id: '4', name: 'Cancelada' },
+      data: {
+        id: '4',
+        name: 'status.blocked',
+        color: '#ef4444',
+        isDefault: true,
+      },
+    });
+    await testPrisma.taskStatus.create({
+      data: { id: '5', name: 'Cancelada', color: '#6b7280', isDefault: false },
     });
   });
 
@@ -317,7 +342,7 @@ describe('DatabaseManager', () => {
       const project = await dbManager.createProject('Pending Project');
       const statuses = await dbManager.getTaskStatuses();
       const pendingStatus = statuses.find(
-        (s: TaskStatus) => s.name === 'Pendiente',
+        (s: TaskStatus) => s.name === 'status.pending',
       );
 
       await dbManager.createTask(
@@ -343,7 +368,7 @@ describe('DatabaseManager', () => {
       const project = await dbManager.createProject('Cannot Close Project');
       const statuses = await dbManager.getTaskStatuses();
       const pendingStatus = statuses.find(
-        (s: TaskStatus) => s.name === 'Pendiente',
+        (s: TaskStatus) => s.name === 'status.pending',
       );
 
       await dbManager.createTask(
@@ -505,9 +530,9 @@ describe('DatabaseManager', () => {
     it('should have default statuses', async () => {
       const statuses = await dbManager.getTaskStatuses();
       const statusNames = statuses.map((s: TaskStatus) => s.name);
-      expect(statusNames).toContain('Pendiente');
-      expect(statusNames).toContain('En progreso');
-      expect(statusNames).toContain('Completada');
+      expect(statusNames).toContain('status.pending');
+      expect(statusNames).toContain('status.inProgress');
+      expect(statusNames).toContain('status.completed');
     });
   });
 
@@ -618,7 +643,13 @@ describe('DatabaseManager', () => {
       const entryId = created.id;
 
       const result = await dbManager.deleteTimeEntry(entryId);
-      expect(result.id).toBe(entryId);
+      expect(result).not.toBeNull();
+      expect(result!.id).toBe(entryId);
+    });
+
+    it('should return null when deleting non-existent time entry', async () => {
+      const result = await dbManager.deleteTimeEntry('non-existent-id');
+      expect(result).toBeNull();
     });
   });
 

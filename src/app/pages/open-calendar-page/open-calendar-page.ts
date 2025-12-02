@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -11,6 +11,7 @@ import { OpenDayOverrideDialogComponent } from '../../components/open-day-overri
 import { OpenDayTypesDialogComponent } from '../../components/open-day-types-dialog/open-day-types-dialog';
 import { OpenConfirmDeleteComponent } from '../../components/open-confirm-delete/open-confirm-delete';
 import { DatabaseService } from '../../services';
+import { ActionHistoryService } from '../../services/action-history.service';
 import {
   Task,
   TimeEntry,
@@ -41,8 +42,23 @@ import {
 })
 export class OpenCalendarPage implements OnInit {
   private readonly dbService = inject(DatabaseService);
+  private readonly historyService = inject(ActionHistoryService);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
+
+  constructor() {
+    effect(() => {
+      const change = this.historyService.dataChanged();
+      if (
+        change.timestamp > 0 &&
+        ['TimeEntry', 'DayOverride', 'MonthConfig', 'DayType'].includes(
+          change.entityType,
+        )
+      ) {
+        void this.loadData();
+      }
+    });
+  }
 
   tasks = signal<Task[]>([]);
   timeEntries = signal<TimeEntry[]>([]);
@@ -210,19 +226,71 @@ export class OpenCalendarPage implements OnInit {
 
       const existingEntry = this.editingTimeEntry();
       if (existingEntry) {
-        await this.dbService.updateTimeEntry(existingEntry.id, {
-          date: dateString,
-          minutes: data.minutes,
-          taskId: data.taskId,
-          notes: data.notes,
+        const previousData = { ...existingEntry };
+        await this.historyService.execute({
+          entityType: 'TimeEntry',
+          actionType: 'update',
+          entityId: existingEntry.id,
+          description: this.translate.instant(
+            'history.actions.updateTimeEntry',
+          ),
+          previousData,
+          newData: {
+            date: dateString,
+            minutes: data.minutes,
+            taskId: data.taskId,
+            notes: data.notes,
+          },
+          execute: async () => {
+            await this.dbService.updateTimeEntry(existingEntry.id, {
+              date: dateString,
+              minutes: data.minutes,
+              taskId: data.taskId,
+              notes: data.notes,
+            });
+          },
+          undo: async () => {
+            await this.dbService.updateTimeEntry(existingEntry.id, {
+              date: previousData.date,
+              minutes: previousData.minutes,
+              taskId: previousData.taskId,
+              notes: previousData.notes,
+            });
+            await this.loadData();
+          },
         });
       } else {
-        await this.dbService.createTimeEntry(
-          dateString,
-          data.minutes,
-          data.taskId ?? undefined,
-          data.notes ?? undefined,
-        );
+        let createdId: string | null = null;
+        await this.historyService.execute({
+          entityType: 'TimeEntry',
+          actionType: 'create',
+          entityId: '',
+          description: this.translate.instant(
+            'history.actions.createTimeEntry',
+          ),
+          previousData: null,
+          newData: {
+            date: dateString,
+            minutes: data.minutes,
+            taskId: data.taskId,
+            notes: data.notes,
+          },
+          execute: async () => {
+            const created = await this.dbService.createTimeEntry(
+              dateString,
+              data.minutes,
+              data.taskId ?? undefined,
+              data.notes ?? undefined,
+            );
+            createdId = created.id;
+          },
+          undo: async () => {
+            if (createdId) {
+              await this.dbService.deleteTimeEntry(createdId);
+              await this.loadData();
+            }
+          },
+        });
       }
 
       await this.loadData();
@@ -265,7 +333,27 @@ export class OpenCalendarPage implements OnInit {
     if (!entry) return;
 
     try {
-      await this.dbService.deleteTimeEntry(entry.id);
+      const previousData = { ...entry };
+      await this.historyService.execute({
+        entityType: 'TimeEntry',
+        actionType: 'delete',
+        entityId: entry.id,
+        description: this.translate.instant('history.actions.deleteTimeEntry'),
+        previousData,
+        newData: null,
+        execute: async () => {
+          await this.dbService.deleteTimeEntry(entry.id);
+        },
+        undo: async () => {
+          await this.dbService.createTimeEntry(
+            previousData.date,
+            previousData.minutes,
+            previousData.taskId ?? undefined,
+            previousData.notes ?? undefined,
+          );
+          await this.loadData();
+        },
+      });
       await this.loadData();
       this.showDeleteConfirm.set(false);
       this.showTimeEntryDialog.set(false);
@@ -301,15 +389,76 @@ export class OpenCalendarPage implements OnInit {
     note: string | null;
   }): Promise<void> {
     try {
-      for (const date of data.dates) {
-        const dateString = this.formatDateString(date);
-        await this.dbService.upsertDayOverride(
-          dateString,
-          data.dayTypeId ?? undefined,
-          data.minutes ?? undefined,
-          data.note ?? undefined,
-        );
+      const existingOverride = this.editingDayOverride();
+      const dateStrings = data.dates.map((d) => this.formatDateString(d));
+
+      if (existingOverride) {
+        const previousData = { ...existingOverride };
+        await this.historyService.execute({
+          entityType: 'DayOverride',
+          actionType: 'update',
+          entityId: existingOverride.date,
+          description: this.translate.instant(
+            'history.actions.updateDayOverride',
+          ),
+          previousData,
+          newData: {
+            dayTypeId: data.dayTypeId,
+            minutes: data.minutes,
+            note: data.note,
+          },
+          execute: async () => {
+            await this.dbService.upsertDayOverride(
+              existingOverride.date,
+              data.dayTypeId ?? undefined,
+              data.minutes ?? undefined,
+              data.note ?? undefined,
+            );
+          },
+          undo: async () => {
+            await this.dbService.upsertDayOverride(
+              previousData.date,
+              previousData.dayTypeId ?? undefined,
+              previousData.minutes ?? undefined,
+              previousData.note ?? undefined,
+            );
+            await this.loadData();
+          },
+        });
+      } else {
+        await this.historyService.execute({
+          entityType: 'DayOverride',
+          actionType: 'create',
+          entityId: dateStrings.join(','),
+          description: this.translate.instant(
+            'history.actions.createDayOverride',
+          ),
+          previousData: null,
+          newData: {
+            dates: dateStrings,
+            dayTypeId: data.dayTypeId,
+            minutes: data.minutes,
+            note: data.note,
+          },
+          execute: async () => {
+            for (const dateString of dateStrings) {
+              await this.dbService.upsertDayOverride(
+                dateString,
+                data.dayTypeId ?? undefined,
+                data.minutes ?? undefined,
+                data.note ?? undefined,
+              );
+            }
+          },
+          undo: async () => {
+            for (const dateString of dateStrings) {
+              await this.dbService.deleteDayOverride(dateString);
+            }
+            await this.loadData();
+          },
+        });
       }
+
       await this.loadData();
       this.showDayOverrideDialog.set(false);
       this.editingDayOverride.set(null);
@@ -347,7 +496,29 @@ export class OpenCalendarPage implements OnInit {
     if (!override) return;
 
     try {
-      await this.dbService.deleteDayOverride(override.date);
+      const previousData = { ...override };
+      await this.historyService.execute({
+        entityType: 'DayOverride',
+        actionType: 'delete',
+        entityId: override.date,
+        description: this.translate.instant(
+          'history.actions.deleteDayOverride',
+        ),
+        previousData,
+        newData: null,
+        execute: async () => {
+          await this.dbService.deleteDayOverride(override.date);
+        },
+        undo: async () => {
+          await this.dbService.upsertDayOverride(
+            previousData.date,
+            previousData.dayTypeId ?? undefined,
+            previousData.minutes ?? undefined,
+            previousData.note ?? undefined,
+          );
+          await this.loadData();
+        },
+      });
       await this.loadData();
       this.showDayOverrideDialog.set(false);
       this.editingDayOverride.set(null);

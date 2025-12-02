@@ -194,6 +194,39 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
     }
   });
 
+  ipcMain.handle(
+    'create-task-status',
+    async (_event, name: string, color: string) => {
+      try {
+        return await dbManager.createTaskStatus(name, color);
+      } catch (error) {
+        console.error('Error creating task status:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'update-task-status',
+    async (_event, id: string, name: string, color: string) => {
+      try {
+        return await dbManager.updateTaskStatus(id, name, color);
+      } catch (error) {
+        console.error('Error updating task status:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle('delete-task-status', async (_event, id: string) => {
+    try {
+      return await dbManager.deleteTaskStatus(id);
+    } catch (error) {
+      console.error('Error deleting task status:', error);
+      throw error;
+    }
+  });
+
   // ==================== TIME ENTRIES ====================
 
   ipcMain.handle('get-time-entries', async (_event, taskId?: string) => {
@@ -376,6 +409,15 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
       return await dbManager.createTag(name);
     } catch (error) {
       console.error('Error creating tag:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('update-tag', async (_event, id: string, name: string) => {
+    try {
+      return await dbManager.updateTag(id, name);
+    } catch (error) {
+      console.error('Error updating tag:', error);
       throw error;
     }
   });
@@ -605,13 +647,96 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
 
   ipcMain.handle(
     'get-audit-logs',
-    async (_event, entityType?: string, entityId?: string) => {
+    async (_event, entityType?: string, entityId?: string, taskId?: string) => {
       try {
-        return await dbManager.getAuditLogs(entityType, entityId);
+        return await dbManager.getAuditLogs(entityType, entityId, taskId);
       } catch (error) {
         console.error('Error getting audit logs:', error);
         throw error;
       }
     },
   );
+
+  // ==================== ACTION HISTORY ====================
+
+  ipcMain.handle(
+    'create-action-history',
+    async (
+      _event,
+      entityType: string,
+      entityId: string,
+      actionType: string,
+      description: string,
+      previousData?: string,
+      newData?: string,
+    ) => {
+      try {
+        return await dbManager.createActionHistory({
+          entityType,
+          entityId,
+          actionType,
+          description,
+          previousData,
+          newData,
+        });
+      } catch (error) {
+        console.error('Error creating action history:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle('get-action-history', async (_event, limit?: number) => {
+    try {
+      return await dbManager.getActionHistory(limit);
+    } catch (error) {
+      console.error('Error getting action history:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('get-last-undoable-action', async () => {
+    try {
+      return await dbManager.getLastUndoableAction();
+    } catch (error) {
+      console.error('Error getting last undoable action:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('get-last-redoable-action', async () => {
+    try {
+      return await dbManager.getLastRedoableAction();
+    } catch (error) {
+      console.error('Error getting last redoable action:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('mark-action-undone', async (_event, id: string) => {
+    try {
+      return await dbManager.markActionUndone(id);
+    } catch (error) {
+      console.error('Error marking action undone:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('mark-action-redone', async (_event, id: string) => {
+    try {
+      return await dbManager.markActionRedone(id);
+    } catch (error) {
+      console.error('Error marking action redone:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('clear-action-history', async () => {
+    try {
+      return await dbManager.clearActionHistory();
+    } catch (error) {
+      console.error('Error clearing action history:', error);
+      throw error;
+    }
+  });
 };

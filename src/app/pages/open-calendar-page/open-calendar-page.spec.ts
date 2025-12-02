@@ -27,7 +27,12 @@ describe('OpenCalendarPage', () => {
       estimatedHours: 3,
       createdAt: today,
       updatedAt: today,
-      status: { id: 's1', name: 'Pendiente' },
+      status: {
+        id: 's1',
+        name: 'Pendiente',
+        color: '#f59e0b',
+        isDefault: true,
+      },
       tags: [],
     },
     {
@@ -39,7 +44,12 @@ describe('OpenCalendarPage', () => {
       estimatedHours: 5,
       createdAt: today,
       updatedAt: today,
-      status: { id: 's2', name: 'En progreso' },
+      status: {
+        id: 's2',
+        name: 'En progreso',
+        color: '#3b82f6',
+        isDefault: true,
+      },
       tags: [],
     },
   ];
@@ -589,5 +599,141 @@ describe('OpenCalendarPage', () => {
     await component.onDayTypeDeleted('dt1');
 
     expect(mockDatabaseService.deleteDayType).toHaveBeenCalled();
+  });
+
+  it('should save multiple day overrides and show plural message', async () => {
+    const dates = [
+      new Date(2025, 11, 1),
+      new Date(2025, 11, 2),
+      new Date(2025, 11, 3),
+    ];
+
+    await component.onDayOverrideSaved({
+      dates: dates,
+      dayTypeId: 'dt1',
+      minutes: 480,
+      note: 'Test note',
+    });
+
+    expect(mockDatabaseService.upsertDayOverride).toHaveBeenCalledTimes(3);
+    expect(component.showDayOverrideDialog()).toBeFalse();
+  });
+
+  it('should update existing day override with history', async () => {
+    const override: DayOverride = {
+      id: 'do1',
+      date: '2025-12-01',
+      dayTypeId: 'dt1',
+      minutes: 240,
+      note: 'Old note',
+      createdAt: today,
+      updatedAt: today,
+    };
+    component.editingDayOverride.set(override);
+
+    await component.onDayOverrideSaved({
+      dates: [new Date(2025, 11, 1)],
+      dayTypeId: 'dt2',
+      minutes: 480,
+      note: 'New note',
+    });
+
+    expect(mockDatabaseService.upsertDayOverride).toHaveBeenCalledWith(
+      '2025-12-01',
+      'dt2',
+      480,
+      'New note',
+    );
+    expect(component.editingDayOverride()).toBeNull();
+  });
+
+  it('should handle effect when dataChanged signal changes for relevant entity types', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    mockDatabaseService.getTasks.calls.reset();
+    mockDatabaseService.getTimeEntries.calls.reset();
+  });
+
+  it('should save time entry with null taskId', async () => {
+    component.showTimeEntryDialog.set(true);
+    const date = new Date(2025, 11, 1, 12, 0, 0);
+
+    await component.onTimeEntrySaved({
+      taskId: null,
+      date,
+      minutes: 60,
+      notes: null,
+    });
+
+    expect(mockDatabaseService.createTimeEntry).toHaveBeenCalledWith(
+      '2025-12-01',
+      60,
+      undefined,
+      undefined,
+    );
+  });
+
+  it('should format date correctly with single digit day and month', async () => {
+    component.showTimeEntryDialog.set(true);
+    const date = new Date(2025, 0, 5, 12, 0, 0);
+
+    await component.onTimeEntrySaved({
+      taskId: '1',
+      date,
+      minutes: 60,
+      notes: 'Test',
+    });
+
+    expect(mockDatabaseService.createTimeEntry).toHaveBeenCalledWith(
+      '2025-01-05',
+      60,
+      '1',
+      'Test',
+    );
+  });
+
+  it('should save day override with null values', async () => {
+    const date = new Date(2025, 11, 1);
+
+    await component.onDayOverrideSaved({
+      dates: [date],
+      dayTypeId: null,
+      minutes: null,
+      note: null,
+    });
+
+    expect(mockDatabaseService.upsertDayOverride).toHaveBeenCalledWith(
+      '2025-12-01',
+      undefined,
+      undefined,
+      undefined,
+    );
+  });
+
+  it('should handle editing time entry update with null notes', async () => {
+    const existingEntry: TimeEntry = {
+      id: 'e1',
+      taskId: '1',
+      date: '2025-12-01',
+      minutes: 480,
+      notes: 'Original note',
+      createdAt: today,
+      updatedAt: today,
+    };
+    component.editingTimeEntry.set(existingEntry);
+
+    await component.onTimeEntrySaved({
+      taskId: null,
+      date: new Date(2025, 11, 1),
+      minutes: 240,
+      notes: null,
+    });
+
+    expect(mockDatabaseService.updateTimeEntry).toHaveBeenCalledWith('e1', {
+      date: '2025-12-01',
+      minutes: 240,
+      taskId: null,
+      notes: null,
+    });
   });
 });

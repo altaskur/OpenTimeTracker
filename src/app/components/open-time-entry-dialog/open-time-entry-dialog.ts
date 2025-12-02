@@ -92,6 +92,18 @@ export class OpenTimeEntryDialogComponent {
   /** Is form valid */
   isValid = computed(() => this.totalMinutes() > 0);
 
+  /**
+   * Tasks with project prefix for display in select
+   */
+  tasksWithPrefix = computed(() => {
+    return this.tasks().map((task) => ({
+      ...task,
+      displayName: task.project
+        ? `[${task.project.name.substring(0, 3).toUpperCase()}] ${task.name}`
+        : task.name,
+    }));
+  });
+
   constructor() {
     effect(() => {
       const isVisible = this.visible();

@@ -74,8 +74,8 @@
           }}</label>
           <p-select
             [(ngModel)]="taskId"
-            [options]="tasks()"
-            optionLabel="name"
+            [options]="tasksWithPrefix()"
+            optionLabel="displayName"
             optionValue="id"
             [placeholder]="'timeEntry.selectTask' | translate"
             [showClear]="true"

@@ -17,10 +17,19 @@
     "english": "English"
   },
   "home": {
-    "title": "Pending Tasks",
+    "title": "Dashboard",
+    "pendingTasks": "Pending Tasks",
+    "openProjects": "Open Projects",
     "loading": "Loading tasks...",
     "empty": "No pending tasks",
-    "noProject": "No project"
+    "emptyProjects": "No open projects",
+    "noProject": "No project",
+    "stats": {
+      "today": "Today",
+      "week": "This week",
+      "remaining": "Remaining",
+      "tasksToday": "Tasks today"
+    }
   },
   "projects": {
     "title": "Projects",
@@ -60,6 +69,11 @@
       "selectStatus": "Select status",
       "selectTags": "Select tags",
       "newTagPlaceholder": "New tag..."
+    },
+    "details": {
+      "title": "Task Details",
+      "history": "Activity History",
+      "noHistory": "No activity recorded"
     }
   },
   "table": {
@@ -88,7 +102,8 @@
     "no": "No",
     "success": "Success",
     "error": "Error",
-    "close": "Close"
+    "close": "Close",
+    "viewDetails": "View details"
   },
   "toast": {
     "projectCreated": "Project created successfully",
@@ -149,12 +164,15 @@
     "more": "more",
     "settings": "Configure hours",
     "addTime": "Log time",
+    "addSpecialDay": "Add special day",
     "workedHours": "Worked",
     "plannedHours": "Planned",
     "balance": "Balance",
     "positive": "Overtime",
     "negative": "Undertime",
     "weekSummary": "Week",
+    "totalWorked": "Total worked",
+    "noEntries": "No time entries for this day",
     "months": {
       "january": "January",
       "february": "February",
@@ -244,5 +262,109 @@
     "notePlaceholder": "Optional note...",
     "effectiveHours": "Effective hours",
     "clearDay": "Clear marking"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No recent actions",
+    "undo": "Undo",
+    "redo": "Redo",
+    "undoTo": "Undo to here",
+    "clear": "Clear history",
+    "undone": "Action undone",
+    "redone": "Action redone",
+    "cleared": "History cleared",
+    "loadError": "Error loading history",
+    "clearError": "Error clearing history",
+    "clearConfirmTitle": "Clear History",
+    "clearConfirmMessage": "Are you sure you want to clear all history? This action cannot be undone.",
+    "statusDone": "Done",
+    "statusUndone": "Undone",
+    "viewDetail": "View detail",
+    "detailTitle": "Action detail",
+    "previousData": "Previous data",
+    "newData": "New data",
+    "columns": {
+      "date": "Date",
+      "action": "Action",
+      "entity": "Entity",
+      "description": "Description",
+      "status": "Status"
+    },
+    "actionTypes": {
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete"
+    },
+    "entityTypes": {
+      "Project": "Project",
+      "Task": "Task",
+      "TimeEntry": "Time Entry",
+      "DayOverride": "Special Day",
+      "MonthConfig": "Month Config",
+      "Tag": "Tag"
+    },
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "status": "Status",
+      "closed": "Closed",
+      "open": "Open",
+      "estimatedHours": "Estimated hours",
+      "date": "Date",
+      "action": "Action",
+      "user": "User",
+      "duration": "Duration",
+      "notes": "Notes",
+      "task": "Task",
+      "workMinutes": "Work time",
+      "color": "Color",
+      "defaultHours": "Default hours"
+    },
+    "actions": {
+      "createTimeEntry": "Time logged",
+      "updateTimeEntry": "Time updated",
+      "deleteTimeEntry": "Time deleted",
+      "createDayOverride": "Special day created",
+      "updateDayOverride": "Special day updated",
+      "deleteDayOverride": "Special day deleted",
+      "createProject": "Project created",
+      "updateProject": "Project updated",
+      "deleteProject": "Project deleted",
+      "createTask": "Task created",
+      "updateTask": "Task updated",
+      "deleteTask": "Task deleted"
+    }
+  },
+  "status": {
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "blocked": "Blocked"
+  },
+  "settings": {
+    "tags": {
+      "title": "Tag Management",
+      "new": "New tag",
+      "namePlaceholder": "Tag name...",
+      "empty": "No tags configured",
+      "add": "Add",
+      "cannotDeleteInUse": "Cannot delete: tag is in use"
+    },
+    "dayTypes": {
+      "title": "Special Day Types",
+      "subtitle": "Configure the special day types you can assign in the calendar",
+      "new": "New type",
+      "empty": "No day types configured"
+    },
+    "statuses": {
+      "title": "Task Statuses",
+      "subtitle": "Configure the available statuses for tasks",
+      "new": "New status",
+      "namePlaceholder": "Status name...",
+      "empty": "No statuses configured",
+      "add": "Add",
+      "cannotDeleteDefault": "Cannot delete default statuses",
+      "cannotDeleteInUse": "Cannot delete: status is in use"
+    }
   }
 }

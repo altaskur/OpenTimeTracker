@@ -25,7 +25,7 @@
       <td>
         @if (task.status?.name) {
           <p-tag
-            [value]="task.status.name"
+            [value]="getStatusDisplayName(task.status.name)"
             [severity]="getStatusSeverity(task.status.name)"
           />
         } @else {
@@ -54,6 +54,13 @@
         </div>
       </td>
       <td>
+        <p-button
+          icon="pi pi-eye"
+          [text]="true"
+          severity="info"
+          (onClick)="onView(task)"
+          [pTooltip]="'common.viewDetails' | translate"
+        />
         <p-button
           icon="pi pi-pencil"
           [text]="true"

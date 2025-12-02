@@ -1,0 +1,63 @@
+/* ==================== HEADER ==================== */
+.settings-tags-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+}
+
+/* ==================== CONTENT ==================== */
+.settings-tags {
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-color-secondary);
+
+    i {
+      font-size: 3rem;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__name-cell {
+    width: 100%;
+  }
+
+  &__edit-input {
+    width: 100%;
+  }
+
+  &__actions-cell {
+    white-space: nowrap;
+    text-align: right;
+    width: 100px;
+  }
+}

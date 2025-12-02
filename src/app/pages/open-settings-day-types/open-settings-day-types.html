@@ -1,0 +1,26 @@
+<app-open-layout>
+  <p-toast />
+  <ng-template pTemplate="header">
+    <header class="settings-day-types-header">
+      <div class="settings-day-types-header__title-section">
+        <h2 class="settings-day-types-header__title">
+          <i class="pi pi-calendar-times"></i>
+          {{ "settings.dayTypes.title" | translate }}
+        </h2>
+        <p class="settings-day-types-header__subtitle">
+          {{ "settings.dayTypes.subtitle" | translate }}
+        </p>
+      </div>
+    </header>
+  </ng-template>
+
+  <app-open-day-types-dialog
+    [visible]="showDialog()"
+    [dayTypes]="dayTypes()"
+    [embedded]="true"
+    (created)="onDayTypeCreated($event)"
+    (updated)="onDayTypeUpdated($event)"
+    (deleted)="onDayTypeDeleted($event)"
+    (closed)="onDialogClosed()"
+  />
+</app-open-layout>

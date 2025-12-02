@@ -2,6 +2,38 @@
   <section class="tasks-section" aria-labelledby="tasks-heading">
     <h1 id="tasks-heading">{{ "home.title" | translate }}</h1>
 
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+      <app-stats-card
+        type="today"
+        icon="pi-sun"
+        labelKey="home.stats.today"
+        [worked]="formatTime(stats().todayWorked)"
+        [target]="formatTime(stats().todayTarget)"
+        [remaining]="formatTime(stats().todayRemaining)"
+        [progress]="todayProgress()"
+      />
+
+      <app-stats-card
+        type="week"
+        icon="pi-calendar-clock"
+        labelKey="home.stats.week"
+        [worked]="formatTime(stats().weekWorked)"
+        [target]="formatTime(stats().weekTarget)"
+        [remaining]="formatTime(stats().weekRemaining)"
+        [progress]="weekProgress()"
+      />
+
+      <app-stats-card
+        type="tasks"
+        icon="pi-check-square"
+        labelKey="home.stats.tasksToday"
+        [bigNumber]="stats().tasksWorkedToday"
+      />
+    </div>
+
+    <h2>{{ "home.pendingTasks" | translate }}</h2>
+
     @if (loading()) {
       <p class="loading-text">{{ "home.loading" | translate }}</p>
     } @else if (pendingTasks().length === 0) {
@@ -15,33 +47,27 @@
       <div class="tasks-grid" role="list">
         @for (task of pendingTasks(); track task.id) {
           <div role="listitem">
-            <article class="task-card">
-              <p-card>
-                <span class="project-name">{{
-                  task.project?.name || ("home.noProject" | translate)
-                }}</span>
-                <h2 class="task-name">{{ task.name }}</h2>
-                @if (task.description) {
-                  <p class="task-description">{{ task.description }}</p>
-                }
-                <div class="task-footer">
-                  <div class="task-meta">
-                    @if (task.status) {
-                      <p-tag
-                        [value]="task.status.name"
-                        [severity]="getStatusSeverity(task.status.name)"
-                      />
-                    }
-                    @if (task.estimatedHours) {
-                      <span class="task-hours">{{ task.estimatedHours }}h</span>
-                    }
-                    @for (taskTag of task.tags; track taskTag.tag.id) {
-                      <p-chip [label]="taskTag.tag.name" />
-                    }
-                  </div>
-                </div>
-              </p-card>
-            </article>
+            <app-task-card [task]="task" />
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Open Projects Section -->
+    <h2>{{ "home.openProjects" | translate }}</h2>
+
+    @if (openProjects().length === 0) {
+      <p-card class="empty-state">
+        <div class="empty-content">
+          <i class="pi pi-folder-open" aria-hidden="true"></i>
+          <p>{{ "home.emptyProjects" | translate }}</p>
+        </div>
+      </p-card>
+    } @else {
+      <div class="projects-grid" role="list">
+        @for (project of openProjects(); track project.id) {
+          <div role="listitem">
+            <app-project-card [project]="project" />
           </div>
         }
       </div>

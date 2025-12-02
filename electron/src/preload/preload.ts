@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import {
+  ActionHistory,
   AuditLog,
   DayOverride,
   DayType,
@@ -63,6 +64,16 @@ try {
     // Task Statuses
     getTaskStatuses: (): Promise<TaskStatus[]> =>
       ipcRenderer.invoke('get-task-statuses'),
+    createTaskStatus: (name: string, color: string): Promise<TaskStatus> =>
+      ipcRenderer.invoke('create-task-status', name, color),
+    updateTaskStatus: (
+      id: string,
+      name: string,
+      color: string,
+    ): Promise<TaskStatus> =>
+      ipcRenderer.invoke('update-task-status', id, name, color),
+    deleteTaskStatus: (id: string): Promise<TaskStatus | null> =>
+      ipcRenderer.invoke('delete-task-status', id),
 
     // Time Entries
     getTimeEntries: (taskId?: string): Promise<TimeEntry[]> =>
@@ -179,6 +190,8 @@ try {
     getTags: (): Promise<Tag[]> => ipcRenderer.invoke('get-tags'),
     createTag: (name: string): Promise<Tag> =>
       ipcRenderer.invoke('create-tag', name),
+    updateTag: (id: string, name: string): Promise<Tag> =>
+      ipcRenderer.invoke('update-tag', id, name),
     deleteTag: (id: string): Promise<DeleteResult> =>
       ipcRenderer.invoke('delete-tag', id),
     addTagToTask: (taskId: string, tagId: string): Promise<void> =>
@@ -190,8 +203,9 @@ try {
     getAuditLogs: (
       entityType?: string,
       entityId?: string,
+      taskId?: string,
     ): Promise<AuditLog[]> =>
-      ipcRenderer.invoke('get-audit-logs', entityType, entityId),
+      ipcRenderer.invoke('get-audit-logs', entityType, entityId, taskId),
 
     // Navigation
     onNavigate: (callback: (route: string) => void): void => {
@@ -214,6 +228,43 @@ try {
     },
     onLanguageChange: (callback: (lang: string) => void): void => {
       ipcRenderer.on('language-changed', (_event, lang) => callback(lang));
+    },
+
+    // Action History
+    createActionHistory: (
+      entityType: string,
+      entityId: string,
+      actionType: string,
+      description: string,
+      previousData?: string,
+      newData?: string,
+    ): Promise<ActionHistory> =>
+      ipcRenderer.invoke(
+        'create-action-history',
+        entityType,
+        entityId,
+        actionType,
+        description,
+        previousData,
+        newData,
+      ),
+    getActionHistory: (limit?: number): Promise<ActionHistory[]> =>
+      ipcRenderer.invoke('get-action-history', limit),
+    markActionUndone: (id: string): Promise<ActionHistory> =>
+      ipcRenderer.invoke('mark-action-undone', id),
+    markActionRedone: (id: string): Promise<ActionHistory> =>
+      ipcRenderer.invoke('mark-action-redone', id),
+    getLastUndoableAction: (): Promise<ActionHistory | null> =>
+      ipcRenderer.invoke('get-last-undoable-action'),
+    getLastRedoableAction: (): Promise<ActionHistory | null> =>
+      ipcRenderer.invoke('get-last-redoable-action'),
+    clearActionHistory: (): Promise<DeleteResult> =>
+      ipcRenderer.invoke('clear-action-history'),
+    onUndoAction: (callback: () => void): void => {
+      ipcRenderer.on('undo-action', () => callback());
+    },
+    onRedoAction: (callback: () => void): void => {
+      ipcRenderer.on('redo-action', () => callback());
     },
   };
 

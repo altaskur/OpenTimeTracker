@@ -3,7 +3,13 @@ import { OpenHome } from './open-home';
 import { Router } from '@angular/router';
 import { provideTranslateTestingModule } from '../../testing/test-utils';
 import { DatabaseService } from '../../services';
-import { Task } from '../../../types/electron';
+import {
+  Task,
+  Project,
+  TimeEntry,
+  MonthConfig,
+  DayOverride,
+} from '../../../types/electron';
 
 describe('OpenHome', () => {
   let component: OpenHome;
@@ -21,7 +27,12 @@ describe('OpenHome', () => {
       estimatedHours: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-      status: { id: 's1', name: 'Pendiente' },
+      status: {
+        id: 's1',
+        name: 'Pendiente',
+        color: '#f59e0b',
+        isDefault: true,
+      },
       tags: [{ tag: { id: 't1', name: 'Bug' } }],
     },
     {
@@ -33,16 +44,96 @@ describe('OpenHome', () => {
       estimatedHours: 5,
       createdAt: new Date(),
       updatedAt: new Date(),
-      status: { id: 's2', name: 'En progreso' },
+      status: {
+        id: 's2',
+        name: 'En progreso',
+        color: '#3b82f6',
+        isDefault: true,
+      },
+      tags: [],
+    },
+    {
+      id: '3',
+      name: 'Completed Task',
+      projectId: 'p1',
+      statusId: 's3',
+      description: null,
+      estimatedHours: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      status: {
+        id: 's3',
+        name: 'status.completed',
+        color: '#22c55e',
+        isDefault: true,
+      },
       tags: [],
     },
   ];
 
+  const mockProjects: Project[] = [
+    {
+      id: 'p1',
+      name: 'Open Project',
+      description: null,
+      isClosed: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'p2',
+      name: 'Closed Project',
+      description: null,
+      isClosed: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  const mockTimeEntries: TimeEntry[] = [
+    {
+      id: 'e1',
+      date: new Date().toISOString().split('T')[0],
+      minutes: 120,
+      taskId: '1',
+      notes: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  const mockMonthConfig: MonthConfig = {
+    id: '1',
+    year: 2025,
+    month: 12,
+    weeklyMinutes: 2400,
+    workDays: '[1,2,3,4,5]',
+    daySchedule: '{"1":480,"2":480,"3":480,"4":480,"5":480}',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   beforeEach(async () => {
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockDbService = jasmine.createSpyObj('DatabaseService', ['getTasks']);
+    mockDbService = jasmine.createSpyObj('DatabaseService', [
+      'getTasks',
+      'getProjects',
+      'getTimeEntriesByDate',
+      'getTimeEntriesByDateRange',
+      'getMonthConfig',
+      'getDayOverrides',
+    ]);
 
     mockDbService.getTasks.and.returnValue(Promise.resolve([]));
+    mockDbService.getProjects.and.returnValue(Promise.resolve([]));
+    mockDbService.getTimeEntriesByDate.and.returnValue(Promise.resolve([]));
+    mockDbService.getTimeEntriesByDateRange.and.returnValue(
+      Promise.resolve([]),
+    );
+    mockDbService.getMonthConfig.and.returnValue(
+      Promise.resolve(mockMonthConfig),
+    );
+    mockDbService.getDayOverrides.and.returnValue(Promise.resolve([]));
 
     await TestBed.configureTestingModule({
       imports: [OpenHome],
@@ -69,7 +160,6 @@ describe('OpenHome', () => {
       await component.loadPendingTasks();
 
       expect(mockDbService.getTasks).toHaveBeenCalled();
-      expect(component.pendingTasks()).toEqual(mockTasks);
     });
 
     it('should set loading to false after tasks loaded', async () => {
@@ -112,12 +202,205 @@ describe('OpenHome', () => {
       expect(component.loading()).toBe(false);
     });
 
-    it('should populate pendingTasks signal with data', async () => {
+    it('should filter out completed tasks', async () => {
       mockDbService.getTasks.and.returnValue(Promise.resolve(mockTasks));
 
       await component.loadPendingTasks();
 
-      expect(component.pendingTasks()).toEqual(mockTasks);
+      const pending = component.pendingTasks();
+      expect(pending.length).toBe(2);
+      expect(
+        pending.find((t) => t.status?.name === 'status.completed'),
+      ).toBeUndefined();
+    });
+  });
+
+  describe('loadOpenProjects', () => {
+    it('should load only open projects', async () => {
+      mockDbService.getProjects.and.returnValue(Promise.resolve(mockProjects));
+
+      await component.loadOpenProjects();
+
+      const open = component.openProjects();
+      expect(open.length).toBe(1);
+      expect(open[0].name).toBe('Open Project');
+    });
+
+    it('should handle errors gracefully', async () => {
+      mockDbService.getProjects.and.returnValue(
+        Promise.reject(new Error('fail')),
+      );
+
+      await component.loadOpenProjects();
+
+      expect(component.openProjects()).toEqual([]);
+    });
+  });
+
+  describe('loadStats', () => {
+    it('should load time statistics', async () => {
+      mockDbService.getTimeEntriesByDate.and.returnValue(
+        Promise.resolve(mockTimeEntries),
+      );
+      mockDbService.getTimeEntriesByDateRange.and.returnValue(
+        Promise.resolve(mockTimeEntries),
+      );
+      mockDbService.getMonthConfig.and.returnValue(
+        Promise.resolve(mockMonthConfig),
+      );
+      mockDbService.getDayOverrides.and.returnValue(Promise.resolve([]));
+
+      await component.loadStats();
+
+      const stats = component.stats();
+      expect(stats.todayWorked).toBe(120);
+      expect(stats.weekWorked).toBe(120);
+    });
+
+    it('should handle day overrides', async () => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const mockOverride: DayOverride = {
+        id: 'o1',
+        date: todayStr,
+        dayTypeId: 'dt1',
+        minutes: 0,
+        note: 'Holiday',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockDbService.getTimeEntriesByDate.and.returnValue(Promise.resolve([]));
+      mockDbService.getTimeEntriesByDateRange.and.returnValue(
+        Promise.resolve([]),
+      );
+      mockDbService.getMonthConfig.and.returnValue(
+        Promise.resolve(mockMonthConfig),
+      );
+      mockDbService.getDayOverrides.and.returnValue(
+        Promise.resolve([mockOverride]),
+      );
+
+      await component.loadStats();
+
+      expect(component.stats().todayTarget).toBe(0);
+    });
+
+    it('should handle errors gracefully', async () => {
+      mockDbService.getTimeEntriesByDate.and.returnValue(
+        Promise.reject(new Error('fail')),
+      );
+
+      await component.loadStats();
+
+      expect(component.stats().todayWorked).toBe(0);
+    });
+
+    it('should count unique tasks worked today', async () => {
+      const entries: TimeEntry[] = [
+        { ...mockTimeEntries[0], id: 'e1', taskId: 't1' },
+        { ...mockTimeEntries[0], id: 'e2', taskId: 't1' },
+        { ...mockTimeEntries[0], id: 'e3', taskId: 't2' },
+      ];
+      mockDbService.getTimeEntriesByDate.and.returnValue(
+        Promise.resolve(entries),
+      );
+      mockDbService.getTimeEntriesByDateRange.and.returnValue(
+        Promise.resolve(entries),
+      );
+
+      await component.loadStats();
+
+      expect(component.stats().tasksWorkedToday).toBe(2);
+    });
+  });
+
+  describe('computed properties', () => {
+    it('should calculate todayProgress correctly', async () => {
+      component.stats.set({
+        todayWorked: 240,
+        todayTarget: 480,
+        todayRemaining: 240,
+        weekWorked: 0,
+        weekTarget: 0,
+        weekRemaining: 0,
+        tasksWorkedToday: 0,
+      });
+
+      expect(component.todayProgress()).toBe(50);
+    });
+
+    it('should cap todayProgress at 100', async () => {
+      component.stats.set({
+        todayWorked: 600,
+        todayTarget: 480,
+        todayRemaining: 0,
+        weekWorked: 0,
+        weekTarget: 0,
+        weekRemaining: 0,
+        tasksWorkedToday: 0,
+      });
+
+      expect(component.todayProgress()).toBe(100);
+    });
+
+    it('should return 0 for todayProgress when target is 0', async () => {
+      component.stats.set({
+        todayWorked: 100,
+        todayTarget: 0,
+        todayRemaining: 0,
+        weekWorked: 0,
+        weekTarget: 0,
+        weekRemaining: 0,
+        tasksWorkedToday: 0,
+      });
+
+      expect(component.todayProgress()).toBe(0);
+    });
+
+    it('should calculate weekProgress correctly', async () => {
+      component.stats.set({
+        todayWorked: 0,
+        todayTarget: 0,
+        todayRemaining: 0,
+        weekWorked: 1200,
+        weekTarget: 2400,
+        weekRemaining: 1200,
+        tasksWorkedToday: 0,
+      });
+
+      expect(component.weekProgress()).toBe(50);
+    });
+
+    it('should return 0 for weekProgress when target is 0', async () => {
+      component.stats.set({
+        todayWorked: 0,
+        todayTarget: 0,
+        todayRemaining: 0,
+        weekWorked: 100,
+        weekTarget: 0,
+        weekRemaining: 0,
+        tasksWorkedToday: 0,
+      });
+
+      expect(component.weekProgress()).toBe(0);
+    });
+  });
+
+  describe('formatTime', () => {
+    it('should format hours and minutes', () => {
+      expect(component.formatTime(90)).toBe('1h 30m');
+    });
+
+    it('should format hours only', () => {
+      expect(component.formatTime(60)).toBe('1h');
+    });
+
+    it('should format minutes only', () => {
+      expect(component.formatTime(30)).toBe('30m');
+    });
+
+    it('should format zero minutes', () => {
+      expect(component.formatTime(0)).toBe('0m');
     });
   });
 
@@ -131,32 +414,144 @@ describe('OpenHome', () => {
       component.goToProjects();
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/projects']);
     });
+
+    it('should navigate to calendar', () => {
+      component.goToCalendar();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/calendar']);
+    });
   });
 
-  describe('getStatusSeverity', () => {
-    it('should return success for Completada', () => {
-      expect(component.getStatusSeverity('Completada')).toBe('success');
-      expect(component.getStatusSeverity('Completed')).toBe('success');
+  describe('loadStats additional scenarios', () => {
+    it('should calculate remaining as 0 when worked exceeds target', async () => {
+      const entries = [{ ...mockTimeEntries[0], minutes: 600 }];
+      mockDbService.getTimeEntriesByDate.and.returnValue(
+        Promise.resolve(entries),
+      );
+      mockDbService.getTimeEntriesByDateRange.and.returnValue(
+        Promise.resolve(entries),
+      );
+
+      await component.loadStats();
+
+      expect(component.stats().todayRemaining).toBe(0);
     });
 
-    it('should return info for En progreso', () => {
-      expect(component.getStatusSeverity('En progreso')).toBe('info');
-      expect(component.getStatusSeverity('In Progress')).toBe('info');
+    it('should handle invalid workDays format in config', async () => {
+      const invalidConfig = { ...mockMonthConfig, workDays: 'invalid' };
+      mockDbService.getTimeEntriesByDate.and.returnValue(Promise.resolve([]));
+      mockDbService.getTimeEntriesByDateRange.and.returnValue(
+        Promise.resolve([]),
+      );
+      mockDbService.getMonthConfig.and.returnValue(
+        Promise.resolve(invalidConfig),
+      );
+      mockDbService.getDayOverrides.and.returnValue(Promise.resolve([]));
+
+      await component.loadStats();
+
+      expect(component.stats()).toBeTruthy();
     });
 
-    it('should return warn for Pendiente', () => {
-      expect(component.getStatusSeverity('Pendiente')).toBe('warn');
-      expect(component.getStatusSeverity('Pending')).toBe('warn');
+    it('should handle empty workDays array', async () => {
+      const emptyConfig = { ...mockMonthConfig, workDays: '[]' };
+      mockDbService.getTimeEntriesByDate.and.returnValue(Promise.resolve([]));
+      mockDbService.getTimeEntriesByDateRange.and.returnValue(
+        Promise.resolve([]),
+      );
+      mockDbService.getMonthConfig.and.returnValue(
+        Promise.resolve(emptyConfig),
+      );
+      mockDbService.getDayOverrides.and.returnValue(Promise.resolve([]));
+
+      await component.loadStats();
+
+      expect(component.stats().todayTarget).toBe(0);
     });
 
-    it('should return danger for Bloqueada', () => {
-      expect(component.getStatusSeverity('Bloqueada')).toBe('danger');
-      expect(component.getStatusSeverity('Blocked')).toBe('danger');
+    it('should handle weekend days', async () => {
+      const weekdayConfig = { ...mockMonthConfig, workDays: '[1,2,3,4,5]' };
+      mockDbService.getTimeEntriesByDate.and.returnValue(Promise.resolve([]));
+      mockDbService.getTimeEntriesByDateRange.and.returnValue(
+        Promise.resolve([]),
+      );
+      mockDbService.getMonthConfig.and.returnValue(
+        Promise.resolve(weekdayConfig),
+      );
+      mockDbService.getDayOverrides.and.returnValue(Promise.resolve([]));
+
+      await component.loadStats();
+
+      expect(component.stats()).toBeTruthy();
+    });
+  });
+
+  describe('cap weekProgress at 100', () => {
+    it('should cap weekProgress at 100 when exceeded', () => {
+      component.stats.set({
+        todayWorked: 0,
+        todayTarget: 0,
+        todayRemaining: 0,
+        weekWorked: 3000,
+        weekTarget: 2400,
+        weekRemaining: 0,
+        tasksWorkedToday: 0,
+      });
+
+      expect(component.weekProgress()).toBe(100);
+    });
+  });
+
+  describe('loadPendingTasks status filtering', () => {
+    it('should filter out Completada status', async () => {
+      const tasksWithCompletada: Task[] = [
+        ...mockTasks.filter((t) => t.status?.name !== 'status.completed'),
+        {
+          ...mockTasks[0],
+          id: 'completed1',
+          status: {
+            id: 's4',
+            name: 'Completada',
+            color: '#22c55e',
+            isDefault: true,
+          },
+        },
+      ];
+      mockDbService.getTasks.and.returnValue(
+        Promise.resolve(tasksWithCompletada),
+      );
+
+      await component.loadPendingTasks();
+
+      const pending = component.pendingTasks();
+      expect(
+        pending.find((t) => t.status?.name === 'Completada'),
+      ).toBeUndefined();
     });
 
-    it('should return secondary for unknown status', () => {
-      expect(component.getStatusSeverity('Unknown')).toBe('secondary');
-      expect(component.getStatusSeverity(undefined)).toBe('secondary');
+    it('should filter out Completed status', async () => {
+      const tasksWithCompleted: Task[] = [
+        ...mockTasks.filter((t) => t.status?.name !== 'status.completed'),
+        {
+          ...mockTasks[0],
+          id: 'completed2',
+          status: {
+            id: 's5',
+            name: 'Completed',
+            color: '#22c55e',
+            isDefault: true,
+          },
+        },
+      ];
+      mockDbService.getTasks.and.returnValue(
+        Promise.resolve(tasksWithCompleted),
+      );
+
+      await component.loadPendingTasks();
+
+      const pending = component.pendingTasks();
+      expect(
+        pending.find((t) => t.status?.name === 'Completed'),
+      ).toBeUndefined();
     });
   });
 });

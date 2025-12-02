@@ -1,0 +1,23 @@
+<p-card class="stats-card" [ngClass]="'stats-card--' + type()">
+  <div class="stats-card__header">
+    <i [class]="'pi ' + icon()"></i>
+    <span>{{ labelKey() | translate }}</span>
+  </div>
+  <div class="stats-card__content">
+    @if (type() === "tasks") {
+      <div class="stats-card__big-number">
+        {{ bigNumber() }}
+      </div>
+    } @else {
+      <div class="stats-card__time">
+        <span class="stats-card__worked">{{ worked() }}</span>
+        <span class="stats-card__separator">/</span>
+        <span class="stats-card__target">{{ target() }}</span>
+      </div>
+      <p-progressBar [value]="progress()" [showValue]="false" />
+      <div class="stats-card__remaining">
+        {{ "home.stats.remaining" | translate }}: {{ remaining() }}
+      </div>
+    }
+  </div>
+</p-card>

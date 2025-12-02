@@ -16,6 +16,14 @@ export class TimeEntryRepository extends BaseRepository {
     await this.ensureInitialized();
     return this.prisma.timeEntry.findMany({
       where: taskId ? { taskId } : undefined,
+      include: {
+        task: {
+          include: {
+            project: true,
+            status: true,
+          },
+        },
+      },
       orderBy: { date: 'desc' },
     });
   }
@@ -32,7 +40,14 @@ export class TimeEntryRepository extends BaseRepository {
           lte: endDate,
         },
       },
-      include: { task: true },
+      include: {
+        task: {
+          include: {
+            project: true,
+            status: true,
+          },
+        },
+      },
       orderBy: { date: 'asc' },
     });
   }
@@ -44,7 +59,14 @@ export class TimeEntryRepository extends BaseRepository {
     await this.ensureInitialized();
     return this.prisma.timeEntry.findMany({
       where: { date },
-      include: { task: true },
+      include: {
+        task: {
+          include: {
+            project: true,
+            status: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }

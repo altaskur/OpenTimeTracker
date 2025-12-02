@@ -23,9 +23,23 @@ export interface AuditLog {
   taskId: string | null;
 }
 
+export interface ActionHistory {
+  id: string;
+  entityType: string;
+  entityId: string;
+  actionType: string;
+  description: string;
+  previousData: string | null;
+  newData: string | null;
+  undone: boolean;
+  createdAt: Date;
+}
+
 export interface TaskStatus {
   id: string;
   name: string;
+  color: string;
+  isDefault: boolean;
 }
 
 export interface Tag {
@@ -150,6 +164,7 @@ declare global {
       getAuditLogs: (
         entityType?: string,
         entityId?: string,
+        taskId?: string,
       ) => Promise<AuditLog[]>;
 
       // Tasks
@@ -167,6 +182,13 @@ declare global {
 
       // Task Statuses
       getTaskStatuses: () => Promise<TaskStatus[]>;
+      createTaskStatus: (name: string, color: string) => Promise<TaskStatus>;
+      updateTaskStatus: (
+        id: string,
+        name: string,
+        color: string,
+      ) => Promise<TaskStatus>;
+      deleteTaskStatus: (id: string) => Promise<TaskStatus | null>;
 
       // Time Entries
       getTimeEntries: (taskId?: string) => Promise<TimeEntry[]>;
@@ -261,6 +283,7 @@ declare global {
       // Tags
       getTags: () => Promise<Tag[]>;
       createTag: (name: string) => Promise<Tag>;
+      updateTag: (id: string, name: string) => Promise<Tag>;
       deleteTag: (id: string) => Promise<DeleteResult>;
       addTagToTask: (taskId: string, tagId: string) => Promise<void>;
       removeTagFromTask: (taskId: string, tagId: string) => Promise<void>;
@@ -277,6 +300,24 @@ declare global {
       getLanguage: () => Promise<string>;
       setLanguage: (lang: string) => void;
       onLanguageChange: (callback: (lang: string) => void) => void;
+
+      // Action History
+      createActionHistory: (
+        entityType: string,
+        entityId: string,
+        actionType: string,
+        description: string,
+        previousData?: string,
+        newData?: string,
+      ) => Promise<ActionHistory>;
+      getActionHistory: (limit?: number) => Promise<ActionHistory[]>;
+      markActionUndone: (id: string) => Promise<ActionHistory>;
+      markActionRedone: (id: string) => Promise<ActionHistory>;
+      getLastUndoableAction: () => Promise<ActionHistory | null>;
+      getLastRedoableAction: () => Promise<ActionHistory | null>;
+      clearActionHistory: () => Promise<DeleteResult>;
+      onUndoAction: (callback: () => void) => void;
+      onRedoAction: (callback: () => void) => void;
     };
   }
 }
