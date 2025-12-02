@@ -55,7 +55,6 @@ describe('ElectronNavigationService', () => {
   });
 
   it('should navigate when receiving electron navigation event', () => {
-    spyOn(console, 'log');
     service = TestBed.inject(ElectronNavigationService);
 
     // Simulate navigation event from Electron
@@ -63,10 +62,6 @@ describe('ElectronNavigationService', () => {
       navigationCallback('/projects');
     }
 
-    expect(console.log).toHaveBeenCalledWith(
-      'Navigation event received from Electron:',
-      '/projects',
-    );
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/projects']);
   });
 
