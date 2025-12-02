@@ -13,6 +13,8 @@ export class WindowManager {
    * Creates the main application window
    */
   public async createMainWindow(): Promise<void> {
+    const preloadPath = path.join(__dirname, '..', 'preload', 'preload.js');
+
     this.mainWindow = new BrowserWindow({
       width: 1200,
       height: 800,
@@ -21,7 +23,7 @@ export class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+        preload: preloadPath,
       },
     });
 
@@ -46,13 +48,9 @@ export class WindowManager {
       'index.html',
     );
 
-    console.log('Loading index.html from:', indexPath);
-
     if (fs.existsSync(indexPath)) {
       this.navigationHandler = new NavigationHandler(this.mainWindow!);
       this.navigationHandler.setupNavigationHandlers();
-
-      console.log('Loading URL:', this.navigationHandler.getIndexUrl());
       this.navigationHandler.loadIndex();
     } else {
       console.error('index.html not found at:', indexPath);
@@ -66,7 +64,6 @@ export class WindowManager {
     if (this.mainWindow) {
       this.menuManager = new MenuManager(this.mainWindow);
       await this.menuManager.setupMenu();
-      console.log('Menu configured successfully');
     }
   }
 
@@ -74,9 +71,8 @@ export class WindowManager {
    * Sets up development tools
    */
   private setupDevTools(): void {
-    if (process.env.NODE_ENV === 'development') {
-      this.mainWindow?.webContents.openDevTools();
-    }
+    // Always open DevTools in development
+    this.mainWindow?.webContents.openDevTools();
   }
 
   /**

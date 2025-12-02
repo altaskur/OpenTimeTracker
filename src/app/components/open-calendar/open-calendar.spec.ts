@@ -1,39 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { OpenCalendar } from './open-calendar';
 import { TranslateModule } from '@ngx-translate/core';
-import { Task } from '../../../types/electron';
 
 describe('OpenCalendar', () => {
   let component: OpenCalendar;
   let fixture: ComponentFixture<OpenCalendar>;
-
-  const today = new Date();
-  const mockTasks: Task[] = [
-    {
-      id: '1',
-      name: 'Task 1',
-      projectId: 'p1',
-      statusId: 's1',
-      description: null,
-      estimatedHours: 3,
-      createdAt: today,
-      updatedAt: today,
-      status: { id: 's1', name: 'Pendiente' },
-      tags: [],
-    },
-    {
-      id: '2',
-      name: 'Task 2',
-      projectId: 'p1',
-      statusId: 's2',
-      description: 'Description',
-      estimatedHours: 5,
-      createdAt: today,
-      updatedAt: today,
-      status: { id: 's2', name: 'En progreso' },
-      tags: [],
-    },
-  ];
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -123,16 +94,6 @@ describe('OpenCalendar', () => {
   });
 
   describe('event handlers', () => {
-    it('should emit taskClicked on task click', () => {
-      spyOn(component.taskClicked, 'emit');
-      const task = mockTasks[0];
-      const event = new Event('click');
-
-      component.onTaskClick(task, event);
-
-      expect(component.taskClicked.emit).toHaveBeenCalledWith(task);
-    });
-
     it('should emit dayClicked on day click', () => {
       spyOn(component.dayClicked, 'emit');
       const day = component.calendarDays()[15];

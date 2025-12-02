@@ -2,20 +2,22 @@ import { PrismaClient } from '@prisma/client';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// Singleton para testing
 let prismaInstance: PrismaClient | null = null;
 
+/**
+ * Database manager that coordinates all database operations.
+ * Uses repository pattern for separation of concerns.
+ */
 export class DatabaseManager {
   private readonly prisma: PrismaClient;
   private initialized: Promise<void> | null = null;
 
   constructor(prismaClient?: PrismaClient) {
-    // Permitir inyección de dependencias para testing
     if (prismaClient) {
       this.prisma = prismaClient;
     } else {
       if (!prismaInstance) {
-        this.init();
+        this.initDirectory();
         prismaInstance = new PrismaClient({
           datasources: {
             db: {
@@ -38,22 +40,23 @@ export class DatabaseManager {
   }
 
   /**
-   * Initializes the database asynchronously (lazy initialization)
+   * Initializes the database asynchronously (lazy initialization).
+   * @internal Do not call ensureInitialized() from within this method.
    */
   private initializeAsync(): Promise<void> {
     if (!this.initialized) {
       this.initialized = (async () => {
         await this.prisma.$connect();
-        await this.seedDefaultData();
+        await this.seedAllDefaults();
       })();
     }
     return this.initialized;
   }
 
   /**
-   * Initializes the database directory
+   * Initializes the database directory.
    */
-  private init(): void {
+  private initDirectory(): void {
     try {
       const dbPath = path.join(
         __dirname,
@@ -70,37 +73,67 @@ export class DatabaseManager {
       if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });
       }
-
-      console.log('Initializing database at:', dbPath);
-      console.log('Database initialized successfully');
     } catch (error) {
       console.error('Error initializing database:', error);
     }
   }
 
   /**
-   * Seeds default data (task statuses)
+   * Seeds all default data during initialization.
+   * @internal NEVER call ensureInitialized() from this method - causes deadlock.
    */
-  private async seedDefaultData(): Promise<void> {
+  private async seedAllDefaults(): Promise<void> {
     try {
-      const count = await this.prisma.taskStatus.count();
-      if (count === 0) {
-        await this.prisma.taskStatus.createMany({
-          data: [
-            { name: 'Pendiente' },
-            { name: 'En progreso' },
-            { name: 'Completada' },
-            { name: 'Bloqueada' },
-          ],
-        });
-      }
+      await this.seedDefaultTaskStatuses();
+      await this.seedDefaultDayTypesInternal();
     } catch (error) {
       console.error('Error seeding default data:', error);
     }
   }
 
   /**
-   * Ensures database is initialized before operations
+   * Seeds default task statuses.
+   * @internal Called during initialization - do not call ensureInitialized().
+   */
+  private async seedDefaultTaskStatuses(): Promise<void> {
+    const statusCount = await this.prisma.taskStatus.count();
+    if (statusCount === 0) {
+      await this.prisma.taskStatus.createMany({
+        data: [
+          { name: 'Pendiente' },
+          { name: 'En progreso' },
+          { name: 'Completada' },
+          { name: 'Bloqueada' },
+        ],
+      });
+    }
+  }
+
+  /**
+   * Seeds default day types.
+   * @internal Called during initialization - do not call ensureInitialized().
+   */
+  private async seedDefaultDayTypesInternal(): Promise<void> {
+    const defaultTypes = [
+      { name: 'Festivo', color: '#ef4444', defaultMinutes: 0 },
+      { name: 'Vacaciones', color: '#22c55e', defaultMinutes: 0 },
+      { name: 'Baja médica', color: '#f97316', defaultMinutes: 0 },
+      { name: 'Permiso', color: '#3b82f6', defaultMinutes: 0 },
+      { name: 'Media jornada', color: '#eab308', defaultMinutes: 240 },
+    ];
+
+    for (const type of defaultTypes) {
+      const existing = await this.prisma.dayType.findUnique({
+        where: { name: type.name },
+      });
+      if (!existing) {
+        await this.prisma.dayType.create({ data: type });
+      }
+    }
+  }
+
+  /**
+   * Ensures database is initialized before operations.
    */
   private async ensureInitialized(): Promise<void> {
     await this.initializeAsync();
@@ -138,7 +171,7 @@ export class DatabaseManager {
   }
 
   /**
-   * Checks if a project can be closed (all tasks must be completed)
+   * Checks if a project can be closed.
    */
   public async canCloseProject(id: string): Promise<boolean> {
     await this.ensureInitialized();
@@ -154,7 +187,7 @@ export class DatabaseManager {
   }
 
   /**
-   * Closes a project if all tasks are completed
+   * Closes a project if all tasks are completed.
    */
   public async closeProject(id: string, userName?: string) {
     await this.ensureInitialized();
@@ -334,6 +367,29 @@ export class DatabaseManager {
     });
   }
 
+  public async getTimeEntriesByDateRange(startDate: string, endDate: string) {
+    await this.ensureInitialized();
+    return this.prisma.timeEntry.findMany({
+      where: {
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      include: { task: true },
+      orderBy: { date: 'asc' },
+    });
+  }
+
+  public async getTimeEntriesByDate(date: string) {
+    await this.ensureInitialized();
+    return this.prisma.timeEntry.findMany({
+      where: { date },
+      include: { task: true },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
   public async getPendingTimeEntries() {
     await this.ensureInitialized();
     return this.prisma.timeEntry.findMany({
@@ -344,7 +400,7 @@ export class DatabaseManager {
 
   public async createTimeEntry(
     date: string,
-    hours: number,
+    minutes: number,
     taskId?: string,
     notes?: string,
   ) {
@@ -352,7 +408,7 @@ export class DatabaseManager {
     return this.prisma.timeEntry.create({
       data: {
         date,
-        hours,
+        minutes,
         taskId,
         notes,
       },
@@ -366,19 +422,18 @@ export class DatabaseManager {
       | {
           taskId?: string;
           date?: string;
-          hours?: number;
+          minutes?: number;
           notes?: string;
         },
-    hours?: number,
+    minutes?: number,
     notes?: string,
   ) {
     await this.ensureInitialized();
-    // Soportar ambas formas: objeto o parámetros individuales
     const data =
       typeof dataOrDate === 'string'
         ? {
             date: dataOrDate,
-            hours,
+            minutes,
             notes,
           }
         : dataOrDate;
@@ -388,7 +443,7 @@ export class DatabaseManager {
       data: {
         ...(data.taskId !== undefined && { taskId: data.taskId }),
         ...(data.date !== undefined && { date: data.date }),
-        ...(data.hours !== undefined && { hours: data.hours }),
+        ...(data.minutes !== undefined && { minutes: data.minutes }),
         ...(data.notes !== undefined && { notes: data.notes }),
       },
     });
@@ -410,6 +465,13 @@ export class DatabaseManager {
     });
   }
 
+  public async getWorkPeriod(year: number, month: number) {
+    await this.ensureInitialized();
+    return this.prisma.workPeriod.findUnique({
+      where: { year_month: { year, month } },
+    });
+  }
+
   public async createWorkPeriod(
     year: number,
     month: number,
@@ -424,6 +486,270 @@ export class DatabaseManager {
         plannedHours,
         note,
       },
+    });
+  }
+
+  public async updateWorkPeriod(
+    year: number,
+    month: number,
+    data: { plannedHours?: number; note?: string },
+  ) {
+    await this.ensureInitialized();
+    return this.prisma.workPeriod.update({
+      where: { year_month: { year, month } },
+      data,
+    });
+  }
+
+  public async upsertWorkPeriod(
+    year: number,
+    month: number,
+    plannedHours: number,
+    note?: string,
+  ) {
+    await this.ensureInitialized();
+    return this.prisma.workPeriod.upsert({
+      where: { year_month: { year, month } },
+      update: { plannedHours, note },
+      create: { year, month, plannedHours, note },
+    });
+  }
+
+  // ==================== WORK CONFIG ====================
+
+  public async getWorkConfig() {
+    await this.ensureInitialized();
+    let config = await this.prisma.workConfig.findUnique({
+      where: { id: 'work_config' },
+    });
+    if (!config) {
+      config = await this.prisma.workConfig.create({
+        data: { id: 'work_config' },
+      });
+    }
+    return config;
+  }
+
+  public async updateWorkConfig(data: {
+    dailyMinutes?: number;
+    weeklyMinutes?: number;
+    workDays?: string;
+    daySchedule?: string;
+  }) {
+    await this.ensureInitialized();
+    return this.prisma.workConfig.upsert({
+      where: { id: 'work_config' },
+      update: data,
+      create: { id: 'work_config', ...data },
+    });
+  }
+
+  // ==================== MONTH CONFIG ====================
+
+  /**
+   * Gets month config, creating from WorkConfig template if not exists
+   */
+  public async getMonthConfig(year: number, month: number) {
+    await this.ensureInitialized();
+
+    let monthConfig = await this.prisma.monthConfig.findUnique({
+      where: { year_month: { year, month } },
+    });
+
+    if (!monthConfig) {
+      const workConfig = await this.getWorkConfig();
+      monthConfig = await this.prisma.monthConfig.create({
+        data: {
+          year,
+          month,
+          weeklyMinutes: workConfig.weeklyMinutes,
+          workDays: workConfig.workDays,
+          daySchedule: workConfig.daySchedule,
+        },
+      });
+    }
+
+    return monthConfig;
+  }
+
+  /**
+   * Updates month config, creating if not exists
+   */
+  public async updateMonthConfig(
+    year: number,
+    month: number,
+    data: {
+      weeklyMinutes?: number;
+      workDays?: string;
+      daySchedule?: string;
+    },
+  ) {
+    await this.ensureInitialized();
+
+    const existing = await this.prisma.monthConfig.findUnique({
+      where: { year_month: { year, month } },
+    });
+
+    if (existing) {
+      return this.prisma.monthConfig.update({
+        where: { year_month: { year, month } },
+        data,
+      });
+    }
+
+    const workConfig = await this.getWorkConfig();
+    return this.prisma.monthConfig.create({
+      data: {
+        year,
+        month,
+        weeklyMinutes: data.weeklyMinutes ?? workConfig.weeklyMinutes,
+        workDays: data.workDays ?? workConfig.workDays,
+        daySchedule: data.daySchedule ?? workConfig.daySchedule,
+      },
+    });
+  }
+
+  // ==================== DAY TYPES ====================
+
+  /**
+   * Seeds default day types if they don't exist.
+   * Safe to call from outside - this is the public API.
+   */
+  public async seedDefaultDayTypes() {
+    await this.ensureInitialized();
+    await this.seedDefaultDayTypesInternal();
+  }
+
+  public async getDayTypes() {
+    await this.ensureInitialized();
+    return this.prisma.dayType.findMany({
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  public async createDayType(
+    name: string,
+    color = '#6b7280',
+    defaultMinutes = 0,
+  ) {
+    await this.ensureInitialized();
+    return this.prisma.dayType.create({
+      data: { name, color, defaultMinutes },
+    });
+  }
+
+  public async updateDayType(
+    id: string,
+    data: { name?: string; color?: string; defaultMinutes?: number },
+  ) {
+    await this.ensureInitialized();
+    return this.prisma.dayType.update({
+      where: { id },
+      data,
+    });
+  }
+
+  public async deleteDayType(id: string) {
+    await this.ensureInitialized();
+    return this.prisma.dayType.delete({
+      where: { id },
+    });
+  }
+
+  // ==================== DAY OVERRIDES ====================
+
+  public async getDayOverrides(startDate?: string, endDate?: string) {
+    await this.ensureInitialized();
+    return this.prisma.dayOverride.findMany({
+      where:
+        startDate && endDate
+          ? {
+              date: { gte: startDate, lte: endDate },
+            }
+          : undefined,
+      include: { dayType: true },
+      orderBy: { date: 'asc' },
+    });
+  }
+
+  public async getDayOverride(date: string) {
+    await this.ensureInitialized();
+    return this.prisma.dayOverride.findUnique({
+      where: { date },
+      include: { dayType: true },
+    });
+  }
+
+  public async createDayOverride(
+    date: string,
+    dayTypeId?: string,
+    minutes?: number,
+    note?: string,
+  ) {
+    await this.ensureInitialized();
+    return this.prisma.dayOverride.create({
+      data: {
+        date,
+        ...(dayTypeId !== undefined && {
+          dayType: { connect: { id: dayTypeId } },
+        }),
+        ...(minutes !== undefined && { minutes }),
+        ...(note !== undefined && { note }),
+      },
+      include: { dayType: true },
+    });
+  }
+
+  public async updateDayOverride(
+    date: string,
+    data: { dayTypeId?: string; minutes?: number; note?: string },
+  ) {
+    await this.ensureInitialized();
+    return this.prisma.dayOverride.update({
+      where: { date },
+      data,
+      include: { dayType: true },
+    });
+  }
+
+  public async upsertDayOverride(
+    date: string,
+    dayTypeId?: string,
+    minutes?: number,
+    note?: string,
+  ) {
+    await this.ensureInitialized();
+    const updateData: {
+      dayTypeId?: string;
+      minutes?: number;
+      note?: string;
+    } = {};
+    if (dayTypeId !== undefined) updateData.dayTypeId = dayTypeId;
+    if (minutes !== undefined) updateData.minutes = minutes;
+    if (note !== undefined) updateData.note = note;
+
+    const createData: {
+      date: string;
+      dayTypeId?: string;
+      minutes?: number;
+      note?: string;
+    } = { date };
+    if (dayTypeId !== undefined) createData.dayTypeId = dayTypeId;
+    if (minutes !== undefined) createData.minutes = minutes;
+    if (note !== undefined) createData.note = note;
+
+    return this.prisma.dayOverride.upsert({
+      where: { date },
+      update: updateData,
+      create: createData,
+      include: { dayType: true },
+    });
+  }
+
+  public async deleteDayOverride(date: string) {
+    await this.ensureInitialized();
+    return this.prisma.dayOverride.delete({
+      where: { date },
     });
   }
 

@@ -35,7 +35,7 @@ export interface TimeEntry {
   id: string;
   taskId: string | null;
   date: string;
-  hours: number;
+  minutes: number;
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -50,6 +50,45 @@ export interface WorkPeriod {
   note: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface WorkConfig {
+  id: string;
+  dailyMinutes: number;
+  weeklyMinutes: number;
+  workDays: string;
+  daySchedule: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MonthConfig {
+  id: string;
+  year: number;
+  month: number;
+  weeklyMinutes: number;
+  workDays: string;
+  daySchedule: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DayType {
+  id: string;
+  name: string;
+  color: string;
+  defaultMinutes: number;
+  createdAt: Date;
+}
+
+export interface DayOverride {
+  id: string;
+  date: string;
+  dayTypeId: string;
+  minutes: number | null;
+  note: string | null;
+  createdAt: Date;
+  dayType?: DayType;
 }
 
 export interface Tag {

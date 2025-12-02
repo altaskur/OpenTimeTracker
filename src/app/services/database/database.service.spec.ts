@@ -451,7 +451,7 @@ describe('DatabaseService', () => {
 
     it('should throw ElectronApiError when updateTimeEntry and electronAPI is undefined', async () => {
       await expectAsync(
-        service.updateTimeEntry('e1', { hours: 120 }),
+        service.updateTimeEntry('e1', { minutes: 120 }),
       ).toBeRejectedWithError(/Electron API not available/);
     });
 

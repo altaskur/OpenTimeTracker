@@ -41,7 +41,6 @@ export class NavigationHandler {
         !navigationUrl.endsWith('index.html')
       ) {
         event.preventDefault();
-        console.log('Redirecting navigation to index.html:', navigationUrl);
         this.loadIndex();
       }
     });
@@ -55,10 +54,6 @@ export class NavigationHandler {
       'did-fail-load',
       (event, errorCode, errorDescription, validatedURL) => {
         if (validatedURL.startsWith('file://') && errorCode === -6) {
-          console.log(
-            'Failed to load URL, redirecting to index.html:',
-            validatedURL,
-          );
           this.loadIndex();
         }
       },
@@ -72,12 +67,10 @@ export class NavigationHandler {
     this.mainWindow.webContents.on('before-input-event', (event, input) => {
       if (input.type === 'keyDown' && input.key === 'F5') {
         event.preventDefault();
-        console.log('F5 reload intercepted, loading index.html');
         this.loadIndex();
       }
       if (input.type === 'keyDown' && input.control && input.key === 'r') {
         event.preventDefault();
-        console.log('Ctrl+R reload intercepted, loading index.html');
         this.loadIndex();
       }
     });

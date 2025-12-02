@@ -17,9 +17,36 @@ interface TaskUpdateData {
  */
 interface TimeEntryUpdateData {
   date?: string;
-  hours?: number;
+  minutes?: number;
   taskId?: string;
   notes?: string;
+}
+
+/**
+ * Work config update data interface for IPC communication.
+ */
+interface WorkConfigUpdateData {
+  dailyMinutes?: number;
+  weeklyMinutes?: number;
+  workDays?: string;
+}
+
+/**
+ * Day type update data interface for IPC communication.
+ */
+interface DayTypeUpdateData {
+  name?: string;
+  color?: string;
+  defaultMinutes?: number;
+}
+
+/**
+ * Day override update data interface for IPC communication.
+ */
+interface DayOverrideUpdateData {
+  dayTypeId?: string;
+  minutes?: number;
+  note?: string;
 }
 
 /**
@@ -178,6 +205,27 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
     }
   });
 
+  ipcMain.handle(
+    'get-time-entries-by-date-range',
+    async (_event, startDate: string, endDate: string) => {
+      try {
+        return await dbManager.getTimeEntriesByDateRange(startDate, endDate);
+      } catch (error) {
+        console.error('Error getting time entries by date range:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle('get-time-entries-by-date', async (_event, date: string) => {
+    try {
+      return await dbManager.getTimeEntriesByDate(date);
+    } catch (error) {
+      console.error('Error getting time entries by date:', error);
+      throw error;
+    }
+  });
+
   ipcMain.handle('get-pending-time-entries', async () => {
     try {
       return await dbManager.getPendingTimeEntries();
@@ -192,12 +240,12 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
     async (
       _event,
       date: string,
-      hours: number,
+      minutes: number,
       taskId?: string,
       notes?: string,
     ) => {
       try {
-        return await dbManager.createTimeEntry(date, hours, taskId, notes);
+        return await dbManager.createTimeEntry(date, minutes, taskId, notes);
       } catch (error) {
         console.error('Error creating time entry:', error);
         throw error;
@@ -238,6 +286,18 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
   });
 
   ipcMain.handle(
+    'get-work-period',
+    async (_event, year: number, month: number) => {
+      try {
+        return await dbManager.getWorkPeriod(year, month);
+      } catch (error) {
+        console.error('Error getting work period:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
     'create-work-period',
     async (
       _event,
@@ -255,6 +315,46 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
         );
       } catch (error) {
         console.error('Error creating work period:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'update-work-period',
+    async (
+      _event,
+      year: number,
+      month: number,
+      data: { plannedHours?: number; note?: string },
+    ) => {
+      try {
+        return await dbManager.updateWorkPeriod(year, month, data);
+      } catch (error) {
+        console.error('Error updating work period:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'upsert-work-period',
+    async (
+      _event,
+      year: number,
+      month: number,
+      plannedHours: number,
+      note?: string,
+    ) => {
+      try {
+        return await dbManager.upsertWorkPeriod(
+          year,
+          month,
+          plannedHours,
+          note,
+        );
+      } catch (error) {
+        console.error('Error upserting work period:', error);
         throw error;
       }
     },
@@ -312,6 +412,194 @@ export const setupDatabaseHandlers = (dbManager: DatabaseManager): void => {
       }
     },
   );
+
+  // ==================== WORK CONFIG ====================
+
+  ipcMain.handle('get-work-config', async () => {
+    try {
+      return await dbManager.getWorkConfig();
+    } catch (error) {
+      console.error('Error getting work config:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(
+    'update-work-config',
+    async (_event, data: WorkConfigUpdateData) => {
+      try {
+        return await dbManager.updateWorkConfig(data);
+      } catch (error) {
+        console.error('Error updating work config:', error);
+        throw error;
+      }
+    },
+  );
+
+  // ==================== MONTH CONFIG ====================
+
+  ipcMain.handle(
+    'get-month-config',
+    async (_event, year: number, month: number) => {
+      try {
+        return await dbManager.getMonthConfig(year, month);
+      } catch (error) {
+        console.error('Error getting month config:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'update-month-config',
+    async (
+      _event,
+      year: number,
+      month: number,
+      data: { weeklyMinutes?: number; workDays?: string; daySchedule?: string },
+    ) => {
+      try {
+        return await dbManager.updateMonthConfig(year, month, data);
+      } catch (error) {
+        console.error('Error updating month config:', error);
+        throw error;
+      }
+    },
+  );
+
+  // ==================== DAY TYPES ====================
+
+  ipcMain.handle('get-day-types', async () => {
+    try {
+      return await dbManager.getDayTypes();
+    } catch (error) {
+      console.error('Error getting day types:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(
+    'create-day-type',
+    async (_event, name: string, color: string, defaultMinutes?: number) => {
+      try {
+        return await dbManager.createDayType(name, color, defaultMinutes);
+      } catch (error) {
+        console.error('Error creating day type:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'update-day-type',
+    async (_event, id: string, data: DayTypeUpdateData) => {
+      try {
+        return await dbManager.updateDayType(id, data);
+      } catch (error) {
+        console.error('Error updating day type:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle('delete-day-type', async (_event, id: string) => {
+    try {
+      return await dbManager.deleteDayType(id);
+    } catch (error) {
+      console.error('Error deleting day type:', error);
+      throw error;
+    }
+  });
+
+  // ==================== DAY OVERRIDES ====================
+
+  ipcMain.handle(
+    'get-day-overrides',
+    async (_event, startDate?: string, endDate?: string) => {
+      try {
+        return await dbManager.getDayOverrides(startDate, endDate);
+      } catch (error) {
+        console.error('Error getting day overrides:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle('get-day-override', async (_event, date: string) => {
+    try {
+      return await dbManager.getDayOverride(date);
+    } catch (error) {
+      console.error('Error getting day override:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(
+    'create-day-override',
+    async (
+      _event,
+      date: string,
+      dayTypeId?: string,
+      minutes?: number,
+      note?: string,
+    ) => {
+      try {
+        return await dbManager.createDayOverride(
+          date,
+          dayTypeId,
+          minutes,
+          note,
+        );
+      } catch (error) {
+        console.error('Error creating day override:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'update-day-override',
+    async (_event, id: string, data: DayOverrideUpdateData) => {
+      try {
+        return await dbManager.updateDayOverride(id, data);
+      } catch (error) {
+        console.error('Error updating day override:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'upsert-day-override',
+    async (
+      _event,
+      date: string,
+      dayTypeId?: string,
+      minutes?: number,
+      note?: string,
+    ) => {
+      try {
+        return await dbManager.upsertDayOverride(
+          date,
+          dayTypeId,
+          minutes,
+          note,
+        );
+      } catch (error) {
+        console.error('Error upserting day override:', error);
+        throw error;
+      }
+    },
+  );
+
+  ipcMain.handle('delete-day-override', async (_event, date: string) => {
+    try {
+      return await dbManager.deleteDayOverride(date);
+    } catch (error) {
+      console.error('Error deleting day override:', error);
+      throw error;
+    }
+  });
 
   // ==================== AUDIT LOGS ====================
 

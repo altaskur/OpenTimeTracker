@@ -1,0 +1,129 @@
+<p-dialog
+  [header]="'workConfig.title' | translate"
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '550px' }"
+  [appendTo]="'body'"
+>
+  <div class="work-config">
+    <div class="work-config__section">
+      <label class="work-config__label" for="weeklyHoursInput">{{
+        "workConfig.weeklyTarget" | translate
+      }}</label>
+      <div class="work-config__time-inputs">
+        <div class="work-config__time-field">
+          <p-inputNumber
+            [(ngModel)]="weeklyHours"
+            [min]="0"
+            [max]="168"
+            [showButtons]="true"
+            inputId="weeklyHoursInput"
+            buttonLayout="horizontal"
+            spinnerMode="horizontal"
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            [inputStyle]="{ width: '60px', textAlign: 'center' }"
+          />
+          <span class="work-config__time-unit">{{
+            "workConfig.hoursPerWeek" | translate
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-config__section">
+      <span class="work-config__label">{{
+        "workConfig.schedulePerDay" | translate
+      }}</span>
+      <div class="work-config__days-schedule">
+        @for (day of weekDays(); track day.id) {
+          <div
+            class="work-config__day-row"
+            [class.work-config__day-row--disabled]="!day.selected"
+            [class.work-config__day-row--last]="day.isLastWorkDay"
+          >
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="day.selected"
+              (onChange)="toggleDay(day.id)"
+              [inputId]="'day-' + day.id"
+            />
+            <label [for]="'day-' + day.id" class="work-config__day-name">
+              {{ day.label | translate }}
+            </label>
+
+            @if (day.selected && !day.isLastWorkDay) {
+              <div class="work-config__day-hours">
+                <p-inputNumber
+                  [ngModel]="day.hours"
+                  (ngModelChange)="updateDayHours(day.id, $event)"
+                  [min]="0"
+                  [max]="24"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  decrementButtonClass="p-button-text p-button-sm"
+                  incrementButtonClass="p-button-text p-button-sm"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  [inputStyle]="{ width: '40px', textAlign: 'center' }"
+                />
+                <span class="work-config__time-separator">h</span>
+                <p-inputNumber
+                  [ngModel]="day.minutes"
+                  (ngModelChange)="updateDayMinutes(day.id, $event)"
+                  [min]="0"
+                  [max]="59"
+                  [step]="15"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  decrementButtonClass="p-button-text p-button-sm"
+                  incrementButtonClass="p-button-text p-button-sm"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  [inputStyle]="{ width: '40px', textAlign: 'center' }"
+                />
+                <span class="work-config__time-separator">m</span>
+              </div>
+            } @else if (day.isLastWorkDay) {
+              <div class="work-config__day-auto">
+                <span class="work-config__auto-label">
+                  {{ formatMinutesToTime(lastDayMinutes()) }}
+                </span>
+                <span class="work-config__auto-badge">
+                  {{ "workConfig.autoAdjust" | translate }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="work-config__info">
+      <i class="pi pi-info-circle"></i>
+      <span>{{ "workConfig.autoAdjustInfo" | translate }}</span>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'common.cancel' | translate"
+      severity="secondary"
+      [outlined]="true"
+      icon="pi pi-times"
+      (onClick)="onCancel()"
+    />
+    <p-button
+      [label]="'common.save' | translate"
+      severity="primary"
+      icon="pi pi-check"
+      (onClick)="onSave()"
+    />
+  </ng-template>
+</p-dialog>

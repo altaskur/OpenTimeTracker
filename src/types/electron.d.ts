@@ -58,7 +58,7 @@ export interface TimeEntry {
   id: string;
   taskId: string | null;
   date: string;
-  hours: number;
+  minutes: number;
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -74,6 +74,54 @@ export interface WorkPeriod {
   note: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * Day schedule mapping weekday number to minutes
+ * Keys: "1" (Monday) to "7" (Sunday)
+ */
+export type DaySchedule = Record<string, number>;
+
+export interface WorkConfig {
+  id: string;
+  dailyMinutes: number;
+  weeklyMinutes: number;
+  workDays: string;
+  daySchedule: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MonthConfig {
+  id: string;
+  year: number;
+  month: number;
+  weeklyMinutes: number;
+  workDays: string;
+  daySchedule: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DayType {
+  id: string;
+  name: string;
+  color: string;
+  defaultMinutes: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DayOverride {
+  id: string;
+  date: string;
+  dayTypeId: string | null;
+  minutes: number | null;
+  note: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  /** Computed field from JOIN */
+  dayType?: DayType | null;
 }
 
 // ==================== ELECTRON API ====================
@@ -122,10 +170,15 @@ declare global {
 
       // Time Entries
       getTimeEntries: (taskId?: string) => Promise<TimeEntry[]>;
+      getTimeEntriesByDateRange: (
+        startDate: string,
+        endDate: string,
+      ) => Promise<TimeEntry[]>;
+      getTimeEntriesByDate: (date: string) => Promise<TimeEntry[]>;
       getPendingTimeEntries: () => Promise<TimeEntry[]>;
       createTimeEntry: (
         date: string,
-        hours: number,
+        minutes: number,
         taskId?: string,
         notes?: string,
       ) => Promise<TimeEntry>;
@@ -137,12 +190,73 @@ declare global {
 
       // Work Periods
       getWorkPeriods: () => Promise<WorkPeriod[]>;
+      getWorkPeriod: (
+        year: number,
+        month: number,
+      ) => Promise<WorkPeriod | null>;
       createWorkPeriod: (
         year: number,
         month: number,
         plannedHours: number,
         note?: string,
       ) => Promise<WorkPeriod>;
+      updateWorkPeriod: (
+        year: number,
+        month: number,
+        data: { plannedHours?: number; note?: string },
+      ) => Promise<WorkPeriod>;
+      upsertWorkPeriod: (
+        year: number,
+        month: number,
+        plannedHours: number,
+        note?: string,
+      ) => Promise<WorkPeriod>;
+
+      // Work Config
+      getWorkConfig: () => Promise<WorkConfig>;
+      updateWorkConfig: (data: Partial<WorkConfig>) => Promise<WorkConfig>;
+
+      // Month Config
+      getMonthConfig: (year: number, month: number) => Promise<MonthConfig>;
+      updateMonthConfig: (
+        year: number,
+        month: number,
+        data: Partial<MonthConfig>,
+      ) => Promise<MonthConfig>;
+
+      // Day Types
+      getDayTypes: () => Promise<DayType[]>;
+      createDayType: (
+        name: string,
+        color: string,
+        defaultMinutes?: number,
+      ) => Promise<DayType>;
+      updateDayType: (id: string, data: Partial<DayType>) => Promise<DayType>;
+      deleteDayType: (id: string) => Promise<DeleteResult>;
+
+      // Day Overrides
+      getDayOverrides: (
+        startDate?: string,
+        endDate?: string,
+      ) => Promise<DayOverride[]>;
+      getDayOverride: (date: string) => Promise<DayOverride | null>;
+      createDayOverride: (
+        date: string,
+        dayTypeId?: string,
+        minutes?: number,
+        note?: string,
+      ) => Promise<DayOverride>;
+      updateDayOverride: (
+        id: string,
+        data: Partial<DayOverride>,
+      ) => Promise<DayOverride>;
+      upsertDayOverride: (
+        date: string,
+        dayTypeId?: string,
+        minutes?: number,
+        note?: string,
+      ) => Promise<DayOverride>;
+      deleteDayOverride: (date: string) => Promise<DeleteResult>;
 
       // Tags
       getTags: () => Promise<Tag[]>;

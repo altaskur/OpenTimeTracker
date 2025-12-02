@@ -139,6 +139,8 @@ export class OpenTasks implements OnInit {
       this.projects.set(projects);
       this.statuses.set(statuses);
       this.tags.set(tags);
+    } catch (error) {
+      console.error('Error loading tasks data:', error);
     } finally {
       this.loading.set(false);
     }

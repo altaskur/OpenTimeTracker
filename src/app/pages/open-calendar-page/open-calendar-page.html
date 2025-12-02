@@ -7,9 +7,62 @@
     } @else {
       <app-open-calendar
         [tasks]="tasks()"
-        (taskClicked)="onTaskClicked($event)"
+        [timeEntries]="timeEntries()"
+        [monthConfig]="monthConfig()"
+        [dayOverrides]="dayOverrides()"
+        [dayTypes]="dayTypes()"
+        (timeEntryClicked)="onTimeEntryClicked($event)"
         (dayClicked)="onDayClicked($event)"
+        (settingsClicked)="onSettingsClicked()"
+        (addTimeClicked)="onAddTimeClicked($event)"
+        (monthChanged)="onMonthChanged($event)"
       />
     }
   </section>
 </app-open-layout>
+
+<app-open-work-config-dialog
+  [visible]="showConfigDialog()"
+  [config]="monthConfig()"
+  (saved)="onConfigSaved($event)"
+  (cancelled)="onConfigCancelled()"
+/>
+
+<app-open-time-entry-dialog
+  [visible]="showTimeEntryDialog()"
+  [timeEntry]="editingTimeEntry()"
+  [selectedDate]="selectedDate()"
+  [tasks]="tasks()"
+  (saved)="onTimeEntrySaved($event)"
+  (cancelled)="onTimeEntryCancelled()"
+  (deleted)="onTimeEntryDeleted()"
+/>
+
+<app-open-day-override-dialog
+  [visible]="showDayOverrideDialog()"
+  [selectedDate]="selectedDate()"
+  [dayOverride]="editingDayOverride()"
+  [dayTypes]="dayTypes()"
+  (saved)="onDayOverrideSaved($event)"
+  (cancelled)="onDayOverrideCancelled()"
+  (deleted)="onDayOverrideDeleted()"
+  (manageDayTypes)="onManageDayTypes()"
+/>
+
+<app-open-day-types-dialog
+  [visible]="showDayTypesDialog()"
+  [dayTypes]="dayTypes()"
+  (created)="onDayTypeCreated($event)"
+  (updated)="onDayTypeUpdated($event)"
+  (deleted)="onDayTypeDeleted($event)"
+  (closed)="onDayTypesDialogClosed()"
+/>
+
+<app-open-confirm-delete
+  [visible]="showDeleteConfirm()"
+  [message]="'dialogs.deleteTimeEntry' | translate"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+/>
+
+<p-toast />

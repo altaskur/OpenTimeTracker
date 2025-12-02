@@ -1,0 +1,163 @@
+@if (visible()) {
+  <p-dialog
+    [header]="dialogHeader() | translate"
+    [visible]="true"
+    (visibleChange)="onVisibleChange($event)"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '450px' }"
+  >
+    <div class="day-override">
+      <div class="day-override__date">
+        <i class="pi pi-calendar"></i>
+        <span>{{ formattedDate() }}</span>
+      </div>
+
+      <div class="day-override__section">
+        <div class="day-override__label-row">
+          <label class="day-override__label" for="day-type-select">{{
+            "dayOverride.selectType" | translate
+          }}</label>
+          <p-button
+            icon="pi pi-cog"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            (onClick)="onManageDayTypes()"
+            [pTooltip]="'dayTypes.manage' | translate"
+          />
+        </div>
+        <p-select
+          [(ngModel)]="dayTypeId"
+          [options]="dayTypes()"
+          optionLabel="name"
+          optionValue="id"
+          [placeholder]="'dayOverride.selectTypePlaceholder' | translate"
+          [showClear]="true"
+          [style]="{ width: '100%' }"
+          inputId="day-type-select"
+        >
+          <ng-template pTemplate="item" let-item>
+            <div class="day-override__type-option">
+              <span
+                class="day-override__type-color"
+                [style.background-color]="item.color"
+              ></span>
+              <span>{{ item.name }}</span>
+              <span class="day-override__type-hours">
+                ({{ item.defaultMinutes / 60 }}h)
+              </span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="selectedItem" let-item>
+            @if (item) {
+              <div class="day-override__type-option">
+                <span
+                  class="day-override__type-color"
+                  [style.background-color]="item.color"
+                ></span>
+                <span>{{ item.name }}</span>
+              </div>
+            }
+          </ng-template>
+        </p-select>
+      </div>
+
+      @if (selectedDayType()) {
+        <div class="day-override__section">
+          <div class="day-override__custom-toggle">
+            <input
+              type="checkbox"
+              id="use-custom-minutes"
+              [(ngModel)]="useCustomMinutes"
+              (ngModelChange)="onUseCustomMinutesChange()"
+            />
+            <label for="use-custom-minutes">{{
+              "dayOverride.useCustomHours" | translate
+            }}</label>
+          </div>
+          @if (useCustomMinutes()) {
+            <div class="day-override__time-inputs">
+              <div class="day-override__time-field">
+                <p-inputNumber
+                  [(ngModel)]="customMinutes"
+                  [min]="0"
+                  [max]="1440"
+                  [step]="30"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  spinnerMode="horizontal"
+                  decrementButtonClass="p-button-secondary"
+                  incrementButtonClass="p-button-secondary"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  [inputStyle]="{ width: '80px', textAlign: 'center' }"
+                />
+                <span class="day-override__time-unit">{{
+                  "dayOverride.minutes" | translate
+                }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="day-override__section">
+        <label class="day-override__label" for="day-override-note">{{
+          "dayOverride.note" | translate
+        }}</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="note"
+          [placeholder]="'dayOverride.notePlaceholder' | translate"
+          class="day-override__input"
+          id="day-override-note"
+        />
+      </div>
+
+      @if (effectiveMinutes() !== null) {
+        <div class="day-override__summary">
+          <span class="day-override__summary-label"
+            >{{ "dayOverride.effectiveHours" | translate }}:</span
+          >
+          <span class="day-override__summary-value">
+            {{ effectiveMinutes()! / 60 }}h
+          </span>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="day-override__footer">
+        @if (isEditing()) {
+          <p-button
+            [label]="'dayOverride.clearDay' | translate"
+            severity="danger"
+            [outlined]="true"
+            icon="pi pi-trash"
+            (onClick)="onDelete()"
+          />
+        }
+        <div class="day-override__footer-actions">
+          <p-button
+            [label]="'common.cancel' | translate"
+            severity="secondary"
+            [outlined]="true"
+            icon="pi pi-times"
+            (onClick)="onCancel()"
+          />
+          <p-button
+            [label]="'common.save' | translate"
+            severity="primary"
+            icon="pi pi-check"
+            (onClick)="onSave()"
+            [disabled]="!isValid()"
+          />
+        </div>
+      </div>
+    </ng-template>
+  </p-dialog>
+}

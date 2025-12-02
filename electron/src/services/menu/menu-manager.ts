@@ -42,6 +42,9 @@ const menuTranslations: Record<string, Record<string, string>> = {
     goToMain: 'Ir a Principal',
     goToProjects: 'Ir a Proyectos',
     goToTasks: 'Ir a Tareas',
+    settings: 'Configuración',
+    devTools: 'Abrir Herramientas de Desarrollador',
+    reload: 'Recargar Aplicación',
   },
   en: {
     home: 'Home',
@@ -68,6 +71,9 @@ const menuTranslations: Record<string, Record<string, string>> = {
     goToMain: 'Go to Main',
     goToProjects: 'Go to Projects',
     goToTasks: 'Go to Tasks',
+    settings: 'Settings',
+    devTools: 'Open Developer Tools',
+    reload: 'Reload Application',
   },
 };
 
@@ -145,7 +151,22 @@ export class MenuManager {
               this.navigateTo('/tasks');
             },
           },
-          { type: 'separator' },
+          ...(isMac
+            ? []
+            : [
+                { type: 'separator' as const },
+                {
+                  label: this.t('exit'),
+                  accelerator: 'Alt+F4',
+                  role: 'quit' as const,
+                },
+              ]),
+        ],
+      },
+
+      {
+        label: this.t('settings'),
+        submenu: [
           {
             label: this.t('darkLightMode'),
             accelerator: 'CmdOrCtrl+T',
@@ -175,16 +196,21 @@ export class MenuManager {
               },
             ],
           },
-          ...(isMac
-            ? []
-            : [
-                { type: 'separator' as const },
-                {
-                  label: this.t('exit'),
-                  accelerator: 'Alt+F4',
-                  role: 'quit' as const,
-                },
-              ]),
+          { type: 'separator' },
+          {
+            label: this.t('devTools'),
+            accelerator: 'CmdOrCtrl+Shift+I',
+            click: (): void => {
+              this.window.webContents.openDevTools();
+            },
+          },
+          {
+            label: this.t('reload'),
+            accelerator: 'CmdOrCtrl+R',
+            click: (): void => {
+              this.window.webContents.reload();
+            },
+          },
         ],
       },
 

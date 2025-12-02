@@ -17,7 +17,6 @@ export class ElectronNavigationService {
   private setupNavigationListener(): void {
     if (globalThis.window?.electronAPI?.onNavigate) {
       globalThis.window.electronAPI.onNavigate((route: string) => {
-        console.log('Navigation event received from Electron:', route);
         this.router.navigate([route]);
       });
     }

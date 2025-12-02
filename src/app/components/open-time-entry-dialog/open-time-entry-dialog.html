@@ -1,0 +1,145 @@
+@if (visible()) {
+  <p-dialog
+    [header]="dialogHeader() | translate"
+    [visible]="true"
+    (visibleChange)="onVisibleChange($event)"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '450px' }"
+  >
+    <div class="time-entry">
+      <div class="time-entry__section">
+        <label class="time-entry__label" for="time-entry-date">{{
+          "timeEntry.date" | translate
+        }}</label>
+        <p-datepicker
+          [(ngModel)]="date"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          [showOnFocus]="false"
+          dateFormat="dd/mm/yy"
+          [style]="{ width: '100%' }"
+          inputId="time-entry-date"
+        />
+      </div>
+
+      <div class="time-entry__section">
+        <label class="time-entry__label" for="time-entry-hours">{{
+          "timeEntry.duration" | translate
+        }}</label>
+        <div class="time-entry__time-inputs">
+          <div class="time-entry__time-field">
+            <p-inputNumber
+              [(ngModel)]="hours"
+              [min]="0"
+              [max]="24"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              spinnerMode="horizontal"
+              decrementButtonClass="p-button-secondary"
+              incrementButtonClass="p-button-secondary"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+              [inputStyle]="{ width: '50px', textAlign: 'center' }"
+              inputId="time-entry-hours"
+            />
+            <span class="time-entry__time-unit">h</span>
+          </div>
+          <div class="time-entry__time-field">
+            <p-inputNumber
+              [(ngModel)]="minutes"
+              [min]="0"
+              [max]="59"
+              [step]="15"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              spinnerMode="horizontal"
+              decrementButtonClass="p-button-secondary"
+              incrementButtonClass="p-button-secondary"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+              [inputStyle]="{ width: '50px', textAlign: 'center' }"
+            />
+            <span class="time-entry__time-unit">m</span>
+          </div>
+        </div>
+      </div>
+
+      @if (tasks().length > 0) {
+        <div class="time-entry__section">
+          <label class="time-entry__label" for="time-entry-task">{{
+            "timeEntry.task" | translate
+          }}</label>
+          <p-select
+            [(ngModel)]="taskId"
+            [options]="tasks()"
+            optionLabel="name"
+            optionValue="id"
+            [placeholder]="'timeEntry.selectTask' | translate"
+            [showClear]="true"
+            [style]="{ width: '100%' }"
+            inputId="time-entry-task"
+          />
+        </div>
+      }
+
+      <div class="time-entry__section">
+        <label class="time-entry__label" for="time-entry-notes">{{
+          "timeEntry.notes" | translate
+        }}</label>
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="notes"
+          [placeholder]="'timeEntry.notesPlaceholder' | translate"
+          class="time-entry__input"
+          id="time-entry-notes"
+        />
+      </div>
+
+      <div class="time-entry__summary">
+        <span class="time-entry__summary-label"
+          >{{ "timeEntry.totalTime" | translate }}:</span
+        >
+        <span
+          class="time-entry__summary-value"
+          [class.time-entry__summary-value--invalid]="!isValid()"
+        >
+          {{ hours() }}h {{ minutes() }}m
+        </span>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="time-entry__footer">
+        @if (isEditing()) {
+          <p-button
+            [label]="'common.delete' | translate"
+            severity="danger"
+            [outlined]="true"
+            icon="pi pi-trash"
+            (onClick)="onDelete()"
+          />
+        }
+        <div class="time-entry__footer-actions">
+          <p-button
+            [label]="'common.cancel' | translate"
+            severity="secondary"
+            [outlined]="true"
+            icon="pi pi-times"
+            (onClick)="onCancel()"
+          />
+          <p-button
+            [label]="'common.save' | translate"
+            severity="primary"
+            icon="pi pi-check"
+            (onClick)="onSave()"
+            [disabled]="!isValid()"
+          />
+        </div>
+      </div>
+    </ng-template>
+  </p-dialog>
+}

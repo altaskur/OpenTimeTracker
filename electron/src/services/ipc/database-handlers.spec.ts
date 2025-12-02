@@ -429,7 +429,7 @@ describe('Database Handlers', () => {
         {
           id: '1',
           date: '2025-01-01',
-          hours: 8,
+          minutes: 480,
           taskId: null,
           notes: null,
           createdAt: new Date('2025-01-01'),
@@ -452,7 +452,7 @@ describe('Database Handlers', () => {
         {
           id: '1',
           date: '2025-01-01',
-          hours: 8,
+          minutes: 480,
           taskId: 't1',
           notes: null,
           createdAt: new Date('2025-01-01'),
@@ -475,7 +475,7 @@ describe('Database Handlers', () => {
         {
           id: '1',
           date: '2025-01-01',
-          hours: 8,
+          minutes: 480,
           taskId: null,
           notes: null,
           createdAt: new Date('2025-01-01'),
@@ -497,7 +497,7 @@ describe('Database Handlers', () => {
       const mockEntry = {
         id: '1',
         date: '2025-01-01',
-        hours: 8,
+        minutes: 480,
         taskId: 't1',
         notes: 'Work notes',
         createdAt: new Date('2025-01-01'),
@@ -510,15 +510,15 @@ describe('Database Handlers', () => {
       )?.[1] as (
         event: unknown,
         date: string,
-        hours: number,
+        minutes: number,
         taskId?: string,
         notes?: string,
       ) => Promise<unknown>;
-      const result = await handler({}, '2025-01-01', 8, 't1', 'Work notes');
+      const result = await handler({}, '2025-01-01', 480, 't1', 'Work notes');
 
       expect(mockDbManager.createTimeEntry).toHaveBeenCalledWith(
         '2025-01-01',
-        8,
+        480,
         't1',
         'Work notes',
       );
@@ -529,7 +529,7 @@ describe('Database Handlers', () => {
       const mockEntry = {
         id: '1',
         date: '2025-01-01',
-        hours: 10,
+        minutes: 600,
         taskId: null,
         notes: null,
         createdAt: new Date('2025-01-01'),
@@ -542,9 +542,9 @@ describe('Database Handlers', () => {
       )?.[1] as (
         event: unknown,
         id: string,
-        data: { hours?: number },
+        data: { minutes?: number },
       ) => Promise<unknown>;
-      const data = { hours: 10 };
+      const data = { minutes: 600 };
       const result = await handler({}, '1', data);
 
       expect(mockDbManager.updateTimeEntry).toHaveBeenCalledWith('1', data);
@@ -555,7 +555,7 @@ describe('Database Handlers', () => {
       const mockEntry = {
         id: '1',
         date: '2025-01-01',
-        hours: 8,
+        minutes: 480,
         taskId: null,
         notes: null,
         createdAt: new Date('2025-01-01'),

@@ -81,7 +81,7 @@ describe('DatabaseManager', () => {
         "id" TEXT NOT NULL PRIMARY KEY,
         "task_id" TEXT,
         "date" TEXT NOT NULL,
-        "hours" REAL NOT NULL,
+        "minutes" INTEGER NOT NULL,
         "notes" TEXT,
         "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updated_at" DATETIME NOT NULL,
@@ -133,6 +133,41 @@ describe('DatabaseManager', () => {
         "task_id" TEXT,
         FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE,
         FOREIGN KEY ("task_id") REFERENCES "tasks"("id") ON DELETE CASCADE
+      );
+    `);
+
+    await testPrisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "work_config" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "daily_minutes" INTEGER NOT NULL DEFAULT 510,
+        "weekly_minutes" INTEGER NOT NULL DEFAULT 2550,
+        "work_days" TEXT NOT NULL DEFAULT '1,2,3,4,5',
+        "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" DATETIME NOT NULL
+      );
+    `);
+
+    await testPrisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "day_types" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL UNIQUE,
+        "color" TEXT NOT NULL,
+        "default_minutes" INTEGER NOT NULL DEFAULT 0,
+        "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" DATETIME NOT NULL
+      );
+    `);
+
+    await testPrisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "day_overrides" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "date" TEXT NOT NULL UNIQUE,
+        "day_type_id" TEXT,
+        "minutes" INTEGER,
+        "note" TEXT,
+        "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" DATETIME NOT NULL,
+        FOREIGN KEY ("day_type_id") REFERENCES "day_types"("id") ON DELETE SET NULL
       );
     `);
 
@@ -483,9 +518,9 @@ describe('DatabaseManager', () => {
     });
 
     it('should create a time entry without task', async () => {
-      const result = await dbManager.createTimeEntry('2025-11-04', 8);
+      const result = await dbManager.createTimeEntry('2025-11-04', 480);
       expect(result.id).toBeDefined();
-      expect(result.hours).toBe(8);
+      expect(result.minutes).toBe(480);
       expect(result.date).toBe('2025-11-04');
     });
 
@@ -497,7 +532,7 @@ describe('DatabaseManager', () => {
 
       const result = await dbManager.createTimeEntry(
         '2025-11-04',
-        5,
+        300,
         taskId,
         'Work notes',
       );
@@ -507,7 +542,7 @@ describe('DatabaseManager', () => {
     });
 
     it('should get all time entries', async () => {
-      await dbManager.createTimeEntry('2025-11-04', 8);
+      await dbManager.createTimeEntry('2025-11-04', 480);
       const entries = await dbManager.getTimeEntries();
       expect(entries.length).toBeGreaterThan(0);
     });
@@ -518,50 +553,50 @@ describe('DatabaseManager', () => {
       const task = await dbManager.createTask(projectId, 'Task');
       const taskId = task.id;
 
-      await dbManager.createTimeEntry('2025-11-04', 5, taskId);
+      await dbManager.createTimeEntry('2025-11-04', 300, taskId);
       const entries = await dbManager.getTimeEntries(taskId);
       expect(entries.length).toBeGreaterThan(0);
       expect(entries[0].taskId).toBe(taskId);
     });
 
     it('should get pending time entries', async () => {
-      await dbManager.createTimeEntry('2025-11-04', 8);
+      await dbManager.createTimeEntry('2025-11-04', 480);
       const pending = await dbManager.getPendingTimeEntries();
       expect(pending.length).toBeGreaterThan(0);
     });
 
     it('should update a time entry', async () => {
-      const created = await dbManager.createTimeEntry('2025-11-04', 8);
+      const created = await dbManager.createTimeEntry('2025-11-04', 480);
       const entryId = created.id;
 
       const result = await dbManager.updateTimeEntry(entryId, {
-        hours: 6,
+        minutes: 360,
         notes: 'Updated notes',
       });
-      expect(result.hours).toBe(6);
+      expect(result.minutes).toBe(360);
       expect(result.notes).toBe('Updated notes');
     });
 
     it('should update time entry with partial data', async () => {
-      const created = await dbManager.createTimeEntry('2025-11-04', 8);
+      const created = await dbManager.createTimeEntry('2025-11-04', 480);
       const entryId = created.id;
 
-      const result = await dbManager.updateTimeEntry(entryId, { hours: 7 });
-      expect(result.hours).toBe(7);
+      const result = await dbManager.updateTimeEntry(entryId, { minutes: 420 });
+      expect(result.minutes).toBe(420);
     });
 
     it('should update time entry using string parameters (legacy format)', async () => {
-      const created = await dbManager.createTimeEntry('2025-11-04', 8);
+      const created = await dbManager.createTimeEntry('2025-11-04', 480);
       const entryId = created.id;
 
       const result = await dbManager.updateTimeEntry(
         entryId,
         '2025-11-05',
-        6,
+        360,
         'Legacy notes',
       );
       expect(result.date).toBe('2025-11-05');
-      expect(result.hours).toBe(6);
+      expect(result.minutes).toBe(360);
       expect(result.notes).toBe('Legacy notes');
     });
 
@@ -571,7 +606,7 @@ describe('DatabaseManager', () => {
       const task = await dbManager.createTask(projectId, 'Task');
       const taskId = task.id;
 
-      const created = await dbManager.createTimeEntry('2025-11-04', 8);
+      const created = await dbManager.createTimeEntry('2025-11-04', 480);
       const entryId = created.id;
 
       const result = await dbManager.updateTimeEntry(entryId, { taskId });
@@ -579,7 +614,7 @@ describe('DatabaseManager', () => {
     });
 
     it('should delete a time entry', async () => {
-      const created = await dbManager.createTimeEntry('2025-11-04', 8);
+      const created = await dbManager.createTimeEntry('2025-11-04', 480);
       const entryId = created.id;
 
       const result = await dbManager.deleteTimeEntry(entryId);

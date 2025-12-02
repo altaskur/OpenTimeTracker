@@ -71,7 +71,7 @@ model TimeEntry {
   id        String   @id @default(uuid())
   taskId    String?  @map("task_id")
   date      String
-  hours     Float
+  minutes   Int
   notes     String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -91,6 +91,60 @@ model WorkPeriod {
 
   @@unique([year, month])
   @@map("work_periods")
+}
+
+/// Global work configuration template (singleton)
+model WorkConfig {
+  id            String   @id @default("work_config")
+  dailyMinutes  Int      @default(480) @map("daily_minutes")
+  weeklyMinutes Int      @default(2400) @map("weekly_minutes")
+  workDays      String   @default("1,2,3,4,5") @map("work_days")
+  daySchedule   String   @default("{\"1\":480,\"2\":480,\"3\":480,\"4\":480,\"5\":480}") @map("day_schedule")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("work_config")
+}
+
+/// Monthly work configuration (overrides WorkConfig for specific month)
+model MonthConfig {
+  id            String   @id @default(uuid())
+  year          Int
+  month         Int
+  weeklyMinutes Int      @default(2400) @map("weekly_minutes")
+  workDays      String   @default("1,2,3,4,5") @map("work_days")
+  daySchedule   String   @default("{\"1\":480,\"2\":480,\"3\":480,\"4\":480,\"5\":480}") @map("day_schedule")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([year, month])
+  @@map("month_configs")
+}
+
+/// Types of special days (like tags)
+model DayType {
+  id             String        @id @default(uuid())
+  name           String        @unique
+  color          String        @default("#6b7280")
+  defaultMinutes Int           @default(0) @map("default_minutes")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  dayOverrides   DayOverride[]
+
+  @@map("day_types")
+}
+
+/// Override for specific days (holidays, vacations, etc.)
+model DayOverride {
+  id        String   @id @default(uuid())
+  date      String   @unique
+  dayTypeId String?  @map("day_type_id")
+  minutes   Int?
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  dayType   DayType? @relation(fields: [dayTypeId], references: [id], onDelete: SetNull)
+
+  @@map("day_overrides")
 }
 
 model AppSettings {

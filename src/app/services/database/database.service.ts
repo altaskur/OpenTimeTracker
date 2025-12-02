@@ -1,12 +1,16 @@
 import { Injectable, signal } from '@angular/core';
 import {
   AuditLog,
+  DayOverride,
+  DayType,
   DeleteResult,
+  MonthConfig,
   Project,
   Tag,
   Task,
   TaskStatus,
   TimeEntry,
+  WorkConfig,
   WorkPeriod,
 } from '../../../types/electron';
 import { ElectronApiError } from '../errors/electron-api-error';
@@ -156,6 +160,30 @@ export class DatabaseService {
     });
   }
 
+  async getTimeEntriesByDateRange(
+    startDate: string,
+    endDate: string,
+  ): Promise<TimeEntry[]> {
+    return this.executeWithErrorHandling(
+      'get time entries by date range',
+      async () => {
+        return globalThis.window.electronAPI.getTimeEntriesByDateRange(
+          startDate,
+          endDate,
+        );
+      },
+    );
+  }
+
+  async getTimeEntriesByDate(date: string): Promise<TimeEntry[]> {
+    return this.executeWithErrorHandling(
+      'get time entries by date',
+      async () => {
+        return globalThis.window.electronAPI.getTimeEntriesByDate(date);
+      },
+    );
+  }
+
   async getPendingTimeEntries(): Promise<TimeEntry[]> {
     return this.executeWithErrorHandling(
       'get pending time entries',
@@ -167,14 +195,14 @@ export class DatabaseService {
 
   async createTimeEntry(
     date: string,
-    hours: number,
+    minutes: number,
     taskId?: string,
     notes?: string,
   ): Promise<TimeEntry> {
     return this.executeWithErrorHandling('create time entry', async () => {
       return globalThis.window.electronAPI.createTimeEntry(
         date,
-        hours,
+        minutes,
         taskId,
         notes,
       );
@@ -204,6 +232,12 @@ export class DatabaseService {
     });
   }
 
+  async getWorkPeriod(year: number, month: number): Promise<WorkPeriod | null> {
+    return this.executeWithErrorHandling('get work period', async () => {
+      return globalThis.window.electronAPI.getWorkPeriod(year, month);
+    });
+  }
+
   async createWorkPeriod(
     year: number,
     month: number,
@@ -217,6 +251,162 @@ export class DatabaseService {
         plannedHours,
         note,
       );
+    });
+  }
+
+  async updateWorkPeriod(
+    year: number,
+    month: number,
+    data: { plannedHours?: number; note?: string },
+  ): Promise<WorkPeriod> {
+    return this.executeWithErrorHandling('update work period', async () => {
+      return globalThis.window.electronAPI.updateWorkPeriod(year, month, data);
+    });
+  }
+
+  async upsertWorkPeriod(
+    year: number,
+    month: number,
+    plannedHours: number,
+    note?: string,
+  ): Promise<WorkPeriod> {
+    return this.executeWithErrorHandling('upsert work period', async () => {
+      return globalThis.window.electronAPI.upsertWorkPeriod(
+        year,
+        month,
+        plannedHours,
+        note,
+      );
+    });
+  }
+
+  // ==================== WORK CONFIG ====================
+
+  async getWorkConfig(): Promise<WorkConfig> {
+    return this.executeWithErrorHandling('get work config', async () => {
+      return globalThis.window.electronAPI.getWorkConfig();
+    });
+  }
+
+  async updateWorkConfig(data: Partial<WorkConfig>): Promise<WorkConfig> {
+    return this.executeWithErrorHandling('update work config', async () => {
+      return globalThis.window.electronAPI.updateWorkConfig(data);
+    });
+  }
+
+  // ==================== MONTH CONFIG ====================
+
+  async getMonthConfig(year: number, month: number): Promise<MonthConfig> {
+    return this.executeWithErrorHandling('get month config', async () => {
+      return globalThis.window.electronAPI.getMonthConfig(year, month);
+    });
+  }
+
+  async updateMonthConfig(
+    year: number,
+    month: number,
+    data: Partial<MonthConfig>,
+  ): Promise<MonthConfig> {
+    return this.executeWithErrorHandling('update month config', async () => {
+      return globalThis.window.electronAPI.updateMonthConfig(year, month, data);
+    });
+  }
+
+  // ==================== DAY TYPES ====================
+
+  async getDayTypes(): Promise<DayType[]> {
+    return this.executeWithErrorHandling('get day types', async () => {
+      return globalThis.window.electronAPI.getDayTypes();
+    });
+  }
+
+  async createDayType(
+    name: string,
+    color: string,
+    defaultMinutes?: number,
+  ): Promise<DayType> {
+    return this.executeWithErrorHandling('create day type', async () => {
+      return globalThis.window.electronAPI.createDayType(
+        name,
+        color,
+        defaultMinutes,
+      );
+    });
+  }
+
+  async updateDayType(id: string, data: Partial<DayType>): Promise<DayType> {
+    return this.executeWithErrorHandling('update day type', async () => {
+      return globalThis.window.electronAPI.updateDayType(id, data);
+    });
+  }
+
+  async deleteDayType(id: string): Promise<DeleteResult> {
+    return this.executeWithErrorHandling('delete day type', async () => {
+      return globalThis.window.electronAPI.deleteDayType(id);
+    });
+  }
+
+  // ==================== DAY OVERRIDES ====================
+
+  async getDayOverrides(
+    startDate?: string,
+    endDate?: string,
+  ): Promise<DayOverride[]> {
+    return this.executeWithErrorHandling('get day overrides', async () => {
+      return globalThis.window.electronAPI.getDayOverrides(startDate, endDate);
+    });
+  }
+
+  async getDayOverride(date: string): Promise<DayOverride | null> {
+    return this.executeWithErrorHandling('get day override', async () => {
+      return globalThis.window.electronAPI.getDayOverride(date);
+    });
+  }
+
+  async createDayOverride(
+    date: string,
+    dayTypeId?: string,
+    minutes?: number,
+    note?: string,
+  ): Promise<DayOverride> {
+    return this.executeWithErrorHandling('create day override', async () => {
+      return globalThis.window.electronAPI.createDayOverride(
+        date,
+        dayTypeId,
+        minutes,
+        note,
+      );
+    });
+  }
+
+  async updateDayOverride(
+    id: string,
+    data: Partial<DayOverride>,
+  ): Promise<DayOverride> {
+    return this.executeWithErrorHandling('update day override', async () => {
+      return globalThis.window.electronAPI.updateDayOverride(id, data);
+    });
+  }
+
+  async upsertDayOverride(
+    date: string,
+    dayTypeId?: string,
+    minutes?: number,
+    note?: string,
+  ): Promise<DayOverride> {
+    return this.executeWithErrorHandling('upsert day override', async () => {
+      return globalThis.window.electronAPI.upsertDayOverride(
+        date,
+        dayTypeId,
+        minutes,
+        note,
+      );
+    });
+  }
+
+  async deleteDayOverride(date: string): Promise<DeleteResult> {
+    return this.executeWithErrorHandling('delete day override', async () => {
+      return globalThis.window.electronAPI.deleteDayOverride(date);
     });
   }
 
