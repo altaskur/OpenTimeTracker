@@ -420,7 +420,7 @@ describe('OpenCalendarPage', () => {
     const date = new Date(2025, 11, 1);
 
     await component.onDayOverrideSaved({
-      date,
+      dates: [date],
       dayTypeId: 'dt1',
       minutes: 480,
       note: 'Test note',
@@ -440,7 +440,7 @@ describe('OpenCalendarPage', () => {
     mockDatabaseService.upsertDayOverride.and.rejectWith(new Error('Failed'));
 
     await component.onDayOverrideSaved({
-      date: new Date(),
+      dates: [new Date()],
       dayTypeId: null,
       minutes: null,
       note: null,

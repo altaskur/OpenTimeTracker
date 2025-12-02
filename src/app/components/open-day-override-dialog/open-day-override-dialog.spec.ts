@@ -156,7 +156,7 @@ describe('OpenDayOverrideDialogComponent', () => {
     component.onSave();
 
     expect(component.saved.emit).toHaveBeenCalledWith({
-      date: today,
+      dates: [today],
       dayTypeId: 'dt-1',
       minutes: null,
       note: 'Test note',
@@ -173,7 +173,7 @@ describe('OpenDayOverrideDialogComponent', () => {
     component.onSave();
 
     expect(component.saved.emit).toHaveBeenCalledWith({
-      date: today,
+      dates: [today],
       dayTypeId: 'dt-1',
       minutes: 240,
       note: null,
