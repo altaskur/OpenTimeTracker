@@ -13,25 +13,29 @@ if [ "$remote_branch" = "develop" ] || [ "$remote_branch" = "main" ] || [ "$curr
   # Use npx to ensure npm commands work across different environments
   export PATH="$PATH:$(dirname $(which node))"
 
-  # Run Angular tests (without coverage threshold check)
-  npm test -- --watch=false --no-progress
+  # Run Angular tests (Karma)
+  echo "📦 Running Angular tests..."
+  npx ng test --watch=false --no-progress --browsers=ChromeHeadless
   ANGULAR_EXIT=$?
 
   if [ $ANGULAR_EXIT -ne 0 ]; then
-    echo "❌ Push rejected: Angular tests failed"
+    echo "❌ Push rejected: Angular (Karma) tests failed"
     exit 1
   fi
+  echo "✅ Angular tests passed!"
 
-  # Run Electron tests (without coverage threshold check)
-  npm run test:electron -- --passWithNoTests
+  # Run Electron tests (Jest)
+  echo "📦 Running Electron tests..."
+  npx jest --config jest.config.js
   ELECTRON_EXIT=$?
 
   if [ $ELECTRON_EXIT -ne 0 ]; then
-    echo "❌ Push rejected: Electron tests failed"
+    echo "❌ Push rejected: Electron (Jest) tests failed"
     exit 1
   fi
+  echo "✅ Electron tests passed!"
 
-  echo "✅ All tests passed!"
+  echo "🎉 All tests passed! Push allowed."
 else
   echo "⏭️ Skipping test check (not pushing to develop/main)"
 fi
