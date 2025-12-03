@@ -1,6 +1,6 @@
 {
   "name": "open-time-tracker",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "author": "altaskur",
   "license": "GPL-3.0",
   "description": "Time tracking application for managing projects and tasks",
@@ -11,6 +11,7 @@
     "dev": "ng build --configuration=development && tsc --project electron/build/tsconfig.json && electron .",
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux",
     "pack": "electron-builder --dir",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
@@ -71,6 +72,27 @@
       "createStartMenuShortcut": true,
       "shortcutName": "OpenTimeTracker",
       "license": "LICENSE"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/icon.png",
+      "category": "Office",
+      "maintainer": "altaskur",
+      "synopsis": "Time tracking application",
+      "description": "Free and open source time tracking application for developers and teams"
     }
   },
   "prettier": {
