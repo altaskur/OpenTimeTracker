@@ -21,23 +21,57 @@ describe('Database Handlers', () => {
       createProject: jest.fn(),
       updateProject: jest.fn(),
       deleteProject: jest.fn(),
+      canCloseProject: jest.fn(),
+      closeProject: jest.fn(),
+      reopenProject: jest.fn(),
       getTasks: jest.fn(),
       createTask: jest.fn(),
       updateTask: jest.fn(),
       deleteTask: jest.fn(),
       getTaskStatuses: jest.fn(),
+      createTaskStatus: jest.fn(),
+      updateTaskStatus: jest.fn(),
+      deleteTaskStatus: jest.fn(),
       getTimeEntries: jest.fn(),
+      getTimeEntriesByDateRange: jest.fn(),
+      getTimeEntriesByDate: jest.fn(),
       getPendingTimeEntries: jest.fn(),
       createTimeEntry: jest.fn(),
       updateTimeEntry: jest.fn(),
       deleteTimeEntry: jest.fn(),
       getWorkPeriods: jest.fn(),
+      getWorkPeriod: jest.fn(),
       createWorkPeriod: jest.fn(),
+      updateWorkPeriod: jest.fn(),
+      upsertWorkPeriod: jest.fn(),
       getTags: jest.fn(),
       createTag: jest.fn(),
+      updateTag: jest.fn(),
       deleteTag: jest.fn(),
       addTagToTask: jest.fn(),
       removeTagFromTask: jest.fn(),
+      createActionHistory: jest.fn(),
+      getActionHistory: jest.fn(),
+      getLastUndoableAction: jest.fn(),
+      getLastRedoableAction: jest.fn(),
+      markActionUndone: jest.fn(),
+      markActionRedone: jest.fn(),
+      clearActionHistory: jest.fn(),
+      getDayTypes: jest.fn(),
+      createDayType: jest.fn(),
+      updateDayType: jest.fn(),
+      deleteDayType: jest.fn(),
+      getDayOverrides: jest.fn(),
+      getDayOverride: jest.fn(),
+      createDayOverride: jest.fn(),
+      updateDayOverride: jest.fn(),
+      upsertDayOverride: jest.fn(),
+      deleteDayOverride: jest.fn(),
+      getAuditLogs: jest.fn(),
+      getWorkConfig: jest.fn(),
+      updateWorkConfig: jest.fn(),
+      getMonthConfig: jest.fn(),
+      updateMonthConfig: jest.fn(),
     } as unknown as jest.Mocked<DatabaseManager>;
 
     handleSpy = jest.spyOn(ipcMain, 'handle');
@@ -1192,6 +1226,1463 @@ describe('Database Handlers', () => {
         error,
       );
 
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Action History Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle create-action-history', async () => {
+      const mockAction = {
+        id: '1',
+        entityType: 'task',
+        entityId: '1',
+        actionType: 'create',
+        description: 'Created task',
+      } as unknown;
+      (mockDbManager.createActionHistory as jest.Mock).mockResolvedValue(
+        mockAction,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-action-history',
+      )?.[1] as (
+        event: unknown,
+        entityType: string,
+        entityId: string,
+        actionType: string,
+        description: string,
+        previousData?: string,
+        newData?: string,
+      ) => Promise<unknown>;
+      const result = await handler(
+        {},
+        'task',
+        '1',
+        'create',
+        'Created task',
+        undefined,
+        undefined,
+      );
+
+      expect(mockDbManager.createActionHistory).toHaveBeenCalled();
+      expect(result).toEqual(mockAction);
+    });
+
+    it('should handle get-action-history', async () => {
+      const mockHistory = [{ id: '1', entityType: 'task' }] as unknown;
+      (mockDbManager.getActionHistory as jest.Mock).mockResolvedValue(
+        mockHistory,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-action-history',
+      )?.[1] as (event: unknown, limit?: number) => Promise<unknown>;
+      const result = await handler({}, 10);
+
+      expect(mockDbManager.getActionHistory).toHaveBeenCalledWith(10);
+      expect(result).toEqual(mockHistory);
+    });
+
+    it('should handle get-last-undoable-action', async () => {
+      const mockAction = { id: '1', entityType: 'task' } as unknown;
+      (mockDbManager.getLastUndoableAction as jest.Mock).mockResolvedValue(
+        mockAction,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-last-undoable-action',
+      )?.[1] as () => Promise<unknown>;
+      const result = await handler();
+
+      expect(mockDbManager.getLastUndoableAction).toHaveBeenCalled();
+      expect(result).toEqual(mockAction);
+    });
+
+    it('should handle get-last-redoable-action', async () => {
+      const mockAction = { id: '1', entityType: 'task' } as unknown;
+      (mockDbManager.getLastRedoableAction as jest.Mock).mockResolvedValue(
+        mockAction,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-last-redoable-action',
+      )?.[1] as () => Promise<unknown>;
+      const result = await handler();
+
+      expect(mockDbManager.getLastRedoableAction).toHaveBeenCalled();
+      expect(result).toEqual(mockAction);
+    });
+
+    it('should handle mark-action-undone', async () => {
+      const mockResult = { id: '1' } as unknown;
+      (mockDbManager.markActionUndone as jest.Mock).mockResolvedValue(
+        mockResult,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'mark-action-undone',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+      const result = await handler({}, '1');
+
+      expect(mockDbManager.markActionUndone).toHaveBeenCalledWith('1');
+      expect(result).toEqual(mockResult);
+    });
+
+    it('should handle mark-action-redone', async () => {
+      const mockResult = { id: '1' } as unknown;
+      (mockDbManager.markActionRedone as jest.Mock).mockResolvedValue(
+        mockResult,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'mark-action-redone',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+      const result = await handler({}, '1');
+
+      expect(mockDbManager.markActionRedone).toHaveBeenCalledWith('1');
+      expect(result).toEqual(mockResult);
+    });
+
+    it('should handle clear-action-history', async () => {
+      const mockResult = { count: 5 } as unknown;
+      (mockDbManager.clearActionHistory as jest.Mock).mockResolvedValue(
+        mockResult,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'clear-action-history',
+      )?.[1] as () => Promise<unknown>;
+      const result = await handler();
+
+      expect(mockDbManager.clearActionHistory).toHaveBeenCalled();
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('Day Types Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle get-day-types', async () => {
+      const mockDayTypes = [
+        { id: '1', name: 'Holiday', color: '#ff0000' },
+      ] as unknown;
+      (mockDbManager.getDayTypes as jest.Mock).mockResolvedValue(mockDayTypes);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-day-types',
+      )?.[1] as () => Promise<unknown>;
+      const result = await handler();
+
+      expect(mockDbManager.getDayTypes).toHaveBeenCalled();
+      expect(result).toEqual(mockDayTypes);
+    });
+
+    it('should handle create-day-type', async () => {
+      const mockDayType = {
+        id: '1',
+        name: 'Holiday',
+        color: '#ff0000',
+        defaultMinutes: 0,
+      } as unknown;
+      (mockDbManager.createDayType as jest.Mock).mockResolvedValue(mockDayType);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-day-type',
+      )?.[1] as (
+        event: unknown,
+        name: string,
+        color: string,
+        defaultMinutes?: number,
+      ) => Promise<unknown>;
+      const result = await handler({}, 'Holiday', '#ff0000', 0);
+
+      expect(mockDbManager.createDayType).toHaveBeenCalledWith(
+        'Holiday',
+        '#ff0000',
+        0,
+      );
+      expect(result).toEqual(mockDayType);
+    });
+
+    it('should handle update-day-type', async () => {
+      const mockDayType = {
+        id: '1',
+        name: 'Updated',
+        color: '#00ff00',
+      } as unknown;
+      (mockDbManager.updateDayType as jest.Mock).mockResolvedValue(mockDayType);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-day-type',
+      )?.[1] as (event: unknown, id: string, data: unknown) => Promise<unknown>;
+      const result = await handler({}, '1', { name: 'Updated' });
+
+      expect(mockDbManager.updateDayType).toHaveBeenCalledWith('1', {
+        name: 'Updated',
+      });
+      expect(result).toEqual(mockDayType);
+    });
+
+    it('should handle delete-day-type', async () => {
+      const mockResult = { id: '1' } as unknown;
+      (mockDbManager.deleteDayType as jest.Mock).mockResolvedValue(mockResult);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-day-type',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+      const result = await handler({}, '1');
+
+      expect(mockDbManager.deleteDayType).toHaveBeenCalledWith('1');
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('Day Overrides Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle get-day-overrides', async () => {
+      const mockOverrides = [{ id: '1', date: '2025-01-01' }] as unknown;
+      (mockDbManager.getDayOverrides as jest.Mock).mockResolvedValue(
+        mockOverrides,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-day-overrides',
+      )?.[1] as (
+        event: unknown,
+        startDate?: string,
+        endDate?: string,
+      ) => Promise<unknown>;
+      const result = await handler({}, '2025-01-01', '2025-01-31');
+
+      expect(mockDbManager.getDayOverrides).toHaveBeenCalledWith(
+        '2025-01-01',
+        '2025-01-31',
+      );
+      expect(result).toEqual(mockOverrides);
+    });
+
+    it('should handle get-day-override', async () => {
+      const mockOverride = { id: '1', date: '2025-01-01' } as unknown;
+      (mockDbManager.getDayOverride as jest.Mock).mockResolvedValue(
+        mockOverride,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-day-override',
+      )?.[1] as (event: unknown, date: string) => Promise<unknown>;
+      const result = await handler({}, '2025-01-01');
+
+      expect(mockDbManager.getDayOverride).toHaveBeenCalledWith('2025-01-01');
+      expect(result).toEqual(mockOverride);
+    });
+
+    it('should handle create-day-override', async () => {
+      const mockOverride = {
+        id: '1',
+        date: '2025-01-01',
+        dayTypeId: '1',
+        minutes: 0,
+      } as unknown;
+      (mockDbManager.createDayOverride as jest.Mock).mockResolvedValue(
+        mockOverride,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-day-override',
+      )?.[1] as (
+        event: unknown,
+        date: string,
+        dayTypeId?: string,
+        minutes?: number,
+        note?: string,
+      ) => Promise<unknown>;
+      const result = await handler({}, '2025-01-01', '1', 0, 'Holiday');
+
+      expect(mockDbManager.createDayOverride).toHaveBeenCalledWith(
+        '2025-01-01',
+        '1',
+        0,
+        'Holiday',
+      );
+      expect(result).toEqual(mockOverride);
+    });
+
+    it('should handle update-day-override', async () => {
+      const mockOverride = {
+        id: '1',
+        date: '2025-01-01',
+        minutes: 240,
+      } as unknown;
+      (mockDbManager.updateDayOverride as jest.Mock).mockResolvedValue(
+        mockOverride,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-day-override',
+      )?.[1] as (event: unknown, id: string, data: unknown) => Promise<unknown>;
+      const result = await handler({}, '1', { minutes: 240 });
+
+      expect(mockDbManager.updateDayOverride).toHaveBeenCalledWith('1', {
+        minutes: 240,
+      });
+      expect(result).toEqual(mockOverride);
+    });
+
+    it('should handle upsert-day-override', async () => {
+      const mockOverride = { id: '1', date: '2025-01-01' } as unknown;
+      (mockDbManager.upsertDayOverride as jest.Mock).mockResolvedValue(
+        mockOverride,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'upsert-day-override',
+      )?.[1] as (
+        event: unknown,
+        date: string,
+        dayTypeId?: string,
+        minutes?: number,
+        note?: string,
+      ) => Promise<unknown>;
+      const result = await handler({}, '2025-01-01', '1', 0, 'Note');
+
+      expect(mockDbManager.upsertDayOverride).toHaveBeenCalledWith(
+        '2025-01-01',
+        '1',
+        0,
+        'Note',
+      );
+      expect(result).toEqual(mockOverride);
+    });
+
+    it('should handle delete-day-override', async () => {
+      const mockResult = { id: '1' } as unknown;
+      (mockDbManager.deleteDayOverride as jest.Mock).mockResolvedValue(
+        mockResult,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-day-override',
+      )?.[1] as (event: unknown, date: string) => Promise<unknown>;
+      const result = await handler({}, '2025-01-01');
+
+      expect(mockDbManager.deleteDayOverride).toHaveBeenCalledWith(
+        '2025-01-01',
+      );
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('Audit Logs Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle get-audit-logs', async () => {
+      const mockLogs = [
+        { id: '1', entityType: 'task', action: 'create' },
+      ] as unknown;
+      (mockDbManager.getAuditLogs as jest.Mock).mockResolvedValue(mockLogs);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-audit-logs',
+      )?.[1] as (
+        event: unknown,
+        entityType?: string,
+        entityId?: string,
+        taskId?: string,
+      ) => Promise<unknown>;
+      const result = await handler({}, 'task', '1', undefined);
+
+      expect(mockDbManager.getAuditLogs).toHaveBeenCalledWith(
+        'task',
+        '1',
+        undefined,
+      );
+      expect(result).toEqual(mockLogs);
+    });
+  });
+
+  describe('Work Config Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle get-work-config', async () => {
+      const mockConfig = { id: '1', weeklyMinutes: 2400 } as unknown;
+      (mockDbManager.getWorkConfig as jest.Mock).mockResolvedValue(mockConfig);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-work-config',
+      )?.[1] as () => Promise<unknown>;
+      const result = await handler();
+
+      expect(mockDbManager.getWorkConfig).toHaveBeenCalled();
+      expect(result).toEqual(mockConfig);
+    });
+
+    it('should handle update-work-config', async () => {
+      const mockConfig = { id: '1', weeklyMinutes: 2000 } as unknown;
+      (mockDbManager.updateWorkConfig as jest.Mock).mockResolvedValue(
+        mockConfig,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-work-config',
+      )?.[1] as (event: unknown, data: unknown) => Promise<unknown>;
+      const result = await handler({}, { weeklyMinutes: 2000 });
+
+      expect(mockDbManager.updateWorkConfig).toHaveBeenCalledWith({
+        weeklyMinutes: 2000,
+      });
+      expect(result).toEqual(mockConfig);
+    });
+  });
+
+  describe('Month Config Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle get-month-config', async () => {
+      const mockConfig = { id: '1', year: 2025, month: 1 } as unknown;
+      (mockDbManager.getMonthConfig as jest.Mock).mockResolvedValue(mockConfig);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-month-config',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+      ) => Promise<unknown>;
+      const result = await handler({}, 2025, 1);
+
+      expect(mockDbManager.getMonthConfig).toHaveBeenCalledWith(2025, 1);
+      expect(result).toEqual(mockConfig);
+    });
+
+    it('should handle update-month-config', async () => {
+      const mockConfig = { id: '1', year: 2025, month: 1 } as unknown;
+      (mockDbManager.updateMonthConfig as jest.Mock).mockResolvedValue(
+        mockConfig,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-month-config',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        data: unknown,
+      ) => Promise<unknown>;
+      const result = await handler({}, 2025, 1, { weeklyMinutes: 2000 });
+
+      expect(mockDbManager.updateMonthConfig).toHaveBeenCalledWith(2025, 1, {
+        weeklyMinutes: 2000,
+      });
+      expect(result).toEqual(mockConfig);
+    });
+  });
+
+  describe('Work Period Handlers - Additional', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle update-work-period', async () => {
+      const mockPeriod = { id: '1', year: 2025, month: 1 } as unknown;
+      (mockDbManager.updateWorkPeriod as jest.Mock).mockResolvedValue(
+        mockPeriod,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        data: unknown,
+      ) => Promise<unknown>;
+      const result = await handler({}, 2025, 1, { plannedHours: 160 });
+
+      expect(mockDbManager.updateWorkPeriod).toHaveBeenCalledWith(2025, 1, {
+        plannedHours: 160,
+      });
+      expect(result).toEqual(mockPeriod);
+    });
+
+    it('should handle upsert-work-period', async () => {
+      const mockPeriod = { id: '1', year: 2025, month: 1 } as unknown;
+      (mockDbManager.upsertWorkPeriod as jest.Mock).mockResolvedValue(
+        mockPeriod,
+      );
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'upsert-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        plannedHours: number,
+        note?: string,
+      ) => Promise<unknown>;
+      const result = await handler({}, 2025, 1, 160, 'Note');
+
+      expect(mockDbManager.upsertWorkPeriod).toHaveBeenCalledWith(
+        2025,
+        1,
+        160,
+        'Note',
+      );
+      expect(result).toEqual(mockPeriod);
+    });
+  });
+
+  describe('Tag Handlers - Additional', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle update-tag', async () => {
+      const mockTag = { id: '1', name: 'Updated Tag' } as unknown;
+      (mockDbManager.updateTag as jest.Mock).mockResolvedValue(mockTag);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-tag',
+      )?.[1] as (event: unknown, id: string, name: string) => Promise<unknown>;
+      const result = await handler({}, '1', 'Updated Tag');
+
+      expect(mockDbManager.updateTag).toHaveBeenCalledWith('1', 'Updated Tag');
+      expect(result).toEqual(mockTag);
+    });
+  });
+
+  describe('Error Handling - Time Entries', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-time-entries-by-date-range', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Date range error');
+      (
+        mockDbManager as unknown as { getTimeEntriesByDateRange: jest.Mock }
+      ).getTimeEntriesByDateRange = jest.fn().mockRejectedValue(error);
+      setupDatabaseHandlers(mockDbManager);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-time-entries-by-date-range',
+      )?.[1] as (
+        event: unknown,
+        startDate: string,
+        endDate: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, '2025-01-01', '2025-01-31')).rejects.toThrow(
+        'Date range error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in get-time-entries-by-date', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Date error');
+      (
+        mockDbManager as unknown as { getTimeEntriesByDate: jest.Mock }
+      ).getTimeEntriesByDate = jest.fn().mockRejectedValue(error);
+      setupDatabaseHandlers(mockDbManager);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-time-entries-by-date',
+      )?.[1] as (event: unknown, date: string) => Promise<unknown>;
+
+      await expect(handler({}, '2025-01-01')).rejects.toThrow('Date error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in get-pending-time-entries', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Pending entries error');
+      mockDbManager.getPendingTimeEntries.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-pending-time-entries',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Pending entries error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in create-time-entry', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create time entry error');
+      mockDbManager.createTimeEntry.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-time-entry',
+      )?.[1] as (
+        event: unknown,
+        date: string,
+        minutes: number,
+        taskId?: string,
+        notes?: string,
+      ) => Promise<unknown>;
+
+      await expect(
+        handler({}, '2025-01-01', 60, 'task1', 'note'),
+      ).rejects.toThrow('Create time entry error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in update-time-entry', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update time entry error');
+      mockDbManager.updateTimeEntry.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-time-entry',
+      )?.[1] as (event: unknown, id: string, data: unknown) => Promise<unknown>;
+
+      await expect(handler({}, '1', { minutes: 120 })).rejects.toThrow(
+        'Update time entry error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in delete-time-entry', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Delete time entry error');
+      mockDbManager.deleteTimeEntry.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-time-entry',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Delete time entry error');
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Work Periods', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-work-periods', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get work periods error');
+      mockDbManager.getWorkPeriods.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-work-periods',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Get work periods error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in get-work-period', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get work period error');
+      (mockDbManager as unknown as { getWorkPeriod: jest.Mock }).getWorkPeriod =
+        jest.fn().mockRejectedValue(error);
+      setupDatabaseHandlers(mockDbManager);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 2025, 1)).rejects.toThrow(
+        'Get work period error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in create-work-period', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create work period error');
+      mockDbManager.createWorkPeriod.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        plannedHours: number,
+        note?: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 2025, 1, 160, 'note')).rejects.toThrow(
+        'Create work period error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in update-work-period', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update work period error');
+      mockDbManager.updateWorkPeriod.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        data: unknown,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 2025, 1, { plannedHours: 160 })).rejects.toThrow(
+        'Update work period error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in upsert-work-period', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Upsert work period error');
+      mockDbManager.upsertWorkPeriod.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'upsert-work-period',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        plannedHours: number,
+        note?: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 2025, 1, 160, 'note')).rejects.toThrow(
+        'Upsert work period error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Tags', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-tags', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get tags error');
+      mockDbManager.getTags.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-tags',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Get tags error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in create-tag', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create tag error');
+      mockDbManager.createTag.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-tag',
+      )?.[1] as (event: unknown, name: string) => Promise<unknown>;
+
+      await expect(handler({}, 'New Tag')).rejects.toThrow('Create tag error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in update-tag', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update tag error');
+      mockDbManager.updateTag.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-tag',
+      )?.[1] as (event: unknown, id: string, name: string) => Promise<unknown>;
+
+      await expect(handler({}, '1', 'Updated Tag')).rejects.toThrow(
+        'Update tag error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in delete-tag', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Delete tag error');
+      mockDbManager.deleteTag.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-tag',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Delete tag error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in add-tag-to-task', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Add tag to task error');
+      mockDbManager.addTagToTask.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'add-tag-to-task',
+      )?.[1] as (
+        event: unknown,
+        taskId: string,
+        tagId: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 'task1', 'tag1')).rejects.toThrow(
+        'Add tag to task error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Work Config', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-work-config', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get work config error');
+      mockDbManager.getWorkConfig.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-work-config',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Get work config error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in update-work-config', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update work config error');
+      mockDbManager.updateWorkConfig.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-work-config',
+      )?.[1] as (event: unknown, data: unknown) => Promise<unknown>;
+
+      await expect(handler({}, { weeklyMinutes: 2400 })).rejects.toThrow(
+        'Update work config error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Month Config', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-month-config', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get month config error');
+      mockDbManager.getMonthConfig.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-month-config',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 2025, 1)).rejects.toThrow(
+        'Get month config error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in update-month-config', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update month config error');
+      mockDbManager.updateMonthConfig.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-month-config',
+      )?.[1] as (
+        event: unknown,
+        year: number,
+        month: number,
+        data: unknown,
+      ) => Promise<unknown>;
+
+      await expect(
+        handler({}, 2025, 1, { weeklyMinutes: 2400 }),
+      ).rejects.toThrow('Update month config error');
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Day Types', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-day-types', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get day types error');
+      mockDbManager.getDayTypes.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-day-types',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Get day types error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in create-day-type', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create day type error');
+      mockDbManager.createDayType.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-day-type',
+      )?.[1] as (
+        event: unknown,
+        name: string,
+        color: string,
+        defaultMinutes?: number,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 'Holiday', '#ff0000', 0)).rejects.toThrow(
+        'Create day type error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in update-day-type', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update day type error');
+      mockDbManager.updateDayType.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-day-type',
+      )?.[1] as (event: unknown, id: string, data: unknown) => Promise<unknown>;
+
+      await expect(handler({}, '1', { name: 'Updated' })).rejects.toThrow(
+        'Update day type error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in delete-day-type', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Delete day type error');
+      mockDbManager.deleteDayType.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-day-type',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Delete day type error');
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Day Overrides', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-day-overrides', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get day overrides error');
+      mockDbManager.getDayOverrides.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-day-overrides',
+      )?.[1] as (
+        event: unknown,
+        startDate?: string,
+        endDate?: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, '2025-01-01', '2025-01-31')).rejects.toThrow(
+        'Get day overrides error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in get-day-override', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get day override error');
+      mockDbManager.getDayOverride.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-day-override',
+      )?.[1] as (event: unknown, date: string) => Promise<unknown>;
+
+      await expect(handler({}, '2025-01-01')).rejects.toThrow(
+        'Get day override error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in create-day-override', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create day override error');
+      mockDbManager.createDayOverride.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-day-override',
+      )?.[1] as (
+        event: unknown,
+        date: string,
+        dayTypeId?: string,
+        minutes?: number,
+        note?: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, '2025-01-01', '1', 0, 'note')).rejects.toThrow(
+        'Create day override error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in update-day-override', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update day override error');
+      mockDbManager.updateDayOverride.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-day-override',
+      )?.[1] as (event: unknown, id: string, data: unknown) => Promise<unknown>;
+
+      await expect(handler({}, '1', { minutes: 240 })).rejects.toThrow(
+        'Update day override error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in upsert-day-override', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Upsert day override error');
+      mockDbManager.upsertDayOverride.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'upsert-day-override',
+      )?.[1] as (
+        event: unknown,
+        date: string,
+        dayTypeId?: string,
+        minutes?: number,
+        note?: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, '2025-01-01', '1', 0, 'note')).rejects.toThrow(
+        'Upsert day override error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in delete-day-override', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Delete day override error');
+      mockDbManager.deleteDayOverride.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-day-override',
+      )?.[1] as (event: unknown, date: string) => Promise<unknown>;
+
+      await expect(handler({}, '2025-01-01')).rejects.toThrow(
+        'Delete day override error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Audit Logs', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in get-audit-logs', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get audit logs error');
+      mockDbManager.getAuditLogs.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-audit-logs',
+      )?.[1] as (
+        event: unknown,
+        entityType?: string,
+        entityId?: string,
+        taskId?: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 'task', '1', undefined)).rejects.toThrow(
+        'Get audit logs error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Error Handling - Action History', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle error in create-action-history', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create action history error');
+      mockDbManager.createActionHistory.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-action-history',
+      )?.[1] as (
+        event: unknown,
+        entityType: string,
+        entityId: string,
+        actionType: string,
+        description: string,
+        previousData?: string,
+        newData?: string,
+      ) => Promise<unknown>;
+
+      await expect(
+        handler(
+          {},
+          'task',
+          '1',
+          'create',
+          'Created task',
+          undefined,
+          undefined,
+        ),
+      ).rejects.toThrow('Create action history error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in get-action-history', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get action history error');
+      mockDbManager.getActionHistory.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-action-history',
+      )?.[1] as (event: unknown, limit?: number) => Promise<unknown>;
+
+      await expect(handler({}, 10)).rejects.toThrow('Get action history error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in get-last-undoable-action', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get last undoable action error');
+      mockDbManager.getLastUndoableAction.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-last-undoable-action',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Get last undoable action error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in get-last-redoable-action', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Get last redoable action error');
+      mockDbManager.getLastRedoableAction.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'get-last-redoable-action',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Get last redoable action error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in mark-action-undone', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Mark action undone error');
+      mockDbManager.markActionUndone.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'mark-action-undone',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow(
+        'Mark action undone error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in mark-action-redone', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Mark action redone error');
+      mockDbManager.markActionRedone.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'mark-action-redone',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow(
+        'Mark action redone error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle error in clear-action-history', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Clear action history error');
+      mockDbManager.clearActionHistory.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'clear-action-history',
+      )?.[1] as () => Promise<unknown>;
+
+      await expect(handler()).rejects.toThrow('Clear action history error');
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Project Close/Reopen Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle can-close-project', async () => {
+      mockDbManager.canCloseProject.mockResolvedValue(true);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'can-close-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      const result = await handler({}, '1');
+      expect(result).toBe(true);
+      expect(mockDbManager.canCloseProject).toHaveBeenCalledWith('1');
+    });
+
+    it('should handle can-close-project returning false', async () => {
+      mockDbManager.canCloseProject.mockResolvedValue(false);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'can-close-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      const result = await handler({}, '2');
+      expect(result).toBe(false);
+      expect(mockDbManager.canCloseProject).toHaveBeenCalledWith('2');
+    });
+
+    it('should handle error in can-close-project', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Can close project error');
+      mockDbManager.canCloseProject.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'can-close-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Can close project error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle close-project', async () => {
+      const closedProject = {
+        id: '1',
+        name: 'Test',
+        description: null,
+        isClosed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockDbManager.closeProject.mockResolvedValue(closedProject);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'close-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      const result = await handler({}, '1');
+      expect(result).toEqual(closedProject);
+      expect(mockDbManager.closeProject).toHaveBeenCalledWith('1');
+    });
+
+    it('should handle error in close-project', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Close project error');
+      mockDbManager.closeProject.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'close-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Close project error');
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle reopen-project', async () => {
+      const reopenedProject = {
+        id: '1',
+        name: 'Test',
+        description: null,
+        isClosed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      mockDbManager.reopenProject.mockResolvedValue(reopenedProject);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'reopen-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      const result = await handler({}, '1');
+      expect(result).toEqual(reopenedProject);
+      expect(mockDbManager.reopenProject).toHaveBeenCalledWith('1');
+    });
+
+    it('should handle error in reopen-project', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Reopen project error');
+      mockDbManager.reopenProject.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'reopen-project',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow('Reopen project error');
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Task Status Handlers', () => {
+    beforeEach(() => {
+      setupDatabaseHandlers(mockDbManager);
+    });
+
+    it('should handle create-task-status', async () => {
+      const newStatus = {
+        id: '1',
+        name: 'In Progress',
+        color: '#FF5733',
+        isDefault: false,
+      };
+      mockDbManager.createTaskStatus.mockResolvedValue(newStatus);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-task-status',
+      )?.[1] as (
+        event: unknown,
+        name: string,
+        color: string,
+      ) => Promise<unknown>;
+
+      const result = await handler({}, 'In Progress', '#FF5733');
+      expect(result).toEqual(newStatus);
+      expect(mockDbManager.createTaskStatus).toHaveBeenCalledWith(
+        'In Progress',
+        '#FF5733',
+      );
+    });
+
+    it('should handle error in create-task-status', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Create task status error');
+      mockDbManager.createTaskStatus.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'create-task-status',
+      )?.[1] as (
+        event: unknown,
+        name: string,
+        color: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, 'Status', '#000')).rejects.toThrow(
+        'Create task status error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle update-task-status', async () => {
+      const updatedStatus = {
+        id: '1',
+        name: 'Done',
+        color: '#00FF00',
+        isDefault: false,
+      };
+      mockDbManager.updateTaskStatus.mockResolvedValue(updatedStatus);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-task-status',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        name: string,
+        color: string,
+      ) => Promise<unknown>;
+
+      const result = await handler({}, '1', 'Done', '#00FF00');
+      expect(result).toEqual(updatedStatus);
+      expect(mockDbManager.updateTaskStatus).toHaveBeenCalledWith(
+        '1',
+        'Done',
+        '#00FF00',
+      );
+    });
+
+    it('should handle error in update-task-status', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Update task status error');
+      mockDbManager.updateTaskStatus.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'update-task-status',
+      )?.[1] as (
+        event: unknown,
+        id: string,
+        name: string,
+        color: string,
+      ) => Promise<unknown>;
+
+      await expect(handler({}, '1', 'Status', '#000')).rejects.toThrow(
+        'Update task status error',
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle delete-task-status', async () => {
+      mockDbManager.deleteTaskStatus.mockResolvedValue(null);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-task-status',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await handler({}, '1');
+      expect(mockDbManager.deleteTaskStatus).toHaveBeenCalledWith('1');
+    });
+
+    it('should handle error in delete-task-status', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const error = new Error('Delete task status error');
+      mockDbManager.deleteTaskStatus.mockRejectedValue(error);
+
+      const handler = handleSpy.mock.calls.find(
+        (call: unknown[]) => call[0] === 'delete-task-status',
+      )?.[1] as (event: unknown, id: string) => Promise<unknown>;
+
+      await expect(handler({}, '1')).rejects.toThrow(
+        'Delete task status error',
+      );
       consoleErrorSpy.mockRestore();
     });
   });

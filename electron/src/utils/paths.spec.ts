@@ -1,0 +1,221 @@
+import { app } from 'electron';
+import * as path from 'path';
+import {
+  isPackaged,
+  getAppPath,
+  getDataPath,
+  getDatabasePath,
+  getBackupPath,
+  getIndexPath,
+  getPreloadPath,
+  getTemplateDatabasePath,
+} from './paths';
+
+jest.mock('electron', () => ({
+  app: {
+    isPackaged: false,
+    getPath: jest.fn(),
+  },
+}));
+
+/**
+ * Paths Utility Test Suite
+ */
+describe('Paths Utility', () => {
+  const mockApp = app as jest.Mocked<typeof app>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('isPackaged', () => {
+    it('should return false in development mode', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      expect(isPackaged()).toBe(false);
+    });
+
+    it('should return true in production mode', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: true,
+        configurable: true,
+      });
+
+      expect(isPackaged()).toBe(true);
+    });
+  });
+
+  describe('getAppPath', () => {
+    it('should return development path when not packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      const result = getAppPath();
+
+      expect(result).toBe(path.join(__dirname, '..', '..'));
+    });
+
+    it('should return exe directory when packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: true,
+        configurable: true,
+      });
+      mockApp.getPath.mockReturnValue(
+        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
+      );
+
+      const result = getAppPath();
+
+      expect(mockApp.getPath).toHaveBeenCalledWith('exe');
+      expect(result).toBe('C:\\Program Files\\OpenTimeTracker');
+    });
+  });
+
+  describe('getDataPath', () => {
+    it('should return development data path when not packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      const result = getDataPath();
+
+      expect(result).toContain('data');
+    });
+
+    it('should return user home data path when packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: true,
+        configurable: true,
+      });
+      mockApp.getPath.mockReturnValue('C:\\Users\\TestUser');
+
+      const result = getDataPath();
+
+      expect(mockApp.getPath).toHaveBeenCalledWith('home');
+      expect(result).toBe(path.join('C:\\Users\\TestUser', 'OpenTimeTracker'));
+    });
+  });
+
+  describe('getDatabasePath', () => {
+    it('should return database path in data directory', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      const result = getDatabasePath();
+
+      expect(result).toContain('timetracker.db');
+    });
+  });
+
+  describe('getBackupPath', () => {
+    it('should return backup path in data directory', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      const result = getBackupPath();
+
+      expect(result).toContain('backups');
+    });
+  });
+
+  describe('getIndexPath', () => {
+    it('should return development index path when not packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      const result = getIndexPath();
+
+      expect(result).toContain('OpenTimeTracker');
+      expect(result).toContain('browser');
+      expect(result).toContain('index.html');
+    });
+
+    it('should return packaged index path when packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: true,
+        configurable: true,
+      });
+      mockApp.getPath.mockReturnValue(
+        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
+      );
+
+      const result = getIndexPath();
+
+      expect(result).toContain('resources');
+      expect(result).toContain('app.asar');
+      expect(result).toContain('index.html');
+    });
+  });
+
+  describe('getPreloadPath', () => {
+    it('should return development preload path when not packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      const result = getPreloadPath();
+
+      expect(result).toContain('preload');
+      expect(result).toContain('preload.js');
+    });
+
+    it('should return packaged preload path when packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: true,
+        configurable: true,
+      });
+      mockApp.getPath.mockReturnValue(
+        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
+      );
+
+      const result = getPreloadPath();
+
+      expect(result).toContain('resources');
+      expect(result).toContain('app.asar');
+      expect(result).toContain('preload.js');
+    });
+  });
+
+  describe('getTemplateDatabasePath', () => {
+    it('should return development template path when not packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: false,
+        configurable: true,
+      });
+
+      const result = getTemplateDatabasePath();
+
+      expect(result).toContain('prisma');
+      expect(result).toContain('template.db');
+    });
+
+    it('should return packaged template path when packaged', () => {
+      Object.defineProperty(mockApp, 'isPackaged', {
+        value: true,
+        configurable: true,
+      });
+      mockApp.getPath.mockReturnValue(
+        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
+      );
+
+      const result = getTemplateDatabasePath();
+
+      expect(result).toContain('resources');
+      expect(result).toContain('app.asar');
+      expect(result).toContain('template.db');
+    });
+  });
+});

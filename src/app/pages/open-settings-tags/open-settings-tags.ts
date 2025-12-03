@@ -53,8 +53,8 @@ export class OpenSettingsTagsComponent implements OnInit {
 
   readonly canAdd = computed(() => this.newTagName().trim().length > 0);
 
-  async ngOnInit(): Promise<void> {
-    await this.loadTags();
+  ngOnInit(): void {
+    void this.loadTags();
   }
 
   async loadTags(): Promise<void> {
