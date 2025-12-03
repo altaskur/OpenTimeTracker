@@ -41,8 +41,9 @@ jobs:
         with:
           name: windows-installer
           path: |
-            release/*.exe
-            release/*.exe.blockmap
+            release/OpenTimeTracker-Setup-*.exe
+            release/OpenTimeTracker-Setup-*.exe.blockmap
+            release/latest.yml
           retention-days: 5
 
   build-linux:
@@ -79,6 +80,7 @@ jobs:
           path: |
             release/*.AppImage
             release/*.deb
+            release/latest-linux.yml
           retention-days: 5
 
   release:
@@ -107,9 +109,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/*.exe
+            release/OpenTimeTracker-Setup-*.exe
+            release/OpenTimeTracker-Setup-*.exe.blockmap
+            release/latest.yml
             release/*.AppImage
             release/*.deb
+            release/latest-linux.yml
           generate_release_notes: true
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
         env:
