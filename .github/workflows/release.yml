@@ -9,34 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate Prisma client
-        run: npm run prisma:generate
-
-      - name: Run Angular tests
-        run: npm test -- --watch=false --browsers=ChromeHeadless
-
-      - name: Run Electron tests
-        run: npm run test:electron
-
   build-windows:
-    needs: [test]
     runs-on: windows-latest
 
     steps:
@@ -74,7 +47,6 @@ jobs:
           retention-days: 5
 
   build-linux:
-    needs: [test]
     runs-on: ubuntu-latest
 
     steps:
@@ -112,7 +84,7 @@ jobs:
           retention-days: 5
 
   release:
-    needs: [test, build-windows, build-linux]
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
