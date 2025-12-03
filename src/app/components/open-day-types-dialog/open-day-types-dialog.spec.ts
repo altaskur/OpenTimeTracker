@@ -16,7 +16,6 @@ describe('OpenDayTypesDialogComponent', () => {
       color: '#FF0000',
       defaultMinutes: 480,
       createdAt: today,
-      updatedAt: today,
     },
     {
       id: 'dt-2',
@@ -24,7 +23,6 @@ describe('OpenDayTypesDialogComponent', () => {
       color: '#00FF00',
       defaultMinutes: 0,
       createdAt: today,
-      updatedAt: today,
     },
   ];
 

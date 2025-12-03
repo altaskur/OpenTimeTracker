@@ -1,14 +1,21 @@
 {
   "name": "open-time-tracker",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "altaskur",
+  "license": "GPL-3.0",
+  "description": "Time tracking application for managing projects and tasks",
   "main": "dist/electron/main/main.js",
   "scripts": {
     "start": "ng serve",
     "build": "ng build && tsc --project electron/build/tsconfig.json",
     "dev": "ng build --configuration=development && tsc --project electron/build/tsconfig.json && electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "pack": "electron-builder --dir",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
+    "prisma:template": "node scripts/update-db-template.js",
     "test": "ng test",
     "test:coverage": "ng test --code-coverage --watch=false --browsers=ChromeHeadless",
     "test:electron": "jest --config jest.config.js",
@@ -19,6 +26,52 @@
     "prepare": "husky",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix"
+  },
+  "build": {
+    "appId": "com.altaskur.opentimetracker",
+    "productName": "OpenTimeTracker",
+    "copyright": "Copyright © 2025 altaskur",
+    "icon": "public/icon.png",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/@prisma/client/**/*",
+      "prisma/template.db",
+      "prisma/schema.prisma",
+      {
+        "from": "node_modules/.prisma",
+        "to": "node_modules/.prisma",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/.prisma/**/*",
+      "node_modules/@prisma/client/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true,
+      "installerSidebar": null,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "OpenTimeTracker",
+      "license": "LICENSE"
+    }
   },
   "prettier": {
     "overrides": [
@@ -63,6 +116,7 @@
     "angular-eslint": "21.0.1",
     "dotenv": "^17.2.3",
     "electron": "^37.1.0",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.39.1",
     "husky": "^9.1.7",
     "jasmine-core": "~5.7.0",

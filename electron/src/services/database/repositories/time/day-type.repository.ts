@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { BaseRepository } from './base.repository';
+import { BaseRepository } from '../base.repository';
 
 /**
  * Repository for day type database operations.

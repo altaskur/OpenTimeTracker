@@ -123,7 +123,6 @@ export interface DayType {
   color: string;
   defaultMinutes: number;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface DayOverride {
@@ -136,6 +135,22 @@ export interface DayOverride {
   updatedAt: Date;
   /** Computed field from JOIN */
   dayType?: DayType | null;
+}
+
+// ==================== BACKUP MODELS ====================
+
+export interface BackupInfo {
+  filename: string;
+  path: string;
+  size: number;
+  createdAt: Date;
+  type: 'auto' | 'manual' | 'startup' | 'shutdown' | 'before-restore';
+}
+
+export interface BackupResult {
+  success: boolean;
+  backup?: BackupInfo;
+  error?: string;
 }
 
 // ==================== ELECTRON API ====================
@@ -318,6 +333,15 @@ declare global {
       clearActionHistory: () => Promise<DeleteResult>;
       onUndoAction: (callback: () => void) => void;
       onRedoAction: (callback: () => void) => void;
+
+      // Backup
+      createBackup: () => Promise<BackupResult>;
+      listBackups: () => Promise<BackupInfo[]>;
+      restoreBackup: (backupPath: string) => Promise<BackupResult>;
+      deleteBackup: (backupPath: string) => Promise<BackupResult>;
+      exportBackup: () => Promise<BackupResult>;
+      importBackup: () => Promise<BackupResult>;
+      getBackupDir: () => Promise<string>;
     };
   }
 }

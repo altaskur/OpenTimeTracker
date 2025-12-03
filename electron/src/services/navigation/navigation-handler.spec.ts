@@ -6,6 +6,10 @@ import { expect as jestExpect } from '@jest/globals';
 
 jest.mock('electron', () => ({
   BrowserWindow: jest.fn(),
+  app: {
+    isPackaged: false,
+    getPath: jest.fn().mockReturnValue('/mock/path'),
+  },
 }));
 
 /**

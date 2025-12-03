@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { BaseRepository } from './base.repository';
+import { BaseRepository } from '../base.repository';
 
 /**
  * Repository for tag database operations.
@@ -101,6 +101,6 @@ export class TagRepository extends BaseRepository {
       where: { taskId },
       include: { tag: true },
     });
-    return taskTags.map((tt) => tt.tag);
+    return taskTags.map((tt: { tag: { id: string; name: string } }) => tt.tag);
   }
 }

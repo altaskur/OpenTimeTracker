@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron';
-import * as path from 'path';
 import * as fs from 'fs';
 import { NavigationHandler } from '../services/navigation/navigation-handler';
 import { MenuManager } from '../services/menu/menu-manager';
+import { getIndexPath, getPreloadPath } from '../utils/paths';
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null;
@@ -13,7 +13,8 @@ export class WindowManager {
    * Creates the main application window
    */
   public async createMainWindow(): Promise<void> {
-    const preloadPath = path.join(__dirname, '..', 'preload', 'preload.js');
+    const preloadPath = getPreloadPath();
+    console.log('Preload path:', preloadPath);
 
     this.mainWindow = new BrowserWindow({
       width: 1200,
@@ -37,16 +38,8 @@ export class WindowManager {
    * Loads the Angular application
    */
   private async loadApplication(): Promise<void> {
-    const indexPath = path.resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      'dist',
-      'OpenTimeTracker',
-      'browser',
-      'index.html',
-    );
+    const indexPath = getIndexPath();
+    console.log('Index path:', indexPath);
 
     if (fs.existsSync(indexPath)) {
       this.navigationHandler = new NavigationHandler(this.mainWindow!);
@@ -54,6 +47,9 @@ export class WindowManager {
       this.navigationHandler.loadIndex();
     } else {
       console.error('index.html not found at:', indexPath);
+      this.mainWindow?.loadURL(
+        `data:text/html,<h1>Error: index.html not found</h1><p>Path: ${indexPath}</p>`,
+      );
     }
   }
 

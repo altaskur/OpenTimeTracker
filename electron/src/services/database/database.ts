@@ -1,6 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import * as path from 'path';
 import * as fs from 'fs';
+import {
+  getDatabasePath,
+  getDataPath,
+  getTemplateDatabasePath,
+} from '../../utils/paths';
 
 let prismaInstance: PrismaClient | null = null;
 
@@ -18,24 +22,44 @@ export class DatabaseManager {
     } else {
       if (!prismaInstance) {
         this.initDirectory();
+        this.initDatabaseFromTemplate();
         prismaInstance = new PrismaClient({
           datasources: {
             db: {
-              url: `file:${path.join(
-                __dirname,
-                '..',
-                '..',
-                '..',
-                '..',
-                'dist',
-                'data',
-                'timetracker.db',
-              )}`,
+              url: `file:${getDatabasePath()}`,
             },
           },
         });
       }
       this.prisma = prismaInstance;
+    }
+  }
+
+  /**
+   * Initializes the database from template if it doesn't exist.
+   * Copies the pre-created template.db with all tables to the data directory.
+   */
+  private initDatabaseFromTemplate(): void {
+    try {
+      const dbPath = getDatabasePath();
+      const templatePath = getTemplateDatabasePath();
+
+      if (!fs.existsSync(dbPath)) {
+        console.log('Database not found, copying from template...');
+        console.log('Template path:', templatePath);
+        console.log('Database path:', dbPath);
+
+        if (fs.existsSync(templatePath)) {
+          fs.copyFileSync(templatePath, dbPath);
+          console.log('Database created from template successfully');
+        } else {
+          console.error('Template database not found at:', templatePath);
+        }
+      } else {
+        console.log('Database already exists at:', dbPath);
+      }
+    } catch (error) {
+      console.error('Error initializing database from template:', error);
     }
   }
 
@@ -58,17 +82,7 @@ export class DatabaseManager {
    */
   private initDirectory(): void {
     try {
-      const dbPath = path.join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        '..',
-        'dist',
-        'data',
-        'timetracker.db',
-      );
-      const dataDir = path.dirname(dbPath);
+      const dataDir = getDataPath();
 
       if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });

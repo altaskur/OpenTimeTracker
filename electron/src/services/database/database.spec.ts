@@ -2,7 +2,14 @@ import { DatabaseManager } from './database';
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
-import { WorkPeriod, TaskStatus } from '../../interfaces';
+import {
+  WorkPeriod,
+  TaskStatus,
+  Project,
+  Tag,
+  Task,
+  AuditLog,
+} from '../../interfaces';
 
 const TEST_DB_PATH = path.join(
   __dirname,
@@ -155,8 +162,7 @@ describe('DatabaseManager', () => {
         "name" TEXT NOT NULL UNIQUE,
         "color" TEXT NOT NULL,
         "default_minutes" INTEGER NOT NULL DEFAULT 0,
-        "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at" DATETIME NOT NULL
+        "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -275,7 +281,7 @@ describe('DatabaseManager', () => {
       await dbManager.createProject('My Project', 'My Description');
       const projects = await dbManager.getProjects();
       expect(projects.length).toBeGreaterThan(0);
-      const project = projects.find((p) => p.name === 'My Project');
+      const project = projects.find((p: Project) => p.name === 'My Project');
       expect(project).toBeDefined();
       expect(project?.description).toBe('My Description');
     });
@@ -296,7 +302,7 @@ describe('DatabaseManager', () => {
       expect(result.description).toBe('Updated Desc');
 
       const projects = await dbManager.getProjects();
-      const updated = projects.find((p) => p.id === projectId);
+      const updated = projects.find((p: Project) => p.id === projectId);
       expect(updated?.name).toBe('Updated Name');
       expect(updated?.description).toBe('Updated Desc');
     });
@@ -309,7 +315,7 @@ describe('DatabaseManager', () => {
       expect(result.id).toBe(projectId);
 
       const remaining = await dbManager.getProjects();
-      const deleted = remaining.find((p) => p.id === projectId);
+      const deleted = remaining.find((p: Project) => p.id === projectId);
       expect(deleted).toBeUndefined();
     });
 
@@ -407,7 +413,7 @@ describe('DatabaseManager', () => {
       await dbManager.reopenProject(project.id, 'TestUser');
 
       const logs = await dbManager.getAuditLogs('Project', project.id);
-      const reopenLog = logs.find((l) => l.action === 'REOPENED');
+      const reopenLog = logs.find((l: AuditLog) => l.action === 'REOPENED');
       expect(reopenLog).toBeDefined();
     });
   });
@@ -707,7 +713,7 @@ describe('DatabaseManager', () => {
     it('should get created tags', async () => {
       await dbManager.createTag('Feature');
       const tags = await dbManager.getTags();
-      const found = tags.find((t) => t.name === 'Feature');
+      const found = tags.find((t: Tag) => t.name === 'Feature');
       expect(found).toBeDefined();
     });
 
@@ -717,7 +723,7 @@ describe('DatabaseManager', () => {
       expect(result.id).toBe(tag.id);
 
       const tags = await dbManager.getTags();
-      const deleted = tags.find((t) => t.id === tag.id);
+      const deleted = tags.find((t: Tag) => t.id === tag.id);
       expect(deleted).toBeUndefined();
     });
 
@@ -729,7 +735,7 @@ describe('DatabaseManager', () => {
       await dbManager.addTagToTask(task.id, tag.id);
 
       const tasks = await dbManager.getTasks();
-      const taggedTask = tasks.find((t) => t.id === task.id);
+      const taggedTask = tasks.find((t: Task) => t.id === task.id);
       expect(taggedTask?.tags?.length).toBeGreaterThan(0);
     });
 
@@ -742,8 +748,10 @@ describe('DatabaseManager', () => {
       await dbManager.removeTagFromTask(task.id, tag.id);
 
       const tasks = await dbManager.getTasks();
-      const updatedTask = tasks.find((t) => t.id === task.id);
-      const hasTag = updatedTask?.tags?.some((tt) => tt.tag.id === tag.id);
+      const updatedTask = tasks.find((t: Task) => t.id === task.id);
+      const hasTag = updatedTask?.tags?.some(
+        (tt: { tag: Tag }) => tt.tag.id === tag.id,
+      );
       expect(hasTag).toBeFalsy();
     });
   });
@@ -760,7 +768,9 @@ describe('DatabaseManager', () => {
 
       const logs = await dbManager.getAuditLogs('Project');
       expect(logs.length).toBeGreaterThan(0);
-      expect(logs.every((l) => l.entityType === 'Project')).toBe(true);
+      expect(logs.every((l: AuditLog) => l.entityType === 'Project')).toBe(
+        true,
+      );
     });
 
     it('should get audit logs by entity type and id', async () => {
@@ -769,7 +779,7 @@ describe('DatabaseManager', () => {
 
       const logs = await dbManager.getAuditLogs('Project', project.id);
       expect(logs.length).toBeGreaterThan(0);
-      expect(logs.every((l) => l.entityId === project.id)).toBe(true);
+      expect(logs.every((l: AuditLog) => l.entityId === project.id)).toBe(true);
     });
   });
 

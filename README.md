@@ -1,157 +1,172 @@
-# OpenTimeTracker
+<p align="center">
+  <img src="public/icon.png" alt="OpenTimeTracker Logo" width="80" height="80">
+</p>
 
-Sistema de seguimiento de tiempo para proyectos y tareas construido con **Angular 20 + Electron + SQLite**.
+<h1 align="center">OpenTimeTracker</h1>
 
-## 🚀 Inicio Rápido
+<p align="center">
+  <strong>Free and open source time tracking application for developers and teams</strong>
+</p>
 
-```bash
-# Instalar dependencias
-npm install
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#development">Development</a> •
+  <a href="#contributing">Contributing</a> •
+  <a href="#license">License</a>
+</p>
 
-# Desarrollo (Angular en navegador)
-npm start
-
-# Desarrollo con Electron
-npm run dev
-
-# Build para producción
-npm run build
-npm run electron
-```
-
-## 📁 Estructura del Proyecto
-
-```bash
-OpenTimeTracker/
-├── electron/src/
-│   ├── main/              # Proceso principal de Electron
-│   ├── preload/           # Bridge Angular-Electron
-│   └── services/
-│       ├── database/      # DatabaseManager con SQLite
-│       └── ipc/           # Handlers IPC para comunicación
-├── src/app/
-│   ├── pages/
-│   │   ├── home/          # Página inicial
-│   │   ├── dashboard/     # Dashboard con estadísticas
-│   │   └── projects/      # Gestión de proyectos (CRUD)
-│   ├── services/
-│   │   └── database.service.ts  # Servicio Angular para DB
-│   └── themes/            # Tema Aura Black
-└── src/types/
-    └── electron.d.ts      # Tipos TypeScript para modelos
-```
-
-## 🗄️ Modelo de Datos (SQLite)
-
-### Tablas Principales
-
-- **`projects`** - Proyectos
-- **`tasks`** - Tareas vinculadas a proyectos
-- **`task_status`** - Estados: Pendiente, En progreso, Completada, Bloqueada
-- **`time_entries`** - Registros de tiempo trabajado
-- **`work_periods`** - Horas planificadas por mes
-- **`tags`** - Etiquetas para organizar tareas
-- **`task_tags`** - Relación muchos-a-muchos entre tareas y tags
-
-## ✨ Funcionalidades Implementadas
-
-### ✅ Backend (Electron + SQLite)
-
-- Base de datos SQLite con esquema completo
-- DatabaseManager con métodos CRUD para todas las entidades
-- IPC Handlers para comunicación segura
-- Persistencia automática en `dist/data/timetracker.db`
-
-### ✅ Frontend (Angular)
-
-- **Home**: Navegación principal
-- **Projects**: Tabla con CRUD completo (crear, editar, eliminar)
-- **Dashboard**: Vista de entradas de tiempo y estadísticas
-- DatabaseService para consumir IPC API
-- Componentes standalone con signals
-
-### 🔄 Flujo de Datos
-
-```bash
-Angular Component → DatabaseService → ElectronAPI (preload) 
-→ IPC Handler → DatabaseManager → SQLite
-```
-
-## 📊 Funcionalidades Disponibles
-
-| Entidad | Get | Create | Update | Delete |
-|---------|-----|--------|--------|--------|
-| Projects | ✅ | ✅ | ✅ | ✅ |
-| Tasks | ✅ | ✅ | ✅ | ✅ |
-| Time Entries | ✅ | ✅ | ✅ | ✅ |
-| Work Periods | ✅ | ✅ | - | - |
-| Task Statuses | ✅ | - | - | - |
-
-## � Stack Tecnológico
-
-- **Angular 20** - Framework frontend (componentes standalone)
-- **Electron 37** - Aplicación de escritorio
-- **PrimeNG 20** - Librería de componentes UI
-- **SQLite** (better-sqlite3) - Base de datos local
-- **TypeScript** - Tipado estático end-to-end
-
-## ⌨️ Atajos de Teclado
-
-El menú de Electron incluye atajos completos para gestión de tiempo:
-
-### Navegación
-
-- `Ctrl/Cmd + 1` - Ir a Inicio
-- `Ctrl/Cmd + 2` - Ir a Dashboard
-- `Ctrl/Cmd + 3` - Ir a Proyectos
-- `Alt + ←` - Página anterior
-- `Alt + →` - Página siguiente
-
-### Acciones Rápidas
-
-- `Ctrl/Cmd + N` - Nueva entrada de tiempo
-- `Ctrl/Cmd + Shift + N` - Nuevo proyecto
-- `Ctrl/Cmd + E` - Exportar datos
-
-### Archivo
-
-- `Ctrl/Cmd + R` - Recargar aplicación
-- `Alt + F4` / `Cmd + Q` - Salir
-
-### Vista
-
-- `Ctrl/Cmd + T` - Alternar modo oscuro
-- `Ctrl/Cmd + Shift + I` - Abrir DevTools
-- `F11` / `Ctrl + Cmd + F` - Pantalla completa
-- `Ctrl/Cmd + +` - Aumentar zoom
-- `Ctrl/Cmd + -` - Reducir zoom
-- `Ctrl/Cmd + 0` - Zoom normal
-
-### Ayuda
-
-- `Ctrl/Cmd + /` - Ver todos los atajos
-
-## 🛠️ Comandos
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm start` | Servidor Angular en puerto 4200 |
-| `npm run build` | Compilar completo (Angular + Electron) |
-| `npm run dev` | Build + ejecutar Electron |
-| `npm run electron` | Ejecutar Electron (requiere build previo) |
-| `npm test` | Ejecutar tests |
-
-## 📝 Próximos Pasos Sugeridos
-
-1. **Formularios de Tareas**: Agregar gestión de tareas en la página Projects
-2. **Registro de Tiempo**: Formulario para crear time entries desde Dashboard
-3. **Filtros y Búsqueda**: Añadir filtros por fechas, proyectos, etc.
-4. **Reportes**: Generar reportes de horas por proyecto/mes
-5. **Tags System**: Implementar sistema de etiquetas
-6. **Exportación**: CSV/Excel de datos
-7. **Validaciones**: Formularios con validación completa
-8. **Dark Mode Toggle**: Persistir preferencia de tema
+<p align="center">
+  <img src="https://img.shields.io/badge/Angular-21-DD0031?logo=angular" alt="Angular 21">
+  <img src="https://img.shields.io/badge/Electron-37-47848F?logo=electron" alt="Electron 37">
+  <img src="https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma" alt="Prisma">
+  <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite" alt="SQLite">
+  <img src="https://img.shields.io/badge/SonarQube-Analyzed-4E9BCD?logo=sonarqube" alt="SonarQube">
+  <img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License: GPL v3">
+</p>
 
 ---
 
-**Isaac Julián** · OpenTimeTracker v1.0
+## ✨ Features
+
+- 📊 **Project Management** - Create and organize projects with full CRUD operations
+- ✅ **Task Tracking** - Manage tasks with statuses, tags, and time estimates
+- ⏱️ **Time Entries** - Log work time with notes and date tracking
+- 📅 **Calendar View** - Visual calendar to see your time entries
+- 🏷️ **Tags & Categories** - Organize tasks with customizable tags
+- 🌙 **Dark Mode** - Beautiful dark theme with Aura Black preset
+- 🌐 **Multi-language** - Support for English and Spanish
+- 💾 **Local Database** - All data stored locally with SQLite
+- 🔄 **Backup System** - Automatic backup on shutdown
+
+## 📥 Installation
+
+### Windows
+
+Download the latest installer from the [Releases](https://github.com/altaskur/OpenTimeTracker/releases) page.
+
+### Build from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/altaskur/OpenTimeTracker.git
+cd OpenTimeTracker
+
+# Install dependencies
+npm install
+
+# Generate Prisma client
+npm run prisma:generate
+
+# Build and run
+npm run dev
+```
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Node.js 20+
+- npm 10+
+
+### Commands
+
+| Command                 | Description                          |
+| ----------------------- | ------------------------------------ |
+| `npm start`             | Start Angular dev server (port 4200) |
+| `npm run dev`           | Build and run Electron app           |
+| `npm run build`         | Production build                     |
+| `npm run dist:win`      | Generate Windows installer           |
+| `npm test`              | Run Angular tests                    |
+| `npm run test:electron` | Run Electron tests                   |
+| `npm run lint`          | Run ESLint                           |
+| `npm run sonar:check`   | Run tests + SonarQube analysis       |
+
+### Database
+
+The app uses **SQLite with Prisma ORM**. After modifying the schema:
+
+```bash
+# Create migration
+npx prisma migrate dev --name your_migration_name
+
+# Update production template
+npm run prisma:template
+```
+
+### Project Structure
+
+```text
+OpenTimeTracker/
+├── electron/src/           # Electron main process
+│   ├── main/               # Window management
+│   ├── preload/            # IPC bridge
+│   └── services/           # Database & handlers
+├── src/app/                # Angular application
+│   ├── components/         # Shared components
+│   ├── pages/              # Route pages
+│   └── services/           # Angular services
+├── prisma/                 # Database schema & migrations
+└── scripts/                # Build scripts
+```
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut       | Action            |
+| -------------- | ----------------- |
+| `Ctrl+1`       | Go to Home        |
+| `Ctrl+2`       | Go to Calendar    |
+| `Ctrl+3`       | Go to Projects    |
+| `Ctrl+N`       | New time entry    |
+| `Ctrl+Shift+N` | New project       |
+| `Ctrl+T`       | Toggle dark mode  |
+| `F11`          | Toggle fullscreen |
+
+## 🔍 Code Quality
+
+This project uses **SonarQube** for static code analysis. To run the analysis locally:
+
+1. Create a `.env` file with your SonarQube token:
+
+   ```
+   SONAR_TOKEN=your_token_here
+   ```
+
+2. Run the full check (tests + coverage + analysis):
+
+   ```bash
+   npm run sonar:check
+   ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
+
+This means:
+
+- ✅ You can use, modify, and distribute this software
+- ✅ You must keep it open source
+- ✅ You must include the original copyright and license
+- ✅ Any derivative work must use the same license
+
+## 👤 Author
+
+**altaskur**
+
+- GitHub: [@altaskur](https://github.com/altaskur)
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/altaskur">altaskur</a>
+</p>

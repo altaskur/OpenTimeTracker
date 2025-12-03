@@ -24,7 +24,6 @@ describe('OpenSettingsDayTypesComponent', () => {
       color: '#ef4444',
       defaultMinutes: 0,
       createdAt: new Date(),
-      updatedAt: new Date(),
     },
     {
       id: 'd2',
@@ -32,7 +31,6 @@ describe('OpenSettingsDayTypesComponent', () => {
       color: '#22c55e',
       defaultMinutes: 0,
       createdAt: new Date(),
-      updatedAt: new Date(),
     },
   ];
 
@@ -52,7 +50,6 @@ describe('OpenSettingsDayTypesComponent', () => {
         color: '#000000',
         defaultMinutes: 240,
         createdAt: new Date(),
-        updatedAt: new Date(),
       }),
     );
     mockDbService.updateDayType.and.returnValue(
@@ -62,7 +59,6 @@ describe('OpenSettingsDayTypesComponent', () => {
         color: '#ffffff',
         defaultMinutes: 120,
         createdAt: new Date(),
-        updatedAt: new Date(),
       }),
     );
     mockDbService.deleteDayType.and.returnValue(

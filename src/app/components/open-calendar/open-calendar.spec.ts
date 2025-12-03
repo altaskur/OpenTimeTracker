@@ -70,7 +70,6 @@ describe('OpenCalendar', () => {
     color: '#ff0000',
     defaultMinutes: 0,
     createdAt: new Date(),
-    updatedAt: new Date(),
   };
 
   const mockDayOverride: DayOverride = {

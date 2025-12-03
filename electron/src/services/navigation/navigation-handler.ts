@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import * as path from 'path';
+import { getIndexPath } from '../../utils/paths';
 
 export class NavigationHandler {
   private readonly mainWindow: BrowserWindow;
@@ -7,19 +7,9 @@ export class NavigationHandler {
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
-
-    const indexPath = path.resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'dist',
-      'OpenTimeTracker',
-      'browser',
-      'index.html',
-    );
+    const indexPath = getIndexPath();
     this.indexUrl = `file://${indexPath.replace(/\\/g, '/')}`;
+    console.log('Navigation handler index URL:', this.indexUrl);
   }
 
   /**

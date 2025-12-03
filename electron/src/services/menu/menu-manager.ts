@@ -36,7 +36,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     about: 'Acerca de OpenTimeTracker',
     aboutTitle: 'Acerca de OpenTimeTracker',
     aboutDetail:
-      'Versión: 1.0.0\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 21 + Electron + Prisma\n\n© 2025 Isaac Julián',
+      'Versión: 1.0.0\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 21 + Electron + Prisma\n\n© 2025 Altaskur',
     shortcutsTitle: 'Atajos de Teclado',
     shortcutsMessage: 'Atajos de Teclado Disponibles',
     navShortcuts: 'Navegación:',
@@ -74,7 +74,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     about: 'About OpenTimeTracker',
     aboutTitle: 'About OpenTimeTracker',
     aboutDetail:
-      'Version: 1.0.0\n\nTime tracking system for projects and tasks.\n\nBuilt with Angular 21 + Electron + Prisma\n\n© 2025 Isaac Julián',
+      'Version: 1.0.0\n\nTime tracking system for projects and tasks.\n\nBuilt with Angular 21 + Electron + Prisma\n\n© 2025 Altaskur',
     shortcutsTitle: 'Keyboard Shortcuts',
     shortcutsMessage: 'Available Keyboard Shortcuts',
     navShortcuts: 'Navigation:',

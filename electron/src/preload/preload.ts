@@ -14,6 +14,7 @@ import {
   WorkConfig,
   WorkPeriod,
 } from '../interfaces/database.interfaces';
+import { BackupInfo, BackupResult } from '../services/backup';
 
 try {
   const electronAPI = {
@@ -266,6 +267,20 @@ try {
     onRedoAction: (callback: () => void): void => {
       ipcRenderer.on('redo-action', () => callback());
     },
+
+    // Backup
+    createBackup: (): Promise<BackupResult> =>
+      ipcRenderer.invoke('backup-create'),
+    listBackups: (): Promise<BackupInfo[]> => ipcRenderer.invoke('backup-list'),
+    restoreBackup: (backupPath: string): Promise<BackupResult> =>
+      ipcRenderer.invoke('backup-restore', backupPath),
+    deleteBackup: (backupPath: string): Promise<BackupResult> =>
+      ipcRenderer.invoke('backup-delete', backupPath),
+    exportBackup: (): Promise<BackupResult> =>
+      ipcRenderer.invoke('backup-export'),
+    importBackup: (): Promise<BackupResult> =>
+      ipcRenderer.invoke('backup-import'),
+    getBackupDir: (): Promise<string> => ipcRenderer.invoke('backup-get-dir'),
   };
 
   contextBridge.exposeInMainWorld('electronAPI', electronAPI);

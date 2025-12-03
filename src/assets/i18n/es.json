@@ -146,7 +146,7 @@
       "version": "Versión",
       "description": "Sistema de seguimiento de tiempo para proyectos y tareas.",
       "builtWith": "Desarrollado con Angular 21 + Electron + Prisma",
-      "copyright": "© 2025 Isaac Julián"
+      "copyright": "© 2025 Altaskur"
     },
     "shortcuts": {
       "title": "Atajos de Teclado Disponibles",
