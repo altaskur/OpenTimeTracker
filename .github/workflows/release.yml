@@ -41,8 +41,8 @@ jobs:
         with:
           name: windows-installer
           path: |
-            release/OpenTimeTracker-Setup-*.exe
-            release/OpenTimeTracker-Setup-*.exe.blockmap
+            release/OpenTimeTracker*.exe
+            release/OpenTimeTracker*.exe.blockmap
             release/latest.yml
           retention-days: 5
 
@@ -109,8 +109,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/OpenTimeTracker-Setup-*.exe
-            release/OpenTimeTracker-Setup-*.exe.blockmap
+            release/OpenTimeTracker*.exe
+            release/OpenTimeTracker*.exe.blockmap
             release/latest.yml
             release/*.AppImage
             release/*.deb
