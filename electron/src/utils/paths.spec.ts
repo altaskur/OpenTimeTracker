@@ -65,14 +65,23 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      mockApp.getPath.mockReturnValue(
-        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
-      );
+
+      const exePath =
+        process.platform === 'win32'
+          ? 'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe'
+          : '/usr/local/OpenTimeTracker/OpenTimeTracker';
+
+      const expectedDir =
+        process.platform === 'win32'
+          ? 'C:\\Program Files\\OpenTimeTracker'
+          : '/usr/local/OpenTimeTracker';
+
+      mockApp.getPath.mockReturnValue(exePath);
 
       const result = getAppPath();
 
       expect(mockApp.getPath).toHaveBeenCalledWith('exe');
-      expect(result).toBe('C:\\Program Files\\OpenTimeTracker');
+      expect(result).toBe(expectedDir);
     });
   });
 
