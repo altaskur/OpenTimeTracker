@@ -9,7 +9,14 @@ permissions:
   contents: write
 
 jobs:
+  quality-gate:
+    name: Quality Gate
+    uses: ./.github/workflows/test-and-analyze.yml
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   build-windows:
+    needs: [quality-gate]
     runs-on: windows-latest
 
     steps:
@@ -47,6 +54,7 @@ jobs:
           retention-days: 5
 
   build-linux:
+    needs: [quality-gate]
     runs-on: ubuntu-latest
 
     steps:
@@ -84,7 +92,7 @@ jobs:
           retention-days: 5
 
   release:
-    needs: [build-windows, build-linux]
+    needs: [quality-gate, build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write

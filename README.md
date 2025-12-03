@@ -17,11 +17,25 @@
 </p>
 
 <p align="center">
+  <a href="https://sonarcloud.io/summary/new_code?id=altaskur_OpenTimeTracker">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=altaskur_OpenTimeTracker&metric=alert_status" alt="Quality Gate Status">
+  </a>
+  <a href="https://sonarcloud.io/summary/new_code?id=altaskur_OpenTimeTracker">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=altaskur_OpenTimeTracker&metric=coverage" alt="Coverage">
+  </a>
+  <a href="https://sonarcloud.io/summary/new_code?id=altaskur_OpenTimeTracker">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=altaskur_OpenTimeTracker&metric=bugs" alt="Bugs">
+  </a>
+  <a href="https://sonarcloud.io/summary/new_code?id=altaskur_OpenTimeTracker">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=altaskur_OpenTimeTracker&metric=vulnerabilities" alt="Vulnerabilities">
+  </a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Angular-21-DD0031?logo=angular" alt="Angular 21">
   <img src="https://img.shields.io/badge/Electron-37-47848F?logo=electron" alt="Electron 37">
   <img src="https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma" alt="Prisma">
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite" alt="SQLite">
-  <img src="https://img.shields.io/badge/SonarQube-Analyzed-4E9BCD?logo=sonarqube" alt="SonarQube">
   <img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License: GPL v3">
 </p>
 
