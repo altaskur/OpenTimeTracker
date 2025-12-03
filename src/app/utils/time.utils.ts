@@ -36,25 +36,27 @@ export function parseTimeToMinutes(timeString: string): number | null {
 
   const hoursMinutesMatch = /^(\d+)h\s*(\d+)?m?$/.exec(trimmed);
   if (hoursMinutesMatch) {
-    const hours = parseInt(hoursMinutesMatch[1], 10);
-    const mins = hoursMinutesMatch[2] ? parseInt(hoursMinutesMatch[2], 10) : 0;
+    const hours = Number.parseInt(hoursMinutesMatch[1], 10);
+    const mins = hoursMinutesMatch[2]
+      ? Number.parseInt(hoursMinutesMatch[2], 10)
+      : 0;
     return hours * 60 + mins;
   }
 
   const hoursOnlyMatch = /^(\d+)h$/.exec(trimmed);
   if (hoursOnlyMatch) {
-    return parseInt(hoursOnlyMatch[1], 10) * 60;
+    return Number.parseInt(hoursOnlyMatch[1], 10) * 60;
   }
 
   const minsOnlyMatch = /^(\d+)m$/.exec(trimmed);
   if (minsOnlyMatch) {
-    return parseInt(minsOnlyMatch[1], 10);
+    return Number.parseInt(minsOnlyMatch[1], 10);
   }
 
   const colonMatch = /^(\d+):(\d{1,2})$/.exec(trimmed);
   if (colonMatch) {
-    const hours = parseInt(colonMatch[1], 10);
-    const mins = parseInt(colonMatch[2], 10);
+    const hours = Number.parseInt(colonMatch[1], 10);
+    const mins = Number.parseInt(colonMatch[2], 10);
     if (mins >= 60) {
       return null;
     }
@@ -63,7 +65,7 @@ export function parseTimeToMinutes(timeString: string): number | null {
 
   const numberMatch = /^(\d+)$/.exec(trimmed);
   if (numberMatch) {
-    return parseInt(numberMatch[1], 10);
+    return Number.parseInt(numberMatch[1], 10);
   }
 
   return null;
