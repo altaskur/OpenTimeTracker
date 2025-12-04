@@ -1,4 +1,4 @@
-name: Test and Analyze
+name: SonarQube Analysis
 
 on:
   workflow_call:
@@ -7,8 +7,8 @@ on:
         required: true
 
 jobs:
-  test-and-analyze:
-    name: Test and SonarQube Analysis
+  analyze:
+    name: SonarQube Analysis
     runs-on: ubuntu-latest
 
     steps:
