@@ -10,4 +10,4 @@ on:
 jobs:
   tests:
     name: Tests
-    uses: ./.github/workflows/jobs/tests.yml
+    uses: ./.github/workflows/tests.yml

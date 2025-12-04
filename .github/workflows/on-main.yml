@@ -10,6 +10,6 @@ on:
 jobs:
   sonar:
     name: Tests & SonarQube
-    uses: ./.github/workflows/jobs/sonar.yml
+    uses: ./.github/workflows/sonar.yml
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
