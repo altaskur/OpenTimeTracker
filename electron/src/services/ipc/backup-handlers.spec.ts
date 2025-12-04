@@ -5,6 +5,7 @@ import {
   beforeEach,
   afterEach,
   vi,
+  type Mock,
   type Mocked,
   type MockInstance,
 } from 'vitest';
