@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi, type Mocked } from 'vitest';
+import path from 'node:path';
 import { app } from 'electron';
 import {
   isPackaged,
