@@ -613,6 +613,15 @@ export class OpenTasks implements OnInit {
   }
 
   /**
+   * Safely converts a value to string, returning fallback for objects
+   */
+  private safeString(value: unknown, fallback = '-'): string {
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === 'object') return fallback;
+    return String(value);
+  }
+
+  /**
    * Formats time entry changes
    */
   private formatTimeEntryChanges(
@@ -620,40 +629,44 @@ export class OpenTasks implements OnInit {
     changes: Record<string, unknown>,
   ): string {
     if (action.toLowerCase() === 'update' && changes['previous']) {
-      const prev = changes['previous'] as Record<string, unknown>;
-      const curr = changes['current'] as Record<string, unknown>;
-      const parts: string[] = [];
-
-      if (prev['hours'] !== curr['hours']) {
-        parts.push(`${String(prev['hours'])}h → ${String(curr['hours'])}h`);
-      }
-      if (prev['date'] !== curr['date']) {
-        parts.push(`${String(prev['date'])} → ${String(curr['date'])}`);
-      }
-      if (
-        prev['notes'] !== curr['notes'] &&
-        curr['notes'] &&
-        typeof curr['notes'] !== 'object'
-      ) {
-        parts.push(`"${String(curr['notes'])}"`);
-      }
-
-      return parts.length > 0 ? parts.join(', ') : '-';
+      return this.formatTimeEntryUpdateChanges(changes);
     }
 
-    const hours =
-      changes['hours'] && typeof changes['hours'] !== 'object'
-        ? String(changes['hours'])
-        : '-';
-    const date =
-      changes['date'] && typeof changes['date'] !== 'object'
-        ? String(changes['date'])
-        : '-';
+    const hours = this.safeString(changes['hours']);
+    const date = this.safeString(changes['date']);
     const notes =
-      changes['notes'] && typeof changes['notes'] !== 'object'
-        ? ` - "${String(changes['notes'])}"`
+      this.safeString(changes['notes'], '') !== ''
+        ? ` - "${this.safeString(changes['notes'])}"`
         : '';
     return `${date}: ${hours}h${notes}`;
+  }
+
+  /**
+   * Formats time entry update changes
+   */
+  private formatTimeEntryUpdateChanges(
+    changes: Record<string, unknown>,
+  ): string {
+    const prev = changes['previous'] as Record<string, unknown>;
+    const curr = changes['current'] as Record<string, unknown>;
+    const parts: string[] = [];
+
+    if (prev['hours'] !== curr['hours']) {
+      parts.push(
+        `${this.safeString(prev['hours'])}h → ${this.safeString(curr['hours'])}h`,
+      );
+    }
+    if (prev['date'] !== curr['date']) {
+      parts.push(
+        `${this.safeString(prev['date'])} → ${this.safeString(curr['date'])}`,
+      );
+    }
+    const currNotes = this.safeString(curr['notes'], '');
+    if (prev['notes'] !== curr['notes'] && currNotes !== '') {
+      parts.push(`"${currNotes}"`);
+    }
+
+    return parts.length > 0 ? parts.join(', ') : '-';
   }
 
   /**
@@ -666,9 +679,8 @@ export class OpenTasks implements OnInit {
     const actionLower = action.toLowerCase();
 
     if (actionLower === 'create' || actionLower === 'delete') {
-      return changes['name'] && typeof changes['name'] !== 'object'
-        ? `"${String(changes['name'])}"`
-        : '-';
+      const name = this.safeString(changes['name'], '');
+      return name !== '' ? `"${name}"` : '-';
     }
 
     if (actionLower === 'update' && changes['previous']) {
@@ -686,14 +698,11 @@ export class OpenTasks implements OnInit {
     const curr = changes['current'] as Record<string, unknown>;
     const parts: string[] = [];
 
-    if (
-      curr['name'] &&
-      typeof curr['name'] !== 'object' &&
-      prev['name'] !== curr['name'] &&
-      typeof prev['name'] !== 'object'
-    ) {
+    const prevName = this.safeString(prev['name'], '');
+    const currName = this.safeString(curr['name'], '');
+    if (currName !== '' && prevName !== currName && prevName !== '') {
       parts.push(
-        `${this.translateService.instant('history.fields.name')}: "${String(prev['name'])}" → "${String(curr['name'])}"`,
+        `${this.translateService.instant('history.fields.name')}: "${prevName}" → "${currName}"`,
       );
     }
     if (curr['description'] !== undefined) {
