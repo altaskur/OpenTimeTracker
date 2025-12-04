@@ -1,0 +1,12 @@
+name: Develop CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [opened, synchronize, reopened]
+
+jobs:
+  tests:
+    name: Tests
+    uses: ./.github/workflows/jobs/tests.yml
