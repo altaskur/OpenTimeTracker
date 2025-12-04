@@ -159,6 +159,22 @@ describe('MigrationRunner', () => {
       const runner = new MigrationRunner();
       expect(runner.runMigrations).toBeDefined();
     });
+
+    it('should ensure version table exists', async () => {
+      mockStatement.get.mockReturnValue(undefined);
+      const { MigrationRunner } = await import('./migration-runner.js');
+      const runner = new MigrationRunner();
+      runner.runMigrations();
+      expect(mockDb.exec).toHaveBeenCalled();
+    });
+
+    it('should insert initial version when table is empty', async () => {
+      mockStatement.get.mockReturnValue(undefined);
+      const { MigrationRunner } = await import('./migration-runner.js');
+      const runner = new MigrationRunner();
+      runner.runMigrations();
+      expect(mockStatement.run).toHaveBeenCalled();
+    });
   });
 
   describe('close', () => {
