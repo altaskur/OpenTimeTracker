@@ -24,13 +24,13 @@ if [ "$remote_branch" = "develop" ] || [ "$remote_branch" = "main" ] || [ "$curr
   fi
   echo "✅ Angular tests passed!"
 
-  # Run Electron tests (Jest)
+  # Run Electron tests (Vitest)
   echo "📦 Running Electron tests..."
-  npx jest --config jest.config.js
+  npx vitest run
   ELECTRON_EXIT=$?
 
   if [ $ELECTRON_EXIT -ne 0 ]; then
-    echo "❌ Push rejected: Electron (Jest) tests failed"
+    echo "❌ Push rejected: Electron (Vitest) tests failed"
     exit 1
   fi
   echo "✅ Electron tests passed!"
