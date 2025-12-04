@@ -1,10 +1,13 @@
 // @ts-check
-const eslint = require("@eslint/js");
-const { defineConfig } = require("eslint/config");
-const tseslint = require("typescript-eslint");
-const angular = require("angular-eslint");
+import eslint from "@eslint/js";
+import { defineConfig } from "eslint/config";
+import tseslint from "typescript-eslint";
+import angular from "angular-eslint";
 
-module.exports = defineConfig([
+export default defineConfig([
+  {
+    ignores: ["vitest.config.ts", "prisma.config.ts"],
+  },
   {
     files: ["src/**/*.ts"],
     extends: [
@@ -52,6 +55,7 @@ module.exports = defineConfig([
         { argsIgnorePattern: "^_" },
       ],
       "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-empty-function": "off",
     },
   },
   {

@@ -1,10 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import * as fs from 'fs';
 import {
   getDatabasePath,
   getDataPath,
   getTemplateDatabasePath,
-} from '../../utils/paths';
+} from '../../utils/paths.js';
+import { MigrationRunner } from './migrations/migration-runner.js';
 
 let prismaInstance: PrismaClient | null = null;
 
@@ -23,13 +25,15 @@ export class DatabaseManager {
       if (!prismaInstance) {
         this.initDirectory();
         this.initDatabaseFromTemplate();
-        prismaInstance = new PrismaClient({
-          datasources: {
-            db: {
-              url: `file:${getDatabasePath()}`,
-            },
-          },
-        });
+        this.runMigrations();
+
+        const dbPath = getDatabasePath();
+        const adapter = new PrismaBetterSqlite3(
+          { url: `file:${dbPath}` },
+          { timestampFormat: 'unixepoch-ms' },
+        );
+
+        prismaInstance = new PrismaClient({ adapter });
       }
       this.prisma = prismaInstance;
     }
@@ -89,6 +93,23 @@ export class DatabaseManager {
       }
     } catch (error) {
       console.error('Error initializing database:', error);
+    }
+  }
+
+  /**
+   * Runs pending database migrations automatically.
+   * Creates a backup before applying any schema changes.
+   */
+  private runMigrations(): void {
+    try {
+      const runner = new MigrationRunner();
+      const result = runner.runMigrations();
+      if (result.applied > 0) {
+        console.log(`Applied ${result.applied} database migration(s)`);
+      }
+      runner.close();
+    } catch (error) {
+      console.error('Error running database migrations:', error);
     }
   }
 
@@ -1239,7 +1260,9 @@ export class DatabaseManager {
   }
 }
 
-// Reset singleton para testing
+/**
+ * Reset singleton for testing.
+ */
 export function resetDatabaseInstance() {
   prismaInstance = null;
 }

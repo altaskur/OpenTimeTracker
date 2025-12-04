@@ -1,1 +1,1 @@
-export { AuditLogRepository } from './audit-log.repository';
+export { AuditLogRepository } from './audit-log.repository.js';

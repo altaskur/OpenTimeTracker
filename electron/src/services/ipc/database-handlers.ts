@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import { DatabaseManager } from '../database/database';
+import { DatabaseManager } from '../database/database.js';
 
 /**
  * Task update data interface for IPC communication.

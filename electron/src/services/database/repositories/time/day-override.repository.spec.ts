@@ -1,32 +1,33 @@
-import { PrismaClient } from '@prisma/client';
-import { DayOverrideRepository } from './day-override.repository';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { PrismaClient } from '../../../../generated/prisma/client.js';
+import { DayOverrideRepository } from './day-override.repository.js';
 
 describe('DayOverrideRepository', () => {
   let repository: DayOverrideRepository;
   let mockPrisma: {
     dayOverride: {
-      findMany: jest.Mock;
-      findUnique: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      upsert: jest.Mock;
-      delete: jest.Mock;
+      findMany: Mock;
+      findUnique: Mock;
+      create: Mock;
+      update: Mock;
+      upsert: Mock;
+      delete: Mock;
     };
   };
-  let mockEnsureInitialized: jest.Mock;
+  let mockEnsureInitialized: Mock;
 
   beforeEach(() => {
     mockPrisma = {
       dayOverride: {
-        findMany: jest.fn(),
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        upsert: jest.fn(),
-        delete: jest.fn(),
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        upsert: vi.fn(),
+        delete: vi.fn(),
       },
     };
-    mockEnsureInitialized = jest.fn().mockResolvedValue(undefined);
+    mockEnsureInitialized = vi.fn().mockResolvedValue(undefined);
     repository = new DayOverrideRepository(
       mockPrisma as unknown as PrismaClient,
       mockEnsureInitialized,

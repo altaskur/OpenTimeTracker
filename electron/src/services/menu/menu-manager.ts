@@ -6,12 +6,12 @@ import {
   dialog,
   shell,
 } from 'electron';
-import { getIsDarkMode, setDarkMode } from '../ipc/theme-handlers';
+import { getIsDarkMode, setDarkMode } from '../ipc/theme-handlers.js';
 import {
   getCurrentLanguage,
   setLanguage,
   initializeLanguage,
-} from '../ipc/language-handlers';
+} from '../ipc/language-handlers.js';
 
 /**
  * Menu translations for supported languages

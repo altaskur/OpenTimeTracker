@@ -1,67 +1,66 @@
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  vi,
+  type Mock,
+  type Mocked,
+} from 'vitest';
 import { BrowserWindow, ipcMain } from 'electron';
 import {
   setupThemeHandlers,
   getIsDarkMode,
   setDarkMode,
   initializeTheme,
-} from './theme-handlers';
-import { DatabaseManager } from '../database/database';
-
-jest.mock('electron', () => ({
-  ipcMain: {
-    handle: jest.fn(),
-    on: jest.fn(),
-  },
-  BrowserWindow: {
-    fromWebContents: jest.fn(),
-  },
-}));
+} from './theme-handlers.js';
+import { DatabaseManager } from '../database/database.js';
 
 describe('Theme Handlers', () => {
-  let mockDbManager: jest.Mocked<DatabaseManager>;
+  let mockDbManager: Mocked<DatabaseManager>;
   let mockPrisma: {
     appSettings: {
-      findUnique: jest.Mock;
-      create: jest.Mock;
-      upsert: jest.Mock;
+      findUnique: Mock;
+      create: Mock;
+      upsert: Mock;
     };
   };
   let mockWindow: {
     webContents: {
-      send: jest.Mock;
+      send: Mock;
     };
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockPrisma = {
       appSettings: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        upsert: jest.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        upsert: vi.fn(),
       },
     };
 
     mockDbManager = {
-      getPrisma: jest.fn().mockReturnValue(mockPrisma),
-    } as unknown as jest.Mocked<DatabaseManager>;
+      getPrisma: vi.fn().mockReturnValue(mockPrisma),
+    } as unknown as Mocked<DatabaseManager>;
 
     mockWindow = {
       webContents: {
-        send: jest.fn(),
+        send: vi.fn(),
       },
     };
 
-    (BrowserWindow.fromWebContents as jest.Mock).mockReturnValue(mockWindow);
+    (BrowserWindow.fromWebContents as Mock).mockReturnValue(mockWindow);
   });
 
   describe('setupThemeHandlers', () => {
     it('should register IPC handlers', () => {
       setupThemeHandlers(mockDbManager);
 
-      const handleCalls = (ipcMain.handle as jest.Mock).mock.calls;
-      const onCalls = (ipcMain.on as jest.Mock).mock.calls;
+      const handleCalls = (ipcMain.handle as Mock).mock.calls;
+      const onCalls = (ipcMain.on as Mock).mock.calls;
 
       expect(handleCalls.some((call) => call[0] === 'get-theme')).toBe(true);
       expect(onCalls.some((call) => call[0] === 'toggle-theme')).toBe(true);
@@ -158,7 +157,7 @@ describe('Theme Handlers', () => {
         darkMode: false,
       });
 
-      const handleCalls = (ipcMain.handle as jest.Mock).mock.calls;
+      const handleCalls = (ipcMain.handle as Mock).mock.calls;
       const getThemeHandler = handleCalls.find(
         (call) => call[0] === 'get-theme',
       )?.[1];
@@ -177,7 +176,7 @@ describe('Theme Handlers', () => {
         darkMode: false,
       });
 
-      const onCalls = (ipcMain.on as jest.Mock).mock.calls;
+      const onCalls = (ipcMain.on as Mock).mock.calls;
       const toggleHandler = onCalls.find(
         (call) => call[0] === 'toggle-theme',
       )?.[1];
@@ -200,7 +199,7 @@ describe('Theme Handlers', () => {
         darkMode: true,
       });
 
-      const onCalls = (ipcMain.on as jest.Mock).mock.calls;
+      const onCalls = (ipcMain.on as Mock).mock.calls;
       const setThemeHandler = onCalls.find(
         (call) => call[0] === 'set-theme',
       )?.[1];

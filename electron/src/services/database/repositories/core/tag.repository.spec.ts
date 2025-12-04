@@ -1,42 +1,43 @@
-import { PrismaClient } from '@prisma/client';
-import { TagRepository } from './tag.repository';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { PrismaClient } from '../../../../generated/prisma/client.js';
+import { TagRepository } from './tag.repository.js';
 
 describe('TagRepository', () => {
   let repository: TagRepository;
   let mockPrisma: {
     tag: {
-      findMany: jest.Mock;
-      findUnique: jest.Mock;
-      findFirst: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      delete: jest.Mock;
+      findMany: Mock;
+      findUnique: Mock;
+      findFirst: Mock;
+      create: Mock;
+      update: Mock;
+      delete: Mock;
     };
     taskTag: {
-      create: jest.Mock;
-      delete: jest.Mock;
-      findMany: jest.Mock;
+      create: Mock;
+      delete: Mock;
+      findMany: Mock;
     };
   };
-  let mockEnsureInitialized: jest.Mock;
+  let mockEnsureInitialized: Mock;
 
   beforeEach(() => {
     mockPrisma = {
       tag: {
-        findMany: jest.fn(),
-        findUnique: jest.fn(),
-        findFirst: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        findFirst: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
       },
       taskTag: {
-        create: jest.fn(),
-        delete: jest.fn(),
-        findMany: jest.fn(),
+        create: vi.fn(),
+        delete: vi.fn(),
+        findMany: vi.fn(),
       },
     };
-    mockEnsureInitialized = jest.fn().mockResolvedValue(undefined);
+    mockEnsureInitialized = vi.fn().mockResolvedValue(undefined);
     repository = new TagRepository(
       mockPrisma as unknown as PrismaClient,
       mockEnsureInitialized,

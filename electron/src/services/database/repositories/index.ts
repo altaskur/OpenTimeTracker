@@ -1,9 +1,13 @@
-export { BaseRepository } from './base.repository';
-export { ProjectRepository, TaskRepository, TagRepository } from './core';
+export { BaseRepository } from './base.repository.js';
+export {
+  ProjectRepository,
+  TaskRepository,
+  TagRepository,
+} from './core/index.js';
 export {
   TimeEntryRepository,
   DayTypeRepository,
   DayOverrideRepository,
-} from './time';
-export { WorkConfigRepository } from './config';
-export { AuditLogRepository } from './audit';
+} from './time/index.js';
+export { WorkConfigRepository } from './config/index.js';
+export { AuditLogRepository } from './audit/index.js';

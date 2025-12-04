@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow, app } from 'electron';
-import { DatabaseManager } from '../database/database';
+import { DatabaseManager } from '../database/database.js';
 
 let dbManager: DatabaseManager | null = null;
 let currentLanguage = 'es';

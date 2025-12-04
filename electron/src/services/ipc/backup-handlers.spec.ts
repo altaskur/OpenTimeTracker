@@ -1,38 +1,39 @@
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+  type Mocked,
+  type MockInstance,
+} from 'vitest';
 import { ipcMain, dialog } from 'electron';
-import { setupBackupHandlers } from './backup-handlers';
-import { BackupService } from '../backup';
-
-jest.mock('electron', () => ({
-  ipcMain: {
-    handle: jest.fn(),
-  },
-  dialog: {
-    showSaveDialog: jest.fn(),
-    showOpenDialog: jest.fn(),
-  },
-}));
+import { setupBackupHandlers } from './backup-handlers.js';
+import { BackupService } from '../backup/index.js';
 
 /**
  * Backup Handlers Test Suite
  */
 describe('Backup Handlers', () => {
-  let mockBackupService: jest.Mocked<BackupService>;
-  let handleSpy: jest.SpyInstance;
+  let mockBackupService: Mocked<BackupService>;
+  let handleSpy: MockInstance;
   let handlers: Map<string, (...args: unknown[]) => Promise<unknown>>;
 
   beforeEach(() => {
     mockBackupService = {
-      createBackup: jest.fn(),
-      listBackups: jest.fn(),
-      restoreBackup: jest.fn(),
-      deleteBackup: jest.fn(),
-      exportBackup: jest.fn(),
-      importBackup: jest.fn(),
-      getBackupDir: jest.fn(),
-    } as unknown as jest.Mocked<BackupService>;
+      createBackup: vi.fn(),
+      listBackups: vi.fn(),
+      restoreBackup: vi.fn(),
+      deleteBackup: vi.fn(),
+      exportBackup: vi.fn(),
+      importBackup: vi.fn(),
+      getBackupDir: vi.fn(),
+    } as unknown as Mocked<BackupService>;
 
     handlers = new Map();
-    handleSpy = jest
+    handleSpy = vi
       .spyOn(ipcMain, 'handle')
       .mockImplementation((channel, handler) => {
         handlers.set(
@@ -44,7 +45,7 @@ describe('Backup Handlers', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Setup', () => {
@@ -279,7 +280,7 @@ describe('Backup Handlers', () => {
 
     it('should export backup successfully', async () => {
       const mockResult = { success: true };
-      (dialog.showSaveDialog as jest.Mock).mockResolvedValue({
+      (dialog.showSaveDialog as Mock).mockResolvedValue({
         canceled: false,
         filePath: '/export/backup.db',
       });
@@ -300,7 +301,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle cancelled export', async () => {
-      (dialog.showSaveDialog as jest.Mock).mockResolvedValue({
+      (dialog.showSaveDialog as Mock).mockResolvedValue({
         canceled: true,
       });
 
@@ -315,7 +316,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle missing file path', async () => {
-      (dialog.showSaveDialog as jest.Mock).mockResolvedValue({
+      (dialog.showSaveDialog as Mock).mockResolvedValue({
         canceled: false,
         filePath: undefined,
       });
@@ -330,7 +331,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle errors when exporting backup', async () => {
-      (dialog.showSaveDialog as jest.Mock).mockResolvedValue({
+      (dialog.showSaveDialog as Mock).mockResolvedValue({
         canceled: false,
         filePath: '/export/backup.db',
       });
@@ -348,7 +349,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle unknown errors when exporting backup', async () => {
-      (dialog.showSaveDialog as jest.Mock).mockRejectedValue('Unknown');
+      (dialog.showSaveDialog as Mock).mockRejectedValue('Unknown');
 
       const handler = handlers.get('backup-export');
       const result = await handler!({} as Electron.IpcMainInvokeEvent);
@@ -367,7 +368,7 @@ describe('Backup Handlers', () => {
 
     it('should import backup successfully', async () => {
       const mockResult = { success: true };
-      (dialog.showOpenDialog as jest.Mock).mockResolvedValue({
+      (dialog.showOpenDialog as Mock).mockResolvedValue({
         canceled: false,
         filePaths: ['/import/backup.db'],
       });
@@ -388,7 +389,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle cancelled import', async () => {
-      (dialog.showOpenDialog as jest.Mock).mockResolvedValue({
+      (dialog.showOpenDialog as Mock).mockResolvedValue({
         canceled: true,
         filePaths: [],
       });
@@ -404,7 +405,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle empty file paths', async () => {
-      (dialog.showOpenDialog as jest.Mock).mockResolvedValue({
+      (dialog.showOpenDialog as Mock).mockResolvedValue({
         canceled: false,
         filePaths: [],
       });
@@ -419,7 +420,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle errors when importing backup', async () => {
-      (dialog.showOpenDialog as jest.Mock).mockResolvedValue({
+      (dialog.showOpenDialog as Mock).mockResolvedValue({
         canceled: false,
         filePaths: ['/import/backup.db'],
       });
@@ -437,7 +438,7 @@ describe('Backup Handlers', () => {
     });
 
     it('should handle unknown errors when importing backup', async () => {
-      (dialog.showOpenDialog as jest.Mock).mockRejectedValue(null);
+      (dialog.showOpenDialog as Mock).mockRejectedValue(null);
 
       const handler = handlers.get('backup-import');
       const result = await handler!({} as Electron.IpcMainInvokeEvent);

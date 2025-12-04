@@ -1,1 +1,1 @@
-export { WorkConfigRepository } from './work-config.repository';
+export { WorkConfigRepository } from './work-config.repository.js';

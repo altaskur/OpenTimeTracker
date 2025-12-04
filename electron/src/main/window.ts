@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron';
 import * as fs from 'fs';
-import { NavigationHandler } from '../services/navigation/navigation-handler';
-import { MenuManager } from '../services/menu/menu-manager';
-import { getIndexPath, getPreloadPath } from '../utils/paths';
+import { NavigationHandler } from '../services/navigation/navigation-handler.js';
+import { MenuManager } from '../services/menu/menu-manager.js';
+import { getIndexPath, getPreloadPath } from '../utils/paths.js';
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null;

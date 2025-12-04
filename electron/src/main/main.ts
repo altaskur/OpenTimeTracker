@@ -1,8 +1,8 @@
 import { app, BrowserWindow } from 'electron';
-import { WindowManager } from './window';
-import { DatabaseManager } from '../services/database/database';
-import { setupIpcHandlers } from '../services/ipc';
-import { BackupService } from '../services/backup';
+import { WindowManager } from './window.js';
+import { DatabaseManager } from '../services/database/database.js';
+import { setupIpcHandlers } from '../services/ipc/index.js';
+import { BackupService } from '../services/backup/index.js';
 
 let windowManager: WindowManager | null = null;
 let dbManager: DatabaseManager | null = null;

@@ -1,34 +1,35 @@
-import { PrismaClient } from '@prisma/client';
-import { TaskRepository } from './task.repository';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { PrismaClient } from '../../../../generated/prisma/client.js';
+import { TaskRepository } from './task.repository.js';
 
 describe('TaskRepository', () => {
   let repository: TaskRepository;
   let mockPrisma: {
     task: {
-      findMany: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      delete: jest.Mock;
+      findMany: Mock;
+      create: Mock;
+      update: Mock;
+      delete: Mock;
     };
     taskStatus: {
-      findMany: jest.Mock;
+      findMany: Mock;
     };
   };
-  let mockEnsureInitialized: jest.Mock;
+  let mockEnsureInitialized: Mock;
 
   beforeEach(() => {
     mockPrisma = {
       task: {
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
+        findMany: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
       },
       taskStatus: {
-        findMany: jest.fn(),
+        findMany: vi.fn(),
       },
     };
-    mockEnsureInitialized = jest.fn().mockResolvedValue(undefined);
+    mockEnsureInitialized = vi.fn().mockResolvedValue(undefined);
     repository = new TaskRepository(
       mockPrisma as unknown as PrismaClient,
       mockEnsureInitialized,

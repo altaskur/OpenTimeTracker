@@ -3,4 +3,4 @@ export {
   BackupInfo,
   BackupResult,
   BackupConfig,
-} from './backup.service';
+} from './backup.service.js';
