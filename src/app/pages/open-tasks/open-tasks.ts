@@ -634,11 +634,9 @@ export class OpenTasks implements OnInit {
 
     const hours = this.safeString(changes['hours']);
     const date = this.safeString(changes['date']);
-    const notes =
-      this.safeString(changes['notes'], '') !== ''
-        ? ` - "${this.safeString(changes['notes'])}"`
-        : '';
-    return `${date}: ${hours}h${notes}`;
+    const notes = this.safeString(changes['notes'], '');
+    const notesStr = notes !== '' ? ` - "${notes}"` : '';
+    return `${date}: ${hours}h${notesStr}`;
   }
 
   /**
@@ -700,7 +698,7 @@ export class OpenTasks implements OnInit {
 
     const prevName = this.safeString(prev['name'], '');
     const currName = this.safeString(curr['name'], '');
-    if (currName !== '' && prevName !== currName && prevName !== '') {
+    if (currName !== '' && prevName !== '' && prevName !== currName) {
       parts.push(
         `${this.translateService.instant('history.fields.name')}: "${prevName}" → "${currName}"`,
       );
