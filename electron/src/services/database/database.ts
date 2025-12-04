@@ -6,6 +6,7 @@ import {
   getDataPath,
   getTemplateDatabasePath,
 } from '../../utils/paths.js';
+import { MigrationRunner } from './migrations/migration-runner.js';
 
 let prismaInstance: PrismaClient | null = null;
 
@@ -24,6 +25,7 @@ export class DatabaseManager {
       if (!prismaInstance) {
         this.initDirectory();
         this.initDatabaseFromTemplate();
+        this.runMigrations();
 
         const dbPath = getDatabasePath();
         const adapter = new PrismaBetterSqlite3(
@@ -91,6 +93,23 @@ export class DatabaseManager {
       }
     } catch (error) {
       console.error('Error initializing database:', error);
+    }
+  }
+
+  /**
+   * Runs pending database migrations automatically.
+   * Creates a backup before applying any schema changes.
+   */
+  private runMigrations(): void {
+    try {
+      const runner = new MigrationRunner();
+      const result = runner.runMigrations();
+      if (result.applied > 0) {
+        console.log(`Applied ${result.applied} database migration(s)`);
+      }
+      runner.close();
+    } catch (error) {
+      console.error('Error running database migrations:', error);
     }
   }
 
