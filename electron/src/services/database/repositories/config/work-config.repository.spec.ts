@@ -1,40 +1,41 @@
-import { PrismaClient } from '@prisma/client';
-import { WorkConfigRepository } from './work-config.repository';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { PrismaClient } from '../../../../generated/prisma/client.js';
+import { WorkConfigRepository } from './work-config.repository.js';
 
 describe('WorkConfigRepository', () => {
   let repository: WorkConfigRepository;
   let mockPrisma: {
     workConfig: {
-      findUnique: jest.Mock;
-      create: jest.Mock;
-      upsert: jest.Mock;
+      findUnique: Mock;
+      create: Mock;
+      upsert: Mock;
     };
     monthConfig: {
-      findUnique: jest.Mock;
-      findMany: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      delete: jest.Mock;
+      findUnique: Mock;
+      findMany: Mock;
+      create: Mock;
+      update: Mock;
+      delete: Mock;
     };
   };
-  let mockEnsureInitialized: jest.Mock;
+  let mockEnsureInitialized: Mock;
 
   beforeEach(() => {
     mockPrisma = {
       workConfig: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        upsert: jest.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        upsert: vi.fn(),
       },
       monthConfig: {
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
+        findUnique: vi.fn(),
+        findMany: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
       },
     };
-    mockEnsureInitialized = jest.fn().mockResolvedValue(undefined);
+    mockEnsureInitialized = vi.fn().mockResolvedValue(undefined);
     repository = new WorkConfigRepository(
       mockPrisma as unknown as PrismaClient,
       mockEnsureInitialized,

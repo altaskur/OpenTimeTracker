@@ -3,26 +3,33 @@
   "version": "1.0.0-alpha.1",
   "author": "altaskur",
   "license": "GPL-3.0",
+  "type": "module",
   "description": "Time tracking application for managing projects and tasks",
   "main": "dist/electron/main/main.js",
+  "overrides": {
+    "node-forge": "^1.3.2"
+  },
   "scripts": {
     "start": "ng serve",
-    "build": "ng build && tsc --project electron/build/tsconfig.json",
-    "dev": "ng build --configuration=development && tsc --project electron/build/tsconfig.json && electron .",
+    "build": "ng build && tsc --project electron/build/tsconfig.json && tsc --project electron/build/tsconfig.preload.json",
+    "dev": "ng build --configuration=development && tsc --project electron/build/tsconfig.json && tsc --project electron/build/tsconfig.preload.json && electron .",
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
     "dist:linux": "npm run build && electron-builder --linux",
     "pack": "electron-builder --dir",
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
-    "prisma:studio": "prisma studio",
-    "prisma:template": "node scripts/update-db-template.js",
+    "prisma:push": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma db push",
+    "prisma:studio": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma studio",
+    "prisma:migrate": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma migrate dev",
+    "prisma:template": "node scripts/update-db-template.mjs",
+    "postinstall": "electron-rebuild",
     "test": "ng test",
     "test:coverage": "ng test --code-coverage --watch=false --browsers=ChromeHeadless",
-    "test:electron": "jest --config jest.config.js",
-    "test:electron:coverage": "jest --config jest.config.js --coverage",
+    "test:electron": "vitest run",
+    "test:electron:watch": "vitest",
+    "test:electron:coverage": "vitest run --coverage",
     "electron": "electron .",
-    "sonar": "node scripts/run-sonar.js",
+    "sonar": "node scripts/run-sonar.mjs",
     "sonar:check": "npm run test:coverage && npm run test:electron:coverage && npm run sonar && node scripts/check-sonar-quality-gate.mjs",
     "prepare": "husky",
     "lint": "ng lint",
@@ -39,19 +46,17 @@
     "files": [
       "dist/**/*",
       "node_modules/@prisma/client/**/*",
+      "node_modules/@prisma/adapter-better-sqlite3/**/*",
+      "node_modules/better-sqlite3/**/*",
       "prisma/template.db",
-      "prisma/schema.prisma",
-      {
-        "from": "node_modules/.prisma",
-        "to": "node_modules/.prisma",
-        "filter": [
-          "**/*"
-        ]
-      }
+      "prisma/schema.prisma"
     ],
     "asarUnpack": [
       "node_modules/.prisma/**/*",
-      "node_modules/@prisma/client/**/*"
+      "node_modules/@prisma/client/**/*",
+      "node_modules/@prisma/adapter-better-sqlite3/**/*",
+      "node_modules/better-sqlite3/**/*",
+      "dist/electron/generated/**/*"
     ],
     "win": {
       "target": [
@@ -118,7 +123,9 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@primeuix/themes": "^1.2.0",
-    "@prisma/client": "^6.19.0",
+    "@prisma/adapter-better-sqlite3": "^7.1.0",
+    "@prisma/client": "^7.1.0",
+    "better-sqlite3": "^12.5.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.3.0",
@@ -132,17 +139,19 @@
     "@angular/compiler-cli": "^21.0.1",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/jasmine": "~5.1.0",
-    "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
+    "@vitest/coverage-v8": "^4.0.15",
     "angular-eslint": "21.0.1",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "electron": "^37.1.0",
     "electron-builder": "^26.0.12",
+    "electron-rebuild": "^3.2.9",
     "eslint": "^9.39.1",
     "husky": "^9.1.7",
     "jasmine-core": "~5.7.0",
-    "jest": "^30.2.0",
     "jest-mock-extended": "^4.0.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -151,11 +160,11 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
-    "prisma": "^6.19.0",
+    "prisma": "^7.1.0",
     "sonarqube-scanner": "^4.3.0",
-    "ts-jest": "^29.4.5",
     "typescript": "~5.9.3",
-    "typescript-eslint": "8.46.4"
+    "typescript-eslint": "8.46.4",
+    "vitest": "^4.0.15"
   },
   "lint-staged": {
     "*.{ts,js}": [

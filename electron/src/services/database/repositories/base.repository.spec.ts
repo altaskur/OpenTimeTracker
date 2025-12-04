@@ -1,5 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import { BaseRepository } from './base.repository';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { PrismaClient } from '../../../generated/prisma/client.js';
+import { BaseRepository } from './base.repository.js';
 
 /**
  * Concrete implementation for testing the abstract BaseRepository
@@ -23,11 +24,11 @@ class TestRepository extends BaseRepository {
 describe('BaseRepository', () => {
   let repository: TestRepository;
   let mockPrisma: PrismaClient;
-  let mockEnsureInitialized: jest.Mock;
+  let mockEnsureInitialized: Mock;
 
   beforeEach(() => {
     mockPrisma = {} as PrismaClient;
-    mockEnsureInitialized = jest.fn().mockResolvedValue(undefined);
+    mockEnsureInitialized = vi.fn().mockResolvedValue(undefined);
     repository = new TestRepository(mockPrisma, mockEnsureInitialized);
   });
 

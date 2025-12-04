@@ -1,11 +1,14 @@
 {
   "extends": "./build/tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "jest"],
+    "types": ["node"],
     "esModuleInterop": true,
     "composite": true,
     "declaration": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "isolatedModules": true
   },
   "include": ["src/**/*.spec.ts", "src/**/*.ts"]
 }

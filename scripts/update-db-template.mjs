@@ -5,26 +5,31 @@
  * Usage: npm run prisma:template
  */
 
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+import { execSync } from "node:child_process";
+import { existsSync, copyFileSync, statSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const distDbPath = path.join(__dirname, "..", "dist", "data", "timetracker.db");
-const templatePath = path.join(__dirname, "..", "prisma", "template.db");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const distDbPath = join(__dirname, "..", "dist", "data", "timetracker.db");
+const templatePath = join(__dirname, "..", "prisma", "template.db");
 
 console.log("Regenerating database template...\n");
 
 try {
   console.log("1. Resetting database with migrations...");
-  execSync("npx prisma migrate reset --force --skip-seed --skip-generate", {
-    stdio: "inherit",
-    cwd: path.join(__dirname, ".."),
-  });
+  execSync(
+    "cross-env DATABASE_URL=file:./dist/data/timetracker.db npx prisma migrate reset --force --skip-seed --skip-generate",
+    {
+      stdio: "inherit",
+      cwd: join(__dirname, ".."),
+    },
+  );
 
   console.log("\n2. Copying database to template...");
-  if (fs.existsSync(distDbPath)) {
-    fs.copyFileSync(distDbPath, templatePath);
-    const stats = fs.statSync(templatePath);
+  if (existsSync(distDbPath)) {
+    copyFileSync(distDbPath, templatePath);
+    const stats = statSync(templatePath);
     console.log(
       `   ✅ Template created: prisma/template.db (${(stats.size / 1024).toFixed(1)} KB)`,
     );

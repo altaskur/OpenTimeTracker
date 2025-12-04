@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { BaseRepository } from '../base.repository';
+import { PrismaClient } from '../../../../generated/prisma/client.js';
+import { BaseRepository } from '../base.repository.js';
 
 /**
  * Repository for audit log database operations.

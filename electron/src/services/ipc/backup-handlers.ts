@@ -1,5 +1,5 @@
 import { ipcMain, dialog } from 'electron';
-import { BackupService } from '../backup';
+import { BackupService } from '../backup/index.js';
 
 /**
  * Sets up IPC handlers for backup operations.

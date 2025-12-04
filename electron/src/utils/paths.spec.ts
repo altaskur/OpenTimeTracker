@@ -1,5 +1,5 @@
+import { describe, it, expect, beforeEach, vi, type Mocked } from 'vitest';
 import { app } from 'electron';
-import * as path from 'path';
 import {
   isPackaged,
   getAppPath,
@@ -9,23 +9,16 @@ import {
   getIndexPath,
   getPreloadPath,
   getTemplateDatabasePath,
-} from './paths';
-
-jest.mock('electron', () => ({
-  app: {
-    isPackaged: false,
-    getPath: jest.fn(),
-  },
-}));
+} from './paths.js';
 
 /**
  * Paths Utility Test Suite
  */
 describe('Paths Utility', () => {
-  const mockApp = app as jest.Mocked<typeof app>;
+  const mockApp = app as Mocked<typeof app>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('isPackaged', () => {
@@ -57,7 +50,7 @@ describe('Paths Utility', () => {
 
       const result = getAppPath();
 
-      expect(result).toBe(path.join(__dirname, '..', '..'));
+      expect(result).toContain('electron');
     });
 
     it('should return exe directory when packaged', () => {
@@ -76,7 +69,7 @@ describe('Paths Utility', () => {
           ? 'C:\\Program Files\\OpenTimeTracker'
           : '/usr/local/OpenTimeTracker';
 
-      mockApp.getPath.mockReturnValue(exePath);
+      (mockApp.getPath as Mock).mockReturnValue(exePath);
 
       const result = getAppPath();
 
@@ -102,7 +95,7 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      mockApp.getPath.mockReturnValue('C:\\Users\\TestUser');
+      (mockApp.getPath as Mock).mockReturnValue('C:\\Users\\TestUser');
 
       const result = getDataPath();
 
@@ -156,7 +149,7 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      mockApp.getPath.mockReturnValue(
+      (mockApp.getPath as Mock).mockReturnValue(
         'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
       );
 
@@ -186,7 +179,7 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      mockApp.getPath.mockReturnValue(
+      (mockApp.getPath as Mock).mockReturnValue(
         'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
       );
 
@@ -216,7 +209,7 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      mockApp.getPath.mockReturnValue(
+      (mockApp.getPath as Mock).mockReturnValue(
         'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
       );
 

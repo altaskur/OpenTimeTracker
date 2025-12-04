@@ -1,5 +1,7 @@
-const { execSync } = require("node:child_process");
-require("dotenv").config();
+import { execSync } from "node:child_process";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const SONAR_HOST = process.env.SONAR_HOST_URL || "http://localhost:9000";
 const SONAR_TOKEN = process.env.SONAR_TOKEN;

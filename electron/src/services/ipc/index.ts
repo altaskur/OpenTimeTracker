@@ -1,9 +1,9 @@
-import { DatabaseManager } from '../database/database';
-import { BackupService } from '../backup';
-import { setupDatabaseHandlers } from './database-handlers';
-import { setupThemeHandlers } from './theme-handlers';
-import { setupLanguageHandlers } from './language-handlers';
-import { setupBackupHandlers } from './backup-handlers';
+import { DatabaseManager } from '../database/database.js';
+import { BackupService } from '../backup/index.js';
+import { setupDatabaseHandlers } from './database-handlers.js';
+import { setupThemeHandlers } from './theme-handlers.js';
+import { setupLanguageHandlers } from './language-handlers.js';
+import { setupBackupHandlers } from './backup-handlers.js';
 
 /**
  * Sets up all IPC handlers

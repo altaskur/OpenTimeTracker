@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { getDatabasePath, getBackupPath } from '../../utils/paths';
+import { getDatabasePath, getBackupPath } from '../../utils/paths.js';
 
 /**
  * Backup information structure.

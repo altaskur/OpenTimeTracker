@@ -1,1 +1,1 @@
-export * from './database.interfaces';
+export * from './database.interfaces.js';

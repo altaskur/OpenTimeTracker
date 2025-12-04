@@ -1,30 +1,31 @@
-import { PrismaClient } from '@prisma/client';
-import { DayTypeRepository } from './day-type.repository';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { PrismaClient } from '../../../../generated/prisma/client.js';
+import { DayTypeRepository } from './day-type.repository.js';
 
 describe('DayTypeRepository', () => {
   let repository: DayTypeRepository;
   let mockPrisma: {
     dayType: {
-      findMany: jest.Mock;
-      findUnique: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      delete: jest.Mock;
+      findMany: Mock;
+      findUnique: Mock;
+      create: Mock;
+      update: Mock;
+      delete: Mock;
     };
   };
-  let mockEnsureInitialized: jest.Mock;
+  let mockEnsureInitialized: Mock;
 
   beforeEach(() => {
     mockPrisma = {
       dayType: {
-        findMany: jest.fn(),
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
       },
     };
-    mockEnsureInitialized = jest.fn().mockResolvedValue(undefined);
+    mockEnsureInitialized = vi.fn().mockResolvedValue(undefined);
     repository = new DayTypeRepository(
       mockPrisma as unknown as PrismaClient,
       mockEnsureInitialized,

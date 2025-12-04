@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { getIndexPath } from '../../utils/paths';
+import { getIndexPath } from '../../utils/paths.js';
 
 export class NavigationHandler {
   private readonly mainWindow: BrowserWindow;

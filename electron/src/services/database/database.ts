@@ -1,10 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import * as fs from 'fs';
 import {
   getDatabasePath,
   getDataPath,
   getTemplateDatabasePath,
-} from '../../utils/paths';
+} from '../../utils/paths.js';
 
 let prismaInstance: PrismaClient | null = null;
 
@@ -23,13 +24,14 @@ export class DatabaseManager {
       if (!prismaInstance) {
         this.initDirectory();
         this.initDatabaseFromTemplate();
-        prismaInstance = new PrismaClient({
-          datasources: {
-            db: {
-              url: `file:${getDatabasePath()}`,
-            },
-          },
-        });
+
+        const dbPath = getDatabasePath();
+        const adapter = new PrismaBetterSqlite3(
+          { url: `file:${dbPath}` },
+          { timestampFormat: 'unixepoch-ms' },
+        );
+
+        prismaInstance = new PrismaClient({ adapter });
       }
       this.prisma = prismaInstance;
     }
@@ -1239,7 +1241,9 @@ export class DatabaseManager {
   }
 }
 
-// Reset singleton para testing
+/**
+ * Reset singleton for testing.
+ */
 export function resetDatabaseInstance() {
   prismaInstance = null;
 }

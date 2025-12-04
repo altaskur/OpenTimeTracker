@@ -1,20 +1,132 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import {
-  ActionHistory,
-  AuditLog,
-  DayOverride,
-  DayType,
-  DeleteResult,
-  MonthConfig,
-  Project,
-  Tag,
-  Task,
-  TaskStatus,
-  TimeEntry,
-  WorkConfig,
-  WorkPeriod,
-} from '../interfaces/database.interfaces';
-import { BackupInfo, BackupResult } from '../services/backup';
+
+/**
+ * Type definitions for database entities
+ */
+interface Project {
+  id: string;
+  name: string;
+  description?: string | null;
+  isClosed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Task {
+  id: string;
+  projectId: string;
+  name: string;
+  description?: string | null;
+  estimatedHours?: number | null;
+  statusId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface TaskStatus {
+  id: string;
+  name: string;
+  color: string;
+  isDefault: boolean;
+}
+
+interface TimeEntry {
+  id: string;
+  taskId?: string | null;
+  date: string;
+  minutes: number;
+  notes?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface WorkPeriod {
+  id: string;
+  date: string;
+  startTime?: string | null;
+  endTime?: string | null;
+  breakMinutes: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: Date;
+}
+
+interface DayType {
+  id: string;
+  name: string;
+  color: string;
+  isWorkingDay: boolean;
+  isDefault: boolean;
+}
+
+interface DayOverride {
+  id: string;
+  date: string;
+  dayTypeId: string;
+  notes?: string | null;
+}
+
+interface WorkConfig {
+  id: string;
+  hoursPerDay: number;
+  daysPerWeek: number;
+  startTime: string;
+  endTime: string;
+  breakMinutes: number;
+}
+
+interface MonthConfig {
+  id: string;
+  year: number;
+  month: number;
+  workingDays: number;
+  targetHours: number;
+}
+
+interface ActionHistory {
+  id: string;
+  actionType: string;
+  entityType: string;
+  entityId: string;
+  previousData?: string | null;
+  newData?: string | null;
+  isUndone: boolean;
+  createdAt: Date;
+}
+
+interface AuditLog {
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
+  changes?: string | null;
+  timestamp: Date;
+}
+
+interface DeleteResult {
+  success: boolean;
+  message: string;
+}
+
+interface BackupInfo {
+  filename: string;
+  path: string;
+  size: number;
+  createdAt: Date;
+  type: 'manual' | 'auto' | 'startup';
+}
+
+interface BackupResult {
+  success: boolean;
+  message: string;
+  path?: string;
+}
 
 try {
   const electronAPI = {

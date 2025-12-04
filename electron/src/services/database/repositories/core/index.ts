@@ -1,3 +1,3 @@
-export { ProjectRepository } from './project.repository';
-export { TaskRepository } from './task.repository';
-export { TagRepository } from './tag.repository';
+export { ProjectRepository } from './project.repository.js';
+export { TaskRepository } from './task.repository.js';
+export { TagRepository } from './tag.repository.js';

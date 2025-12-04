@@ -1,7 +1,18 @@
-import { DatabaseManager } from './database';
-import { PrismaClient } from '@prisma/client';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
+import { DatabaseManager } from './database.js';
+import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import {
   WorkPeriod,
   TaskStatus,
@@ -9,7 +20,10 @@ import {
   Tag,
   Task,
   AuditLog,
-} from '../../interfaces';
+} from '../../interfaces/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const TEST_DB_PATH = path.join(
   __dirname,
@@ -27,25 +41,20 @@ describe('DatabaseManager', () => {
   let testPrisma: PrismaClient;
 
   beforeAll(async () => {
-    // Asegurar que existe el directorio
     const dir = path.dirname(TEST_DB_PATH);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Eliminar DB de test si existe
     if (fs.existsSync(TEST_DB_PATH)) {
       fs.unlinkSync(TEST_DB_PATH);
     }
 
-    // Crear cliente Prisma para tests
-    testPrisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: `file:${TEST_DB_PATH}`,
-        },
-      },
-    });
+    const adapter = new PrismaBetterSqlite3(
+      { url: `file:${TEST_DB_PATH}` },
+      { timestampFormat: 'unixepoch-ms' },
+    );
+    testPrisma = new PrismaClient({ adapter });
 
     await testPrisma.$connect();
 
@@ -220,7 +229,6 @@ describe('DatabaseManager', () => {
   afterAll(async () => {
     await testPrisma.$disconnect();
 
-    // Limpiar archivo de test
     if (fs.existsSync(TEST_DB_PATH)) {
       fs.unlinkSync(TEST_DB_PATH);
     }

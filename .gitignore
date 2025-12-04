@@ -49,3 +49,6 @@ Thumbs.db
 
 # SonarQube
 .scannerwork/
+
+# Prisma generated client
+electron/src/generated/

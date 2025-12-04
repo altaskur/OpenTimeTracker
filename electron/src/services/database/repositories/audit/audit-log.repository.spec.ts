@@ -1,26 +1,27 @@
-import { PrismaClient } from '@prisma/client';
-import { AuditLogRepository } from './audit-log.repository';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { PrismaClient } from '../../../../generated/prisma/client.js';
+import { AuditLogRepository } from './audit-log.repository.js';
 
 describe('AuditLogRepository', () => {
   let repository: AuditLogRepository;
   let mockPrisma: {
     auditLog: {
-      create: jest.Mock;
-      findMany: jest.Mock;
-      deleteMany: jest.Mock;
+      create: Mock;
+      findMany: Mock;
+      deleteMany: Mock;
     };
   };
-  let mockEnsureInitialized: jest.Mock;
+  let mockEnsureInitialized: Mock;
 
   beforeEach(() => {
     mockPrisma = {
       auditLog: {
-        create: jest.fn(),
-        findMany: jest.fn(),
-        deleteMany: jest.fn(),
+        create: vi.fn(),
+        findMany: vi.fn(),
+        deleteMany: vi.fn(),
       },
     };
-    mockEnsureInitialized = jest.fn().mockResolvedValue(undefined);
+    mockEnsureInitialized = vi.fn().mockResolvedValue(undefined);
     repository = new AuditLogRepository(
       mockPrisma as unknown as PrismaClient,
       mockEnsureInitialized,
