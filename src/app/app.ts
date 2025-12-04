@@ -44,8 +44,11 @@ export class App implements OnInit, OnDestroy {
    * Sets up listeners for history service notifications
    */
   private setupHistoryListeners(): void {
-    if (typeof window !== 'undefined' && window.electronAPI) {
-      window.electronAPI.onUndoAction(() => {
+    if (
+      typeof globalThis.window !== 'undefined' &&
+      globalThis.window.electronAPI
+    ) {
+      globalThis.window.electronAPI.onUndoAction(() => {
         this.ngZone.run(async () => {
           const action = await this.historyService.undo();
           if (action) {
@@ -59,7 +62,7 @@ export class App implements OnInit, OnDestroy {
         });
       });
 
-      window.electronAPI.onRedoAction(() => {
+      globalThis.window.electronAPI.onRedoAction(() => {
         this.ngZone.run(async () => {
           const action = await this.historyService.redo();
           if (action) {

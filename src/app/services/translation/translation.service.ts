@@ -17,12 +17,15 @@ export class TranslationService {
     this.translate.addLangs(['es', 'en']);
     this.translate.setFallbackLang('es');
 
-    if (typeof window !== 'undefined' && window.electronAPI) {
+    if (
+      typeof globalThis.window !== 'undefined' &&
+      globalThis.window.electronAPI
+    ) {
       try {
-        const savedLang = await window.electronAPI.getLanguage();
+        const savedLang = await globalThis.window.electronAPI.getLanguage();
         this.translate.use(savedLang);
 
-        window.electronAPI.onLanguageChange((lang: string) => {
+        globalThis.window.electronAPI.onLanguageChange((lang: string) => {
           this.translate.use(lang);
         });
       } catch {
@@ -45,8 +48,11 @@ export class TranslationService {
    */
   setLanguage(lang: string): void {
     this.translate.use(lang);
-    if (typeof window !== 'undefined' && window.electronAPI) {
-      window.electronAPI.setLanguage(lang);
+    if (
+      typeof globalThis.window !== 'undefined' &&
+      globalThis.window.electronAPI
+    ) {
+      globalThis.window.electronAPI.setLanguage(lang);
     }
   }
 
