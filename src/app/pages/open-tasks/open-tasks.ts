@@ -618,7 +618,7 @@ export class OpenTasks implements OnInit {
   private safeString(value: unknown, fallback = '-'): string {
     if (value === null || value === undefined) return fallback;
     if (typeof value === 'object') return fallback;
-    return String(value);
+    return `${value}`;
   }
 
   /**
@@ -635,7 +635,7 @@ export class OpenTasks implements OnInit {
     const hours = this.safeString(changes['hours']);
     const date = this.safeString(changes['date']);
     const notes = this.safeString(changes['notes'], '');
-    const notesStr = notes !== '' ? ` - "${notes}"` : '';
+    const notesStr = notes === '' ? '' : ` - "${notes}"`;
     return `${date}: ${hours}h${notesStr}`;
   }
 
@@ -678,7 +678,7 @@ export class OpenTasks implements OnInit {
 
     if (actionLower === 'create' || actionLower === 'delete') {
       const name = this.safeString(changes['name'], '');
-      return name !== '' ? `"${name}"` : '-';
+      return name === '' ? '-' : `"${name}"`;
     }
 
     if (actionLower === 'update' && changes['previous']) {
