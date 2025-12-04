@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { getDatabasePath, getBackupPath } from '../../utils/paths.js';
 
 /**
@@ -75,7 +75,7 @@ export class BackupService {
    */
   private generateFilename(type: BackupInfo['type']): string {
     const now = new Date();
-    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+    const timestamp = now.toISOString().replaceAll(/[:.]/g, '-');
     return `timetracker_${type}_${timestamp}.db`;
   }
 

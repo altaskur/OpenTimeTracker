@@ -17,11 +17,9 @@ export class WorkConfigRepository extends BaseRepository {
     let config = await this.prisma.workConfig.findUnique({
       where: { id: 'work_config' },
     });
-    if (!config) {
-      config = await this.prisma.workConfig.create({
-        data: { id: 'work_config' },
-      });
-    }
+    config ??= await this.prisma.workConfig.create({
+      data: { id: 'work_config' },
+    });
     return config;
   }
 

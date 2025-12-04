@@ -88,8 +88,8 @@ export class OpenHome implements OnInit {
     return Math.min(100, Math.round((s.weekWorked / s.weekTarget) * 100));
   });
 
-  async ngOnInit(): Promise<void> {
-    await Promise.all([
+  ngOnInit(): void {
+    void Promise.all([
       this.loadPendingTasks(),
       this.loadOpenProjects(),
       this.loadStats(),

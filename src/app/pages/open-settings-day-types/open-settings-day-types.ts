@@ -40,8 +40,8 @@ export class OpenSettingsDayTypesComponent implements OnInit {
   readonly loading = signal(false);
   readonly showDialog = signal(true);
 
-  async ngOnInit(): Promise<void> {
-    await this.loadDayTypes();
+  ngOnInit(): void {
+    void this.loadDayTypes();
   }
 
   async loadDayTypes(): Promise<void> {

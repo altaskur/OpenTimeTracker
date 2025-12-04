@@ -8,7 +8,7 @@ export class NavigationHandler {
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
     const indexPath = getIndexPath();
-    this.indexUrl = `file://${indexPath.replace(/\\/g, '/')}`;
+    this.indexUrl = `file://${indexPath.replaceAll(/\\/g, '/')}`;
     console.log('Navigation handler index URL:', this.indexUrl);
   }
 
