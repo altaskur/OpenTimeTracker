@@ -145,10 +145,7 @@ export class ActionHistoryService implements OnDestroy {
    * Sets up listeners for Electron menu events
    */
   private setupElectronListeners(): void {
-    if (
-      typeof globalThis.window !== 'undefined' &&
-      globalThis.window.electronAPI
-    ) {
+    if (globalThis.window?.electronAPI) {
       globalThis.window.electronAPI.onUndoAction(() => {
         this.ngZone.run(() => {
           void this.undo();
@@ -194,10 +191,7 @@ export class ActionHistoryService implements OnDestroy {
    * Persists action to database and returns the generated ID
    */
   private async persistAction(action: UndoableAction): Promise<string> {
-    if (
-      typeof globalThis.window !== 'undefined' &&
-      globalThis.window.electronAPI
-    ) {
+    if (globalThis.window?.electronAPI) {
       try {
         const record = await globalThis.window.electronAPI.createActionHistory(
           action.entityType,
@@ -220,11 +214,7 @@ export class ActionHistoryService implements OnDestroy {
    * Loads action history from database and reconstructs the stacks
    */
   async loadFromDatabase(): Promise<void> {
-    if (
-      this.isLoaded() ||
-      typeof globalThis.window === 'undefined' ||
-      !globalThis.window.electronAPI
-    ) {
+    if (this.isLoaded() || !globalThis.window?.electronAPI) {
       return;
     }
 
@@ -304,11 +294,7 @@ export class ActionHistoryService implements OnDestroy {
     newData: unknown,
     previousData: unknown,
   ): Promise<void> {
-    if (
-      typeof globalThis.window === 'undefined' ||
-      !globalThis.window.electronAPI
-    )
-      return;
+    if (!globalThis.window?.electronAPI) return;
 
     const api = globalThis.window.electronAPI;
     const data = newData as Record<string, unknown>;
@@ -449,11 +435,7 @@ export class ActionHistoryService implements OnDestroy {
     previousData: unknown,
     newData: unknown,
   ): Promise<void> {
-    if (
-      typeof globalThis.window === 'undefined' ||
-      !globalThis.window.electronAPI
-    )
-      return;
+    if (!globalThis.window?.electronAPI) return;
 
     const api = globalThis.window.electronAPI;
     const prev = previousData as Record<string, unknown>;
@@ -601,10 +583,7 @@ export class ActionHistoryService implements OnDestroy {
       await action.undo();
 
       // Mark action as undone in database
-      if (
-        typeof globalThis.window !== 'undefined' &&
-        globalThis.window.electronAPI
-      ) {
+      if (globalThis.window?.electronAPI) {
         try {
           await globalThis.window.electronAPI.markActionUndone(action.id);
         } catch (error) {
@@ -643,10 +622,7 @@ export class ActionHistoryService implements OnDestroy {
       await action.execute();
 
       // Mark action as redone in database
-      if (
-        typeof globalThis.window !== 'undefined' &&
-        globalThis.window.electronAPI
-      ) {
+      if (globalThis.window?.electronAPI) {
         try {
           await globalThis.window.electronAPI.markActionRedone(action.id);
         } catch (error) {
