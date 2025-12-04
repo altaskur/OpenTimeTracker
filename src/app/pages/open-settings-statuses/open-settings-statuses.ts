@@ -56,8 +56,8 @@ export class OpenSettingsStatusesComponent implements OnInit {
 
   readonly canAdd = computed(() => this.newStatusName().trim().length > 0);
 
-  async ngOnInit(): Promise<void> {
-    await this.loadStatuses();
+  ngOnInit(): void {
+    void this.loadStatuses();
   }
 
   async loadStatuses(): Promise<void> {

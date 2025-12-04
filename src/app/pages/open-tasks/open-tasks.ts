@@ -545,7 +545,7 @@ export class OpenTasks implements OnInit {
   getActionLabel(action: string): string {
     const key = `history.actionTypes.${action.toLowerCase()}`;
     const translated = this.translateService.instant(key);
-    return translated !== key ? translated : action;
+    return translated === key ? action : translated;
   }
 
   /**
@@ -586,7 +586,7 @@ export class OpenTasks implements OnInit {
   getEntityLabel(entityType: string): string {
     const key = `history.entityTypes.${entityType}`;
     const translated = this.translateService.instant(key);
-    return translated !== key ? translated : entityType;
+    return translated === key ? entityType : translated;
   }
 
   /**
@@ -630,16 +630,29 @@ export class OpenTasks implements OnInit {
       if (prev['date'] !== curr['date']) {
         parts.push(`${String(prev['date'])} → ${String(curr['date'])}`);
       }
-      if (prev['notes'] !== curr['notes'] && curr['notes']) {
+      if (
+        prev['notes'] !== curr['notes'] &&
+        curr['notes'] &&
+        typeof curr['notes'] !== 'object'
+      ) {
         parts.push(`"${String(curr['notes'])}"`);
       }
 
       return parts.length > 0 ? parts.join(', ') : '-';
     }
 
-    const hours = changes['hours'] ? String(changes['hours']) : '-';
-    const date = changes['date'] ? String(changes['date']) : '-';
-    const notes = changes['notes'] ? ` - "${String(changes['notes'])}"` : '';
+    const hours =
+      changes['hours'] && typeof changes['hours'] !== 'object'
+        ? String(changes['hours'])
+        : '-';
+    const date =
+      changes['date'] && typeof changes['date'] !== 'object'
+        ? String(changes['date'])
+        : '-';
+    const notes =
+      changes['notes'] && typeof changes['notes'] !== 'object'
+        ? ` - "${String(changes['notes'])}"`
+        : '';
     return `${date}: ${hours}h${notes}`;
   }
 
@@ -653,7 +666,9 @@ export class OpenTasks implements OnInit {
     const actionLower = action.toLowerCase();
 
     if (actionLower === 'create' || actionLower === 'delete') {
-      return changes['name'] ? `"${String(changes['name'])}"` : '-';
+      return changes['name'] && typeof changes['name'] !== 'object'
+        ? `"${String(changes['name'])}"`
+        : '-';
     }
 
     if (actionLower === 'update' && changes['previous']) {
@@ -671,7 +686,12 @@ export class OpenTasks implements OnInit {
     const curr = changes['current'] as Record<string, unknown>;
     const parts: string[] = [];
 
-    if (curr['name'] && prev['name'] !== curr['name']) {
+    if (
+      curr['name'] &&
+      typeof curr['name'] !== 'object' &&
+      prev['name'] !== curr['name'] &&
+      typeof prev['name'] !== 'object'
+    ) {
       parts.push(
         `${this.translateService.instant('history.fields.name')}: "${String(prev['name'])}" → "${String(curr['name'])}"`,
       );
