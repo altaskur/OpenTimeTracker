@@ -36,7 +36,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     about: 'Acerca de OpenTimeTracker',
     aboutTitle: 'Acerca de OpenTimeTracker',
     aboutDetail:
-      'Versión: 1.0.0\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 21 + Electron + Prisma\n\n© 2025 Altaskur',
+      'Versión: {{version}}\n\nSistema de seguimiento de tiempo para proyectos y tareas.\n\nDesarrollado con Angular 21 + Electron + Prisma\n\n© 2025 Altaskur',
     shortcutsTitle: 'Atajos de Teclado',
     shortcutsMessage: 'Atajos de Teclado Disponibles',
     navShortcuts: 'Navegación:',
@@ -74,7 +74,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     about: 'About OpenTimeTracker',
     aboutTitle: 'About OpenTimeTracker',
     aboutDetail:
-      'Version: 1.0.0\n\nTime tracking system for projects and tasks.\n\nBuilt with Angular 21 + Electron + Prisma\n\n© 2025 Altaskur',
+      'Version: {{version}}\n\nTime tracking system for projects and tasks.\n\nBuilt with Angular 21 + Electron + Prisma\n\n© 2025 Altaskur',
     shortcutsTitle: 'Keyboard Shortcuts',
     shortcutsMessage: 'Available Keyboard Shortcuts',
     navShortcuts: 'Navigation:',
@@ -353,11 +353,14 @@ export class MenuManager {
    * Shows about dialog
    */
   private showAboutDialog(): void {
+    const version = app.getVersion();
+    const detail = this.t('aboutDetail').replace('{{version}}', version);
+
     dialog.showMessageBox(this.window, {
       type: 'info',
       title: this.t('aboutTitle'),
       message: 'OpenTimeTracker',
-      detail: this.t('aboutDetail'),
+      detail: detail,
       buttons: ['OK'],
     });
   }

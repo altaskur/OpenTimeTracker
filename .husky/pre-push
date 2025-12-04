@@ -1,41 +1,34 @@
 #!/bin/sh
 
-# Get the current branch and remote branch being pushed to
+# Get the current branch
 current_branch=$(git symbolic-ref --short HEAD)
-remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{push} 2>/dev/null | sed 's/.*\///')
 
-echo "🔍 Pushing from $current_branch to $remote_branch..."
+# Get the remote branch being pushed to (may fail if no upstream is set)
+remote_ref=$(git rev-parse --abbrev-ref --symbolic-full-name @{push} 2>/dev/null || echo "")
+remote_branch=$(echo "$remote_ref" | sed 's/.*\///')
 
-# Only run tests when pushing to develop or main
-if [ "$remote_branch" = "develop" ] || [ "$remote_branch" = "main" ] || [ "$current_branch" = "develop" ] || [ "$current_branch" = "main" ]; then
-  echo "🧪 Running tests (target: develop/main)..."
-
-  # Use npx to ensure npm commands work across different environments
-  export PATH="$PATH:$(dirname $(which node))"
-
-  # Run Angular tests (Karma)
-  echo "📦 Running Angular tests..."
-  npx ng test --watch=false --no-progress --browsers=ChromeHeadless
-  ANGULAR_EXIT=$?
-
-  if [ $ANGULAR_EXIT -ne 0 ]; then
-    echo "❌ Push rejected: Angular (Karma) tests failed"
-    exit 1
-  fi
-  echo "✅ Angular tests passed!"
-
-  # Run Electron tests (Vitest)
-  echo "📦 Running Electron tests..."
-  npx vitest run
-  ELECTRON_EXIT=$?
-
-  if [ $ELECTRON_EXIT -ne 0 ]; then
-    echo "❌ Push rejected: Electron (Vitest) tests failed"
-    exit 1
-  fi
-  echo "✅ Electron tests passed!"
-
-  echo "🎉 All tests passed! Push allowed."
-else
-  echo "⏭️ Skipping test check (not pushing to develop/main)"
+# If no remote branch detected, use the current branch name as target
+if [ -z "$remote_branch" ]; then
+  remote_branch="$current_branch"
 fi
+
+# Block direct pushes to main or develop
+if [ "$remote_branch" = "main" ] || [ "$current_branch" = "main" ]; then
+  echo "🚫 Direct push to 'main' is not allowed!"
+  echo "📝 Please create a Pull Request from 'develop' instead."
+  echo ""
+  exit 1
+fi
+
+if [ "$remote_branch" = "develop" ] || [ "$current_branch" = "develop" ]; then
+  echo "🚫 Direct push to 'develop' is not allowed!"
+  echo "📝 Please create a Pull Request from your feature branch instead."
+  echo ""
+  echo "   git checkout -b feat/your-feature"
+  echo "   git push origin feat/your-feature"
+  echo "   Then create a PR on GitHub"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Push allowed to $current_branch"
