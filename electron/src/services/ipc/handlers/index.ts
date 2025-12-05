@@ -1,0 +1,9 @@
+export { setupProjectHandlers } from './project.handlers.js';
+export { setupTaskHandlers } from './task.handlers.js';
+export { setupTaskStatusHandlers } from './task-status.handlers.js';
+export { setupTimeEntryHandlers } from './time-entry.handlers.js';
+export { setupWorkPeriodHandlers } from './work-period.handlers.js';
+export { setupConfigHandlers } from './config.handlers.js';
+export { setupDayHandlers } from './day.handlers.js';
+export { setupTagHandlers } from './tag.handlers.js';
+export { setupAuditHandlers } from './audit.handlers.js';

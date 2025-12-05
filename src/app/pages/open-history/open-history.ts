@@ -127,7 +127,9 @@ export class OpenHistory implements OnInit {
       this.historyRecords.set(records);
 
       const taskMap = new Map<string, Task>();
-      tasks.forEach((task) => taskMap.set(task.id, task));
+      for (const task of tasks) {
+        taskMap.set(task.id, task);
+      }
       this.tasksMap.set(taskMap);
     } catch {
       this.messageService.add({
