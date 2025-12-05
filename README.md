@@ -138,19 +138,47 @@ OpenTimeTracker/
 
 ## 🔍 Code Quality
 
-This project uses **SonarQube** for static code analysis. To run the analysis locally:
+This project uses **SonarQube** for static code analysis. Before contributing to `develop`, you must pass the local SonarQube analysis.
 
-1. Create a `.env` file with your SonarQube token:
+### Prerequisites for Development
+
+- Docker & Docker Compose
+
+### Local SonarQube Setup
+
+1. **Start SonarQube** (first time takes ~2 minutes):
+
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Access SonarQube** at <http://localhost:9000>
+   - Default credentials: `admin` / `admin`
+   - You'll be prompted to change the password on first login
+
+3. **Generate a token**:
+   - Go to: My Account → Security → Generate Tokens
+   - Create a token and copy it
+
+4. **Create a `.env` file** in the project root:
 
    ```
-   SONAR_TOKEN=your_token_here
+   SONAR_TOKEN=your_generated_token_here
    ```
 
-2. Run the full check (tests + coverage + analysis):
+5. **Run the full analysis** (tests + coverage + SonarQube):
 
    ```bash
    npm run sonar:check
    ```
+
+6. **Stop SonarQube** when done:
+
+   ```bash
+   docker-compose down
+   ```
+
+> ⚠️ **Important**: The pre-push hook automatically runs `sonar:check` for all feature branches (`feat/*`, `fix/*`, `chore/*`, etc.). Your push will be blocked if the analysis fails.
 
 ## 🤝 Contributing
 
