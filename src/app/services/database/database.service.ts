@@ -1,21 +1,39 @@
-import { Injectable, signal } from '@angular/core';
-import {
-  ActionHistory,
-  AuditLog,
-  DayOverride,
-  DayType,
-  DeleteResult,
-  MonthConfig,
-  Project,
-  Tag,
-  Task,
-  TaskStatus,
-  TimeEntry,
-  WorkConfig,
-  WorkPeriod,
-} from '../../../types/electron';
-import { ElectronApiError } from '../errors/electron-api-error';
+/**
+ * Barrel file for database services.
+ * Re-exports all domain-specific services for backward compatibility.
+ */
 
+// Base service
+export { BaseDatabaseService } from './base-database.service';
+
+// Domain services
+export {
+  ProjectService,
+  TaskService,
+  TimeEntryService,
+  ConfigService,
+  DayService,
+  TagService,
+  AuditService,
+} from './services';
+
+// Legacy DatabaseService - combines all domain services for backward compatibility
+import { inject, Injectable, signal } from '@angular/core';
+import { ProjectService } from './services/project.service';
+import { TaskService } from './services/task.service';
+import { TimeEntryService } from './services/time-entry.service';
+import { ConfigService } from './services/config.service';
+import { DayService } from './services/day.service';
+import { TagService } from './services/tag.service';
+import { AuditService } from './services/audit.service';
+import { ElectronApiError } from '../errors/electron-api-error';
+import { TimeEntry } from '../../../types/electron';
+
+/**
+ * Legacy DatabaseService that delegates to domain-specific services.
+ * Maintained for backward compatibility with existing code.
+ * For new code, prefer injecting the specific domain service.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -25,479 +43,205 @@ export class DatabaseService {
     !!globalThis.window?.electronAPI,
   );
 
-  private ensureElectronApi(operation: string): void {
-    if (!globalThis.window?.electronAPI) {
-      const error = new ElectronApiError(
-        'Electron API not available. Are you running in Electron?',
-        operation,
-      );
-      this.lastError.set(error);
-      throw error;
-    }
-  }
+  private readonly projects = inject(ProjectService);
+  private readonly tasks = inject(TaskService);
+  private readonly timeEntries = inject(TimeEntryService);
+  private readonly config = inject(ConfigService);
+  private readonly days = inject(DayService);
+  private readonly tags = inject(TagService);
+  private readonly audit = inject(AuditService);
 
-  private async executeWithErrorHandling<T>(
-    operation: string,
-    fn: () => Promise<T>,
-  ): Promise<T> {
+  /**
+   * Wraps async operations to sync lastError state.
+   */
+  private async wrap<T>(fn: () => Promise<T>): Promise<T> {
     this.lastError.set(null);
     try {
-      this.ensureElectronApi(operation);
       return await fn();
     } catch (error) {
       const wrappedError =
         error instanceof ElectronApiError
           ? error
-          : new ElectronApiError(`Failed to ${operation}`, operation, error);
+          : new ElectronApiError(`Operation failed`, 'database', error);
       this.lastError.set(wrappedError);
-      throw wrappedError;
+      throw error;
     }
   }
 
-  // ==================== PROJECTS ====================
+  // Project methods
+  getProjects = () => this.wrap(() => this.projects.getProjects());
+  createProject = (name: string, description?: string) =>
+    this.wrap(() => this.projects.createProject(name, description));
+  updateProject = (id: string, name: string, description?: string) =>
+    this.wrap(() => this.projects.updateProject(id, name, description));
+  deleteProject = (id: string) =>
+    this.wrap(() => this.projects.deleteProject(id));
+  canCloseProject = (id: string) =>
+    this.wrap(() => this.projects.canCloseProject(id));
+  closeProject = (id: string) =>
+    this.wrap(() => this.projects.closeProject(id));
+  reopenProject = (id: string) =>
+    this.wrap(() => this.projects.reopenProject(id));
 
-  async getProjects(): Promise<Project[]> {
-    return this.executeWithErrorHandling('get projects', async () => {
-      return globalThis.window.electronAPI.getProjects();
-    });
-  }
-
-  async createProject(name: string, description?: string): Promise<Project> {
-    return this.executeWithErrorHandling('create project', async () => {
-      return globalThis.window.electronAPI.createProject(name, description);
-    });
-  }
-
-  async updateProject(
-    id: string,
-    name: string,
-    description?: string,
-  ): Promise<Project> {
-    return this.executeWithErrorHandling('update project', async () => {
-      return globalThis.window.electronAPI.updateProject(id, name, description);
-    });
-  }
-
-  async deleteProject(id: string): Promise<DeleteResult> {
-    return this.executeWithErrorHandling('delete project', async () => {
-      return globalThis.window.electronAPI.deleteProject(id);
-    });
-  }
-
-  async canCloseProject(id: string): Promise<boolean> {
-    return this.executeWithErrorHandling(
-      'check if project can close',
-      async () => {
-        return globalThis.window.electronAPI.canCloseProject(id);
-      },
-    );
-  }
-
-  async closeProject(id: string): Promise<Project> {
-    return this.executeWithErrorHandling('close project', async () => {
-      return globalThis.window.electronAPI.closeProject(id);
-    });
-  }
-
-  async reopenProject(id: string): Promise<Project> {
-    return this.executeWithErrorHandling('reopen project', async () => {
-      return globalThis.window.electronAPI.reopenProject(id);
-    });
-  }
-
-  // ==================== TASKS ====================
-
-  async getTasks(projectId?: string): Promise<Task[]> {
-    return this.executeWithErrorHandling('get tasks', async () => {
-      return globalThis.window.electronAPI.getTasks(projectId);
-    });
-  }
-
-  async createTask(
+  // Task methods
+  getTasks = (projectId?: string) =>
+    this.wrap(() => this.tasks.getTasks(projectId));
+  createTask = (
     projectId: string,
     name: string,
     description?: string,
     estimatedHours?: number,
     statusId?: string,
     tagIds?: string[],
-  ): Promise<Task> {
-    return this.executeWithErrorHandling('create task', async () => {
-      return globalThis.window.electronAPI.createTask(
+  ) =>
+    this.wrap(() =>
+      this.tasks.createTask(
         projectId,
         name,
         description,
         estimatedHours,
         statusId,
         tagIds,
-      );
-    });
-  }
-
-  async updateTask(id: string, data: Partial<Task>): Promise<Task> {
-    return this.executeWithErrorHandling('update task', async () => {
-      return globalThis.window.electronAPI.updateTask(id, data);
-    });
-  }
-
-  async deleteTask(id: string): Promise<DeleteResult> {
-    return this.executeWithErrorHandling('delete task', async () => {
-      return globalThis.window.electronAPI.deleteTask(id);
-    });
-  }
-
-  // ==================== TASK STATUSES ====================
-
-  async getTaskStatuses(): Promise<TaskStatus[]> {
-    return this.executeWithErrorHandling('get task statuses', async () => {
-      return globalThis.window.electronAPI.getTaskStatuses();
-    });
-  }
-
-  async createTaskStatus(name: string, color: string): Promise<TaskStatus> {
-    return this.executeWithErrorHandling('create task status', async () => {
-      return globalThis.window.electronAPI.createTaskStatus(name, color);
-    });
-  }
-
-  async updateTaskStatus(
+      ),
+    );
+  updateTask = (
     id: string,
-    name: string,
-    color: string,
-  ): Promise<TaskStatus> {
-    return this.executeWithErrorHandling('update task status', async () => {
-      return globalThis.window.electronAPI.updateTaskStatus(id, name, color);
-    });
-  }
+    data: {
+      name?: string;
+      description?: string;
+      estimatedHours?: number;
+      statusId?: string;
+      tagIds?: string[];
+    },
+  ) => this.wrap(() => this.tasks.updateTask(id, data));
+  deleteTask = (id: string) => this.wrap(() => this.tasks.deleteTask(id));
+  getTaskStatuses = () => this.wrap(() => this.tasks.getTaskStatuses());
+  createTaskStatus = (name: string, color: string) =>
+    this.wrap(() => this.tasks.createTaskStatus(name, color));
+  updateTaskStatus = (id: string, name: string, color: string) =>
+    this.wrap(() => this.tasks.updateTaskStatus(id, name, color));
+  deleteTaskStatus = (id: string) =>
+    this.wrap(() => this.tasks.deleteTaskStatus(id));
 
-  async deleteTaskStatus(id: string): Promise<TaskStatus | null> {
-    return this.executeWithErrorHandling('delete task status', async () => {
-      return globalThis.window.electronAPI.deleteTaskStatus(id);
-    });
-  }
-
-  // ==================== TIME ENTRIES ====================
-
-  async getTimeEntries(taskId?: string): Promise<TimeEntry[]> {
-    return this.executeWithErrorHandling('get time entries', async () => {
-      return globalThis.window.electronAPI.getTimeEntries(taskId);
-    });
-  }
-
-  async getTimeEntriesByDateRange(
-    startDate: string,
-    endDate: string,
-  ): Promise<TimeEntry[]> {
-    return this.executeWithErrorHandling(
-      'get time entries by date range',
-      async () => {
-        return globalThis.window.electronAPI.getTimeEntriesByDateRange(
-          startDate,
-          endDate,
-        );
-      },
+  // Time entry methods
+  getTimeEntries = (taskId?: string) =>
+    this.wrap(() => this.timeEntries.getTimeEntries(taskId));
+  getTimeEntriesByDateRange = (startDate: string, endDate: string) =>
+    this.wrap(() =>
+      this.timeEntries.getTimeEntriesByDateRange(startDate, endDate),
     );
-  }
-
-  async getTimeEntriesByDate(date: string): Promise<TimeEntry[]> {
-    return this.executeWithErrorHandling(
-      'get time entries by date',
-      async () => {
-        return globalThis.window.electronAPI.getTimeEntriesByDate(date);
-      },
-    );
-  }
-
-  async getPendingTimeEntries(): Promise<TimeEntry[]> {
-    return this.executeWithErrorHandling(
-      'get pending time entries',
-      async () => {
-        return globalThis.window.electronAPI.getPendingTimeEntries();
-      },
-    );
-  }
-
-  async createTimeEntry(
+  getTimeEntriesByDate = (date: string) =>
+    this.wrap(() => this.timeEntries.getTimeEntriesByDate(date));
+  getPendingTimeEntries = () =>
+    this.wrap(() => this.timeEntries.getPendingTimeEntries());
+  createTimeEntry = (
     date: string,
     minutes: number,
     taskId?: string,
     notes?: string,
-  ): Promise<TimeEntry> {
-    return this.executeWithErrorHandling('create time entry', async () => {
-      return globalThis.window.electronAPI.createTimeEntry(
-        date,
-        minutes,
-        taskId,
-        notes,
-      );
-    });
-  }
-
-  async updateTimeEntry(
-    id: string,
-    data: Partial<TimeEntry>,
-  ): Promise<TimeEntry> {
-    return this.executeWithErrorHandling('update time entry', async () => {
-      return globalThis.window.electronAPI.updateTimeEntry(id, data);
-    });
-  }
-
-  async deleteTimeEntry(id: string): Promise<DeleteResult> {
-    return this.executeWithErrorHandling('delete time entry', async () => {
-      return globalThis.window.electronAPI.deleteTimeEntry(id);
-    });
-  }
-
-  // ==================== WORK PERIODS ====================
-
-  async getWorkPeriods(): Promise<WorkPeriod[]> {
-    return this.executeWithErrorHandling('get work periods', async () => {
-      return globalThis.window.electronAPI.getWorkPeriods();
-    });
-  }
-
-  async getWorkPeriod(year: number, month: number): Promise<WorkPeriod | null> {
-    return this.executeWithErrorHandling('get work period', async () => {
-      return globalThis.window.electronAPI.getWorkPeriod(year, month);
-    });
-  }
-
-  async createWorkPeriod(
+  ) =>
+    this.wrap(() =>
+      this.timeEntries.createTimeEntry(date, minutes, taskId, notes),
+    );
+  updateTimeEntry = (id: string, data: Partial<TimeEntry>) =>
+    this.wrap(() => this.timeEntries.updateTimeEntry(id, data));
+  deleteTimeEntry = (id: string) =>
+    this.wrap(() => this.timeEntries.deleteTimeEntry(id));
+  getWorkPeriods = () => this.wrap(() => this.timeEntries.getWorkPeriods());
+  getWorkPeriod = (year: number, month: number) =>
+    this.wrap(() => this.timeEntries.getWorkPeriod(year, month));
+  createWorkPeriod = (
     year: number,
     month: number,
     plannedHours: number,
     note?: string,
-  ): Promise<WorkPeriod> {
-    return this.executeWithErrorHandling('create work period', async () => {
-      return globalThis.window.electronAPI.createWorkPeriod(
-        year,
-        month,
-        plannedHours,
-        note,
-      );
-    });
-  }
-
-  async updateWorkPeriod(
+  ) =>
+    this.wrap(() =>
+      this.timeEntries.createWorkPeriod(year, month, plannedHours, note),
+    );
+  updateWorkPeriod = (
     year: number,
     month: number,
     data: { plannedHours?: number; note?: string },
-  ): Promise<WorkPeriod> {
-    return this.executeWithErrorHandling('update work period', async () => {
-      return globalThis.window.electronAPI.updateWorkPeriod(year, month, data);
-    });
-  }
-
-  async upsertWorkPeriod(
+  ) => this.wrap(() => this.timeEntries.updateWorkPeriod(year, month, data));
+  upsertWorkPeriod = (
     year: number,
     month: number,
     plannedHours: number,
     note?: string,
-  ): Promise<WorkPeriod> {
-    return this.executeWithErrorHandling('upsert work period', async () => {
-      return globalThis.window.electronAPI.upsertWorkPeriod(
-        year,
-        month,
-        plannedHours,
-        note,
-      );
-    });
-  }
+  ) =>
+    this.wrap(() =>
+      this.timeEntries.upsertWorkPeriod(year, month, plannedHours, note),
+    );
 
-  // ==================== WORK CONFIG ====================
-
-  async getWorkConfig(): Promise<WorkConfig> {
-    return this.executeWithErrorHandling('get work config', async () => {
-      return globalThis.window.electronAPI.getWorkConfig();
-    });
-  }
-
-  async updateWorkConfig(data: Partial<WorkConfig>): Promise<WorkConfig> {
-    return this.executeWithErrorHandling('update work config', async () => {
-      return globalThis.window.electronAPI.updateWorkConfig(data);
-    });
-  }
-
-  // ==================== MONTH CONFIG ====================
-
-  async getMonthConfig(year: number, month: number): Promise<MonthConfig> {
-    return this.executeWithErrorHandling('get month config', async () => {
-      return globalThis.window.electronAPI.getMonthConfig(year, month);
-    });
-  }
-
-  async updateMonthConfig(
+  // Config methods
+  getWorkConfig = () => this.wrap(() => this.config.getWorkConfig());
+  updateWorkConfig = (data: {
+    dailyMinutes?: number;
+    weeklyMinutes?: number;
+    workDays?: string;
+  }) => this.wrap(() => this.config.updateWorkConfig(data));
+  getMonthConfig = (year: number, month: number) =>
+    this.wrap(() => this.config.getMonthConfig(year, month));
+  updateMonthConfig = (
     year: number,
     month: number,
-    data: Partial<MonthConfig>,
-  ): Promise<MonthConfig> {
-    return this.executeWithErrorHandling('update month config', async () => {
-      return globalThis.window.electronAPI.updateMonthConfig(year, month, data);
-    });
-  }
+    data: { weeklyMinutes?: number; workDays?: string; daySchedule?: string },
+  ) => this.wrap(() => this.config.updateMonthConfig(year, month, data));
 
-  // ==================== DAY TYPES ====================
-
-  async getDayTypes(): Promise<DayType[]> {
-    return this.executeWithErrorHandling('get day types', async () => {
-      return globalThis.window.electronAPI.getDayTypes();
-    });
-  }
-
-  async createDayType(
-    name: string,
-    color: string,
-    defaultMinutes?: number,
-  ): Promise<DayType> {
-    return this.executeWithErrorHandling('create day type', async () => {
-      return globalThis.window.electronAPI.createDayType(
-        name,
-        color,
-        defaultMinutes,
-      );
-    });
-  }
-
-  async updateDayType(id: string, data: Partial<DayType>): Promise<DayType> {
-    return this.executeWithErrorHandling('update day type', async () => {
-      return globalThis.window.electronAPI.updateDayType(id, data);
-    });
-  }
-
-  async deleteDayType(id: string): Promise<DeleteResult> {
-    return this.executeWithErrorHandling('delete day type', async () => {
-      return globalThis.window.electronAPI.deleteDayType(id);
-    });
-  }
-
-  // ==================== DAY OVERRIDES ====================
-
-  async getDayOverrides(
-    startDate?: string,
-    endDate?: string,
-  ): Promise<DayOverride[]> {
-    return this.executeWithErrorHandling('get day overrides', async () => {
-      return globalThis.window.electronAPI.getDayOverrides(startDate, endDate);
-    });
-  }
-
-  async getDayOverride(date: string): Promise<DayOverride | null> {
-    return this.executeWithErrorHandling('get day override', async () => {
-      return globalThis.window.electronAPI.getDayOverride(date);
-    });
-  }
-
-  async createDayOverride(
-    date: string,
-    dayTypeId?: string,
-    minutes?: number,
-    note?: string,
-  ): Promise<DayOverride> {
-    return this.executeWithErrorHandling('create day override', async () => {
-      return globalThis.window.electronAPI.createDayOverride(
-        date,
-        dayTypeId,
-        minutes,
-        note,
-      );
-    });
-  }
-
-  async updateDayOverride(
+  // Day methods
+  getDayTypes = () => this.wrap(() => this.days.getDayTypes());
+  createDayType = (name: string, color: string, defaultMinutes?: number) =>
+    this.wrap(() => this.days.createDayType(name, color, defaultMinutes));
+  updateDayType = (
     id: string,
-    data: Partial<DayOverride>,
-  ): Promise<DayOverride> {
-    return this.executeWithErrorHandling('update day override', async () => {
-      return globalThis.window.electronAPI.updateDayOverride(id, data);
-    });
-  }
-
-  async upsertDayOverride(
+    data: { name?: string; color?: string; defaultMinutes?: number },
+  ) => this.wrap(() => this.days.updateDayType(id, data));
+  deleteDayType = (id: string) => this.wrap(() => this.days.deleteDayType(id));
+  getDayOverrides = (startDate?: string, endDate?: string) =>
+    this.wrap(() => this.days.getDayOverrides(startDate, endDate));
+  getDayOverride = (date: string) =>
+    this.wrap(() => this.days.getDayOverride(date));
+  createDayOverride = (
     date: string,
     dayTypeId?: string,
     minutes?: number,
     note?: string,
-  ): Promise<DayOverride> {
-    return this.executeWithErrorHandling('upsert day override', async () => {
-      return globalThis.window.electronAPI.upsertDayOverride(
-        date,
-        dayTypeId,
-        minutes,
-        note,
-      );
-    });
-  }
+  ) =>
+    this.wrap(() =>
+      this.days.createDayOverride(date, dayTypeId, minutes, note),
+    );
+  updateDayOverride = (
+    id: string,
+    data: { dayTypeId?: string; minutes?: number; note?: string },
+  ) => this.wrap(() => this.days.updateDayOverride(id, data));
+  upsertDayOverride = (
+    date: string,
+    dayTypeId?: string,
+    minutes?: number,
+    note?: string,
+  ) =>
+    this.wrap(() =>
+      this.days.upsertDayOverride(date, dayTypeId, minutes, note),
+    );
+  deleteDayOverride = (date: string) =>
+    this.wrap(() => this.days.deleteDayOverride(date));
 
-  async deleteDayOverride(date: string): Promise<DeleteResult> {
-    return this.executeWithErrorHandling('delete day override', async () => {
-      return globalThis.window.electronAPI.deleteDayOverride(date);
-    });
-  }
+  // Tag methods
+  getTags = () => this.wrap(() => this.tags.getTags());
+  createTag = (name: string) => this.wrap(() => this.tags.createTag(name));
+  updateTag = (id: string, name: string) =>
+    this.wrap(() => this.tags.updateTag(id, name));
+  deleteTag = (id: string) => this.wrap(() => this.tags.deleteTag(id));
+  addTagToTask = (taskId: string, tagId: string) =>
+    this.wrap(() => this.tags.addTagToTask(taskId, tagId));
+  removeTagFromTask = (taskId: string, tagId: string) =>
+    this.wrap(() => this.tags.removeTagFromTask(taskId, tagId));
 
-  // ==================== TAGS ====================
-
-  async getTags(): Promise<Tag[]> {
-    return this.executeWithErrorHandling('get tags', async () => {
-      return globalThis.window.electronAPI.getTags();
-    });
-  }
-
-  async createTag(name: string): Promise<Tag> {
-    return this.executeWithErrorHandling('create tag', async () => {
-      return globalThis.window.electronAPI.createTag(name);
-    });
-  }
-
-  async updateTag(id: string, name: string): Promise<Tag> {
-    return this.executeWithErrorHandling('update tag', async () => {
-      return globalThis.window.electronAPI.updateTag(id, name);
-    });
-  }
-
-  async deleteTag(id: string): Promise<DeleteResult> {
-    return this.executeWithErrorHandling('delete tag', async () => {
-      return globalThis.window.electronAPI.deleteTag(id);
-    });
-  }
-
-  async addTagToTask(taskId: string, tagId: string): Promise<void> {
-    return this.executeWithErrorHandling('add tag to task', async () => {
-      return globalThis.window.electronAPI.addTagToTask(taskId, tagId);
-    });
-  }
-
-  async removeTagFromTask(taskId: string, tagId: string): Promise<void> {
-    return this.executeWithErrorHandling('remove tag from task', async () => {
-      return globalThis.window.electronAPI.removeTagFromTask(taskId, tagId);
-    });
-  }
-
-  // ==================== AUDIT LOGS ====================
-
-  async getAuditLogs(
-    entityType?: string,
-    entityId?: string,
-    taskId?: string,
-  ): Promise<AuditLog[]> {
-    return this.executeWithErrorHandling('get audit logs', async () => {
-      return globalThis.window.electronAPI.getAuditLogs(
-        entityType,
-        entityId,
-        taskId,
-      );
-    });
-  }
-
-  // ==================== ACTION HISTORY ====================
-
-  async getActionHistory(limit?: number): Promise<ActionHistory[]> {
-    return this.executeWithErrorHandling('get action history', async () => {
-      return globalThis.window.electronAPI.getActionHistory(limit);
-    });
-  }
-
-  async clearActionHistory(): Promise<DeleteResult> {
-    return this.executeWithErrorHandling('clear action history', async () => {
-      return globalThis.window.electronAPI.clearActionHistory();
-    });
-  }
+  // Audit methods
+  getAuditLogs = (entityType?: string, entityId?: string, taskId?: string) =>
+    this.wrap(() => this.audit.getAuditLogs(entityType, entityId, taskId));
+  getActionHistory = (limit?: number) =>
+    this.wrap(() => this.audit.getActionHistory(limit));
+  clearActionHistory = () => this.wrap(() => this.audit.clearActionHistory());
 }
