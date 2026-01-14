@@ -9,11 +9,31 @@
 
 html {
   font-size: 14px;
+
+  /* Custom semantic colors - Light mode */
+  --c-positive-bg: var(--p-green-50);
+  --c-positive-color: var(--p-green-600);
+  --c-negative-bg: var(--p-red-50);
+  --c-negative-color: var(--p-red-600);
+  --c-over-bg: var(--p-blue-50);
+  --c-over-color: var(--p-blue-600);
+  --c-surface-subtle: var(--p-surface-50);
+  --c-surface-muted: var(--p-surface-100);
 }
 
 html.my-app-dark {
   background-color: var(--p-surface-900);
   color: var(--p-surface-0);
+
+  /* Custom semantic colors - Dark mode */
+  --c-positive-bg: rgba(34, 197, 94, 0.15);
+  --c-positive-color: var(--p-green-400);
+  --c-negative-bg: rgba(239, 68, 68, 0.15);
+  --c-negative-color: var(--p-red-400);
+  --c-over-bg: rgba(59, 130, 246, 0.15);
+  --c-over-color: var(--p-blue-400);
+  --c-surface-subtle: rgba(255, 255, 255, 0.03);
+  --c-surface-muted: rgba(255, 255, 255, 0.08);
 }
 
 body {
