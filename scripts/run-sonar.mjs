@@ -15,7 +15,7 @@ try {
   console.log(`🔍 Running SonarQube scanner on ${SONAR_HOST}...`);
 
   execSync(
-    `sonar-scanner -Dsonar.host.url="${SONAR_HOST}" -Dsonar.token="${SONAR_TOKEN}"`,
+    `sonar-scanner -Dsonar.host.url="${SONAR_HOST}" -Dsonar.token="${SONAR_TOKEN}" -Dsonar.login="${SONAR_TOKEN}"`,
     { stdio: "inherit" },
   );
 
