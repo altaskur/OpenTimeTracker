@@ -55,12 +55,12 @@ export const getBackupPath = (): string => {
  * Gets the path to the Angular index.html file.
  * In development: dist/OpenTimeTracker/browser/index.html
  * In production: resources/app.asar/dist/OpenTimeTracker/browser/index.html
+ * Note: Uses process.resourcesPath for cross-platform compatibility (Windows/macOS/Linux)
  */
 export const getIndexPath = (): string => {
   if (isPackaged()) {
     return path.join(
-      path.dirname(app.getPath('exe')),
-      'resources',
+      process.resourcesPath,
       'app.asar',
       'dist',
       'OpenTimeTracker',
@@ -80,12 +80,12 @@ export const getIndexPath = (): string => {
 
 /**
  * Gets the path to the preload script.
+ * Note: Uses process.resourcesPath for cross-platform compatibility (Windows/macOS/Linux)
  */
 export const getPreloadPath = (): string => {
   if (isPackaged()) {
     return path.join(
-      path.dirname(app.getPath('exe')),
-      'resources',
+      process.resourcesPath,
       'app.asar',
       'dist',
       'electron',
@@ -100,14 +100,14 @@ export const getPreloadPath = (): string => {
  * Gets the path to the template database file.
  * Used to initialize a new database with pre-created schema.
  * In development: prisma/template.db
- * In production: resources/app.asar/prisma/template.db
+ * In production: resources/app.asar.unpacked/prisma/template.db
+ * Note: Template is in asarUnpack so we use app.asar.unpacked for cross-platform compatibility
  */
 export const getTemplateDatabasePath = (): string => {
   if (isPackaged()) {
     return path.join(
-      path.dirname(app.getPath('exe')),
-      'resources',
-      'app.asar',
+      process.resourcesPath,
+      'app.asar.unpacked',
       'prisma',
       'template.db',
     );

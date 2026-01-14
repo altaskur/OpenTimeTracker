@@ -16,6 +16,7 @@
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
     "dist:linux": "npm run build && electron-builder --linux",
+    "dist:mac": "npm run build && electron-builder --mac",
     "pack": "electron-builder --dir",
     "prisma:generate": "prisma generate",
     "prisma:push": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma db push",
@@ -57,7 +58,8 @@
       "node_modules/@prisma/client/**/*",
       "node_modules/@prisma/adapter-better-sqlite3/**/*",
       "node_modules/better-sqlite3/**/*",
-      "dist/electron/generated/**/*"
+      "dist/electron/generated/**/*",
+      "prisma/template.db"
     ],
     "win": {
       "target": [
@@ -99,6 +101,34 @@
       "maintainer": "altaskur",
       "synopsis": "Time tracking application",
       "description": "Free and open source time tracking application for developers and teams"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/icon-512.png",
+      "category": "public.app-category.productivity"
+    },
+    "dmg": {
+      "title": "${productName} ${version}",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     }
   },
   "prettier": {
