@@ -17,9 +17,9 @@ const templatePath = join(__dirname, "..", "prisma", "template.db");
 console.log("Regenerating database template...\n");
 
 try {
-  console.log("1. Resetting database with migrations...");
+  console.log("1. Resetting database with schema...");
   execSync(
-    "cross-env DATABASE_URL=file:./dist/data/timetracker.db npx prisma migrate reset --force --skip-seed --skip-generate",
+    "cross-env DATABASE_URL=file:./dist/data/timetracker.db npx prisma db push --force-reset --accept-data-loss",
     {
       stdio: "inherit",
       cwd: join(__dirname, ".."),
