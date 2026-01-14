@@ -26,14 +26,14 @@ html.my-app-dark {
   color: var(--p-surface-0);
 
   /* Custom semantic colors - Dark mode */
-  --c-positive-bg: rgba(34, 197, 94, 0.15);
+  --c-positive-bg: color-mix(in srgb, var(--p-green-500) 15%, transparent);
   --c-positive-color: var(--p-green-400);
-  --c-negative-bg: rgba(239, 68, 68, 0.15);
+  --c-negative-bg: color-mix(in srgb, var(--p-red-500) 15%, transparent);
   --c-negative-color: var(--p-red-400);
-  --c-over-bg: rgba(59, 130, 246, 0.15);
+  --c-over-bg: color-mix(in srgb, var(--p-blue-500) 15%, transparent);
   --c-over-color: var(--p-blue-400);
-  --c-surface-subtle: rgba(255, 255, 255, 0.03);
-  --c-surface-muted: rgba(255, 255, 255, 0.08);
+  --c-surface-subtle: color-mix(in srgb, var(--p-surface-0) 3%, transparent);
+  --c-surface-muted: color-mix(in srgb, var(--p-surface-0) 8%, transparent);
 }
 
 body {
