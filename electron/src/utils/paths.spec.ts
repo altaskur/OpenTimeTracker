@@ -1,4 +1,13 @@
-import { describe, it, expect, beforeEach, vi, type Mock, type Mocked } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+  type Mocked,
+} from 'vitest';
 import path from 'node:path';
 import { app } from 'electron';
 import {
@@ -17,9 +26,25 @@ import {
  */
 describe('Paths Utility', () => {
   const mockApp = app as Mocked<typeof app>;
+  const originalResourcesPath = process.resourcesPath;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock process.resourcesPath for packaged mode tests
+    Object.defineProperty(process, 'resourcesPath', {
+      value: '/mock/app/resources',
+      configurable: true,
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    // Restore original value
+    Object.defineProperty(process, 'resourcesPath', {
+      value: originalResourcesPath,
+      configurable: true,
+      writable: true,
+    });
   });
 
   describe('isPackaged', () => {
@@ -150,9 +175,6 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      (mockApp.getPath as Mock).mockReturnValue(
-        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
-      );
 
       const result = getIndexPath();
 
@@ -180,9 +202,6 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      (mockApp.getPath as Mock).mockReturnValue(
-        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
-      );
 
       const result = getPreloadPath();
 
@@ -210,14 +229,11 @@ describe('Paths Utility', () => {
         value: true,
         configurable: true,
       });
-      (mockApp.getPath as Mock).mockReturnValue(
-        'C:\\Program Files\\OpenTimeTracker\\OpenTimeTracker.exe',
-      );
 
       const result = getTemplateDatabasePath();
 
       expect(result).toContain('resources');
-      expect(result).toContain('app.asar');
+      expect(result).toContain('app.asar.unpacked');
       expect(result).toContain('template.db');
     });
   });

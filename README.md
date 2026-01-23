@@ -34,7 +34,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Angular-21-DD0031?logo=angular" alt="Angular 21">
   <img src="https://img.shields.io/badge/Electron-37-47848F?logo=electron" alt="Electron 37">
-  <img src="https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma" alt="Prisma">
+  <img src="https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma" alt="Prisma">
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite" alt="SQLite">
   <img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License: GPL v3">
 </p>
@@ -55,9 +55,15 @@
 
 ## 📥 Installation
 
-### Windows
+### Download
 
-Download the latest installer from the [Releases](https://github.com/altaskur/OpenTimeTracker/releases) page.
+Download the latest installer for your platform from the [Releases](https://github.com/altaskur/OpenTimeTracker/releases) page:
+
+| Platform | Format                  | Architecture               |
+| -------- | ----------------------- | -------------------------- |
+| Windows  | `.exe` (NSIS installer) | x64                        |
+| macOS    | `.dmg`                  | x64, arm64 (Apple Silicon) |
+| Linux    | `.AppImage`, `.deb`     | x64                        |
 
 ### Build from Source
 
@@ -90,7 +96,10 @@ npm run dev
 | `npm start`             | Start Angular dev server (port 4200) |
 | `npm run dev`           | Build and run Electron app           |
 | `npm run build`         | Production build                     |
+| `npm run dist`          | Generate installer for current OS    |
 | `npm run dist:win`      | Generate Windows installer           |
+| `npm run dist:mac`      | Generate macOS installer (DMG)       |
+| `npm run dist:linux`    | Generate Linux installers            |
 | `npm test`              | Run Angular tests                    |
 | `npm run test:electron` | Run Electron tests                   |
 | `npm run lint`          | Run ESLint                           |
