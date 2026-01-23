@@ -28,6 +28,8 @@ jobs:
 
       - name: Generate Prisma client
         run: npm run prisma:generate
+        env:
+          DATABASE_URL: "file:./dev.db"
 
       - name: Run Angular tests with coverage
         run: npm test -- --code-coverage --watch=false --browsers=ChromeHeadless
