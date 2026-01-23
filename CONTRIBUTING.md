@@ -402,7 +402,7 @@ Al modificar el esquema de Prisma:
    ```
 
 3. Revisa los cambios en `prisma/template.db` y las migraciones
-4. **Nunca commits datos reales de usuario** a backups o seeds
+4. **Nunca subas datos reales de usuario** a backups o seeds
 
 ## UI e Internacionalización
 
@@ -428,7 +428,7 @@ Asegúrate de que tus cambios de UI:
 
 ## Seguridad
 
-- **Nunca commits** archivos `.env` o tokens al repositorio
+- **Nunca subas** archivos `.env` o tokens al repositorio
 - Usa variables de entorno para configuración sensible
 - Reporta vulnerabilidades de seguridad de forma privada (ver [SECURITY.md](SECURITY.md))
 - Sigue prácticas de codificación segura
