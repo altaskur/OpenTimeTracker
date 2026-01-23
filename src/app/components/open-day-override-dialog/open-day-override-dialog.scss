@@ -9,7 +9,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--p-surface-50);
+  background: var(--c-surface-subtle);
   border-radius: var(--p-border-radius);
   font-size: 1rem;
   font-weight: 500;
@@ -63,9 +63,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: var(--p-primary-50);
+  background: var(--c-primary-bg);
   border-radius: var(--p-border-radius);
-  color: var(--p-primary-700);
+  color: var(--c-primary-color);
   font-size: 0.875rem;
 
   i {
@@ -118,7 +118,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: var(--p-surface-100);
+  background: var(--c-surface-muted);
   border-radius: var(--p-border-radius);
   border-left: 4px solid var(--p-primary-color);
 }

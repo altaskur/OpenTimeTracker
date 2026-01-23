@@ -9,11 +9,41 @@
 
 html {
   font-size: 14px;
+
+  /* Custom semantic colors - Light mode */
+  --c-positive-bg: var(--p-green-50);
+  --c-positive-color: var(--p-green-600);
+  --c-negative-bg: var(--p-red-50);
+  --c-negative-color: var(--p-red-600);
+  --c-over-bg: var(--p-blue-50);
+  --c-over-color: var(--p-blue-600);
+  --c-info-bg: var(--p-blue-50);
+  --c-info-color: var(--p-blue-700);
+  --c-primary-bg: var(--p-primary-50);
+  --c-primary-color: var(--p-primary-600);
+  --c-primary-border: var(--p-primary-200);
+  --c-surface-subtle: var(--p-surface-50);
+  --c-surface-muted: var(--p-surface-100);
 }
 
 html.my-app-dark {
   background-color: var(--p-surface-900);
   color: var(--p-surface-0);
+
+  /* Custom semantic colors - Dark mode */
+  --c-positive-bg: color-mix(in srgb, var(--p-green-500) 15%, transparent);
+  --c-positive-color: var(--p-green-400);
+  --c-negative-bg: color-mix(in srgb, var(--p-red-500) 15%, transparent);
+  --c-negative-color: var(--p-red-400);
+  --c-over-bg: color-mix(in srgb, var(--p-blue-500) 15%, transparent);
+  --c-over-color: var(--p-blue-400);
+  --c-info-bg: color-mix(in srgb, var(--p-blue-500) 15%, transparent);
+  --c-info-color: var(--p-blue-400);
+  --c-primary-bg: color-mix(in srgb, var(--p-primary-500) 15%, transparent);
+  --c-primary-color: var(--p-primary-400);
+  --c-primary-border: color-mix(in srgb, var(--p-primary-500) 30%, transparent);
+  --c-surface-subtle: color-mix(in srgb, var(--p-surface-0) 3%, transparent);
+  --c-surface-muted: color-mix(in srgb, var(--p-surface-0) 8%, transparent);
 }
 
 body {
