@@ -10,6 +10,8 @@ on:
 jobs:
   sonar:
     name: Tests & SonarQube
+    # Solo ejecutar si la base del PR es realmente 'main'
+    if: github.base_ref == 'main'
     uses: ./.github/workflows/sonar.yml
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
