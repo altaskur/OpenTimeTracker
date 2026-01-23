@@ -191,13 +191,34 @@ This project uses **SonarQube** for static code analysis. Before contributing to
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! We appreciate your interest in improving OpenTimeTracker.
+
+### Getting Started
+
+Please read our contributing guidelines to get started:
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Comprehensive guide for contributors (includes setup, workflow, and testing)
+- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community standards and expectations
+- **[SECURITY.md](SECURITY.md)** - How to report security vulnerabilities
+- **[COLLABORATION.md](COLLABORATION.md)** - Additional workflow and technical details
+
+### Quick Start
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create your feature branch from `develop` (`git checkout -b feat/AmazingFeature`)
+3. Make your changes following our [coding standards](CONTRIBUTING.md)
+4. Run tests and quality checks: `npm run lint && npm test && npm run sonar:check`
+5. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/)
+6. Push to your branch (`git push origin feat/AmazingFeature`)
+7. Open a Pull Request against the `develop` branch
+
+### Questions or Issues?
+
+- Check existing [issues](https://github.com/altaskur/OpenTimeTracker/issues)
+- Use our [issue templates](.github/ISSUE_TEMPLATE) for bug reports or feature requests
+- Follow the [pull request template](.github/pull_request_template.md) when submitting PRs
+
+Thank you for contributing! 🚀
 
 ## 📄 License
 
