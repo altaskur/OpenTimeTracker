@@ -18,7 +18,7 @@
     "dist:linux": "npm run build && electron-builder --linux",
     "dist:mac": "npm run build && electron-builder --mac",
     "pack": "electron-builder --dir",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma generate",
     "prisma:push": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma db push",
     "prisma:studio": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma studio",
     "prisma:migrate": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma migrate dev",
