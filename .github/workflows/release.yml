@@ -83,8 +83,45 @@ jobs:
             release/latest-linux.yml
           retention-days: 5
 
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Build application
+        run: npm run build
+
+      - name: Build macOS packages
+        run: npx electron-builder --mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-packages
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/latest-mac.yml
+          retention-days: 5
+
   release:
-    needs: [build-windows, build-linux]
+    needs: [build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -102,6 +139,12 @@ jobs:
           name: linux-packages
           path: ./release
 
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-packages
+          path: ./release
+
       - name: List release files
         run: ls -la ./release
 
@@ -115,6 +158,9 @@ jobs:
             release/*.AppImage
             release/*.deb
             release/latest-linux.yml
+            release/*.dmg
+            release/*.zip
+            release/latest-mac.yml
           generate_release_notes: true
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
         env:
