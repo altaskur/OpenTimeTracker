@@ -176,6 +176,57 @@ We use SonarQube for static code analysis. To run it locally:
    docker-compose down
    ```
 
+### SonarQube Local Project Setup
+
+**Step 1 of 2: Create a local project**
+
+1. In SonarQube, click "Create a local project"
+2. Fill in the project details:
+   - **Project display name**: `OpenTimeTracker`
+   - **Project key**: `altaskur_OpenTimeTracker` (must match `sonar-project.properties`)
+   - **Main branch name**: `develop`
+3. Click "Next"
+
+**Step 2 of 2: Set up project for Clean as You Code**
+
+1. Choose your baseline for new code:
+   - Recommended: **Previous version** (default option)
+   - This defines what SonarQube considers as "new code" for analysis
+2. Click "Create project"
+
+**Analysis Method**
+
+1. On the "How do you want to analyze your repository?" screen
+2. Select **"Locally"**
+
+**Token Generation**
+
+1. In the "Analyze your project" screen:
+   - Generate a **Project Analysis Token**
+   - Give it a descriptive name (e.g., `local-analysis`)
+   - Click "Generate"
+2. Copy the generated token
+
+3. Add the token to `.env` (do not commit it):
+
+   ```
+   SONAR_TOKEN=your_generated_token_here
+   ```
+
+4. Run the analysis:
+
+   ```bash
+   npm run sonar:check
+   ```
+
+### SonarQube Troubleshooting
+
+- Ensure the SonarQube token is set in the `.env` file.
+- Confirm the project key matches `sonar-project.properties`.
+- If you see a version warning, update the SonarQube image in `docker-compose.yml`.
+- For upgrades, follow the 24.12 path or reset Docker volumes.
+- The pre-push hook requires `sonar:check` and a running SonarQube instance.
+
 ## Database Changes
 
 When modifying the Prisma schema:
@@ -410,6 +461,57 @@ Usamos SonarQube para análisis estático de código. Para ejecutarlo localmente
    ```bash
    docker-compose down
    ```
+
+### Configuración del proyecto local en SonarQube
+
+**Paso 1 de 2: Crear un proyecto local**
+
+1. En SonarQube, haz clic en "Create a local project"
+2. Completa los detalles del proyecto:
+   - **Project display name**: `OpenTimeTracker`
+   - **Project key**: `altaskur_OpenTimeTracker` (debe coincidir con `sonar-project.properties`)
+   - **Main branch name**: `develop`
+3. Haz clic en "Next"
+
+**Paso 2 de 2: Configurar proyecto para Clean as You Code**
+
+1. Elige tu baseline para código nuevo:
+   - Recomendado: **Previous version** (opción por defecto)
+   - Esto define qué considera SonarQube como "código nuevo" para el análisis
+2. Haz clic en "Create project"
+
+**Método de Análisis**
+
+1. En la pantalla "How do you want to analyze your repository?"
+2. Selecciona **"Locally"**
+
+**Generación de Token**
+
+1. En la pantalla "Analyze your project":
+   - Genera un **Project Analysis Token**
+   - Dale un nombre descriptivo (ej., `local-analysis`)
+   - Haz clic en "Generate"
+2. Copia el token generado
+
+3. Añade el token a `.env` (no lo subas al repositorio):
+
+   ```
+   SONAR_TOKEN=tu_token_generado_aqui
+   ```
+
+4. Ejecuta el análisis:
+
+   ```bash
+   npm run sonar:check
+   ```
+
+### Solución de problemas de SonarQube
+
+- Asegúrate de que el token de SonarQube esté en el archivo `.env`.
+- Confirma que la clave del proyecto coincida con `sonar-project.properties`.
+- Si aparece una advertencia de versión, actualiza la imagen de SonarQube en `docker-compose.yml`.
+- Para actualizaciones, sigue la ruta 24.12 o reinicia los volúmenes de Docker.
+- El pre-push requiere `sonar:check` y que SonarQube esté en ejecución.
 
 ## Cambios en la Base de Datos
 
