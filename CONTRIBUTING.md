@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to OpenTimeTracker! This guide will help you get started with contributing to the project.
 
-*Versión en español más abajo / Spanish version below*
+_Versión en español más abajo / Spanish version below_
 
 ---
 
@@ -21,6 +21,7 @@ Thank you for your interest in contributing to OpenTimeTracker! This guide will 
 ## Getting Started
 
 OpenTimeTracker is built with:
+
 - **Angular 21** for the UI
 - **Electron 37** for the desktop application
 - **Prisma/SQLite** for data persistence
@@ -39,21 +40,23 @@ The main branch is `main`, and active development happens on the `develop` branc
 ### Installation
 
 1. Fork and clone the repository:
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/OpenTimeTracker.git
    cd OpenTimeTracker
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    npm run prisma:generate
    ```
 
 3. Run the application:
+
    ```bash
-   npm start            # Angular dev server on port 4200
-   npm run dev          # Build and run Electron in dev mode
+   npm run dev          # Build and run Angular + Electron in dev mode
    ```
 
 ## Development Workflow
@@ -61,11 +64,13 @@ The main branch is `main`, and active development happens on the `develop` branc
 ### Creating a Branch
 
 Always branch from `develop` with the appropriate prefix:
+
 - `feat/` - New features
 - `fix/` - Bug fixes
 - `chore/` - Maintenance tasks
 
 Example:
+
 ```bash
 git checkout develop
 git pull origin develop
@@ -87,6 +92,7 @@ type(scope): description
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 Examples:
+
 - `feat(projects): add project archiving functionality`
 - `fix(calendar): correct date calculation in week view`
 - `docs(readme): update installation instructions`
@@ -139,11 +145,12 @@ Your pull request should include:
 We use SonarQube for static code analysis. To run it locally:
 
 1. Start SonarQube:
+
    ```bash
    docker-compose up -d  # First start takes ~2 minutes
    ```
 
-2. Access SonarQube at http://localhost:9000
+2. Access SonarQube at <http://localhost:9000>
    - Default credentials: `admin` / `admin`
    - Change password on first login
 
@@ -152,16 +159,19 @@ We use SonarQube for static code analysis. To run it locally:
    - Copy the token
 
 4. Create a `.env` file:
+
    ```
    SONAR_TOKEN=your_generated_token_here
    ```
 
 5. Run the analysis:
+
    ```bash
    npm run sonar:check
    ```
 
 6. Stop SonarQube:
+
    ```bash
    docker-compose down
    ```
@@ -171,11 +181,13 @@ We use SonarQube for static code analysis. To run it locally:
 When modifying the Prisma schema:
 
 1. Create a migration:
+
    ```bash
    npx prisma migrate dev --name description_of_change
    ```
 
 2. Update the production template:
+
    ```bash
    npm run prisma:template
    ```
@@ -194,12 +206,14 @@ When modifying the Prisma schema:
 ### Adding Translations
 
 Add new strings to both language files:
+
 - `src/assets/i18n/en.json`
 - `src/assets/i18n/es.json`
 
 ### Accessibility
 
 Ensure your UI changes:
+
 - Have proper labels for form controls
 - Maintain visible focus indicators
 - Meet color contrast requirements
@@ -236,12 +250,13 @@ Gracias por tu interés en contribuir a OpenTimeTracker. Esta guía te ayudará 
 - [Estándares de Calidad](#estándares-de-calidad)
 - [Cambios en la Base de Datos](#cambios-en-la-base-de-datos)
 - [UI e Internacionalización](#ui-e-internacionalización)
-- [Seguridad](#seguridad-1)
+- [Seguridad](#seguridad)
 - [Obtener Ayuda](#obtener-ayuda)
 
 ## Comenzando
 
 OpenTimeTracker está construido con:
+
 - **Angular 21** para la interfaz
 - **Electron 37** para la aplicación de escritorio
 - **Prisma/SQLite** para persistencia de datos
@@ -260,21 +275,23 @@ La rama principal es `main`, y el desarrollo activo ocurre en la rama `develop`.
 ### Instalación
 
 1. Haz fork y clona el repositorio:
+
    ```bash
    git clone https://github.com/TU_USUARIO/OpenTimeTracker.git
    cd OpenTimeTracker
    ```
 
 2. Instala las dependencias:
+
    ```bash
    npm install
    npm run prisma:generate
    ```
 
 3. Ejecuta la aplicación:
+
    ```bash
-   npm start            # Servidor Angular en puerto 4200
-   npm run dev          # Construye y ejecuta Electron en modo dev
+   npm run dev          # Construye y ejecuta Angular + Electron en modo dev
    ```
 
 ## Flujo de Trabajo
@@ -282,11 +299,13 @@ La rama principal es `main`, y el desarrollo activo ocurre en la rama `develop`.
 ### Crear una Rama
 
 Siempre crea ramas desde `develop` con el prefijo apropiado:
+
 - `feat/` - Nuevas características
 - `fix/` - Corrección de errores
 - `chore/` - Tareas de mantenimiento
 
 Ejemplo:
+
 ```bash
 git checkout develop
 git pull origin develop
@@ -308,6 +327,7 @@ tipo(alcance): descripción
 Tipos: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 Ejemplos:
+
 - `feat(proyectos): añadir funcionalidad de archivo de proyectos`
 - `fix(calendario): corregir cálculo de fecha en vista semanal`
 - `docs(readme): actualizar instrucciones de instalación`
@@ -360,11 +380,12 @@ Tu pull request debe incluir:
 Usamos SonarQube para análisis estático de código. Para ejecutarlo localmente:
 
 1. Inicia SonarQube:
+
    ```bash
    docker-compose up -d  # El primer inicio tarda ~2 minutos
    ```
 
-2. Accede a SonarQube en http://localhost:9000
+2. Accede a SonarQube en <http://localhost:9000>
    - Credenciales por defecto: `admin` / `admin`
    - Cambia la contraseña en el primer inicio
 
@@ -373,16 +394,19 @@ Usamos SonarQube para análisis estático de código. Para ejecutarlo localmente
    - Copia el token
 
 4. Crea un archivo `.env`:
+
    ```
    SONAR_TOKEN=tu_token_generado_aqui
    ```
 
 5. Ejecuta el análisis:
+
    ```bash
    npm run sonar:check
    ```
 
 6. Detén SonarQube:
+
    ```bash
    docker-compose down
    ```
@@ -392,11 +416,13 @@ Usamos SonarQube para análisis estático de código. Para ejecutarlo localmente
 Al modificar el esquema de Prisma:
 
 1. Crea una migración:
+
    ```bash
    npx prisma migrate dev --name descripcion_del_cambio
    ```
 
 2. Actualiza la plantilla de producción:
+
    ```bash
    npm run prisma:template
    ```
@@ -415,12 +441,14 @@ Al modificar el esquema de Prisma:
 ### Añadir Traducciones
 
 Añade nuevas cadenas a ambos archivos de idioma:
+
 - `src/assets/i18n/en.json`
 - `src/assets/i18n/es.json`
 
 ### Accesibilidad
 
 Asegúrate de que tus cambios de UI:
+
 - Tengan etiquetas apropiadas para controles de formulario
 - Mantengan indicadores de foco visibles
 - Cumplan requisitos de contraste de color
