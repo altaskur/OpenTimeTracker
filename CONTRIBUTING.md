@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to OpenTimeTracker! This guide will help you get started with contributing to the project.
 
-*Versión en español más abajo / Spanish version below*
+_Versión en español más abajo / Spanish version below_
 
 ---
 
@@ -21,6 +21,7 @@ Thank you for your interest in contributing to OpenTimeTracker! This guide will 
 ## Getting Started
 
 OpenTimeTracker is built with:
+
 - **Angular 21** for the UI
 - **Electron 37** for the desktop application
 - **Prisma/SQLite** for data persistence
@@ -39,21 +40,23 @@ The main branch is `main`, and active development happens on the `develop` branc
 ### Installation
 
 1. Fork and clone the repository:
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/OpenTimeTracker.git
    cd OpenTimeTracker
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    npm run prisma:generate
    ```
 
 3. Run the application:
+
    ```bash
-   npm start            # Angular dev server on port 4200
-   npm run dev          # Build and run Electron in dev mode
+   npm run dev          # Build and run Angular + Electron in dev mode
    ```
 
 ## Development Workflow
@@ -61,11 +64,13 @@ The main branch is `main`, and active development happens on the `develop` branc
 ### Creating a Branch
 
 Always branch from `develop` with the appropriate prefix:
+
 - `feat/` - New features
 - `fix/` - Bug fixes
 - `chore/` - Maintenance tasks
 
 Example:
+
 ```bash
 git checkout develop
 git pull origin develop
@@ -87,6 +92,7 @@ type(scope): description
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 Examples:
+
 - `feat(projects): add project archiving functionality`
 - `fix(calendar): correct date calculation in week view`
 - `docs(readme): update installation instructions`
@@ -139,11 +145,12 @@ Your pull request should include:
 We use SonarQube for static code analysis. To run it locally:
 
 1. Start SonarQube:
+
    ```bash
    docker-compose up -d  # First start takes ~2 minutes
    ```
 
-2. Access SonarQube at http://localhost:9000
+2. Access SonarQube at <http://localhost:9000>
    - Default credentials: `admin` / `admin`
    - Change password on first login
 
@@ -152,30 +159,86 @@ We use SonarQube for static code analysis. To run it locally:
    - Copy the token
 
 4. Create a `.env` file:
+
    ```
    SONAR_TOKEN=your_generated_token_here
    ```
 
 5. Run the analysis:
+
    ```bash
    npm run sonar:check
    ```
 
 6. Stop SonarQube:
+
    ```bash
    docker-compose down
    ```
+
+### SonarQube Local Project Setup
+
+**Step 1 of 2: Create a local project**
+
+1. In SonarQube, click "Create a local project"
+2. Fill in the project details:
+   - **Project display name**: `OpenTimeTracker`
+   - **Project key**: `altaskur_OpenTimeTracker` (must match `sonar-project.properties`)
+   - **Main branch name**: `develop`
+3. Click "Next"
+
+**Step 2 of 2: Set up project for Clean as You Code**
+
+1. Choose your baseline for new code:
+   - Recommended: **Previous version** (default option)
+   - This defines what SonarQube considers as "new code" for analysis
+2. Click "Create project"
+
+**Analysis Method**
+
+1. On the "How do you want to analyze your repository?" screen
+2. Select **"Locally"**
+
+**Token Generation**
+
+1. In the "Analyze your project" screen:
+   - Generate a **Project Analysis Token**
+   - Give it a descriptive name (e.g., `local-analysis`)
+   - Click "Generate"
+2. Copy the generated token
+
+3. Add the token to `.env` (do not commit it):
+
+   ```
+   SONAR_TOKEN=your_generated_token_here
+   ```
+
+4. Run the analysis:
+
+   ```bash
+   npm run sonar:check
+   ```
+
+### SonarQube Troubleshooting
+
+- Ensure the SonarQube token is set in the `.env` file.
+- Confirm the project key matches `sonar-project.properties`.
+- If you see a version warning, update the SonarQube image in `docker-compose.yml`.
+- For upgrades, follow the 24.12 path or reset Docker volumes.
+- The pre-push hook requires `sonar:check` and a running SonarQube instance.
 
 ## Database Changes
 
 When modifying the Prisma schema:
 
 1. Create a migration:
+
    ```bash
    npx prisma migrate dev --name description_of_change
    ```
 
 2. Update the production template:
+
    ```bash
    npm run prisma:template
    ```
@@ -194,12 +257,14 @@ When modifying the Prisma schema:
 ### Adding Translations
 
 Add new strings to both language files:
+
 - `src/assets/i18n/en.json`
 - `src/assets/i18n/es.json`
 
 ### Accessibility
 
 Ensure your UI changes:
+
 - Have proper labels for form controls
 - Maintain visible focus indicators
 - Meet color contrast requirements
@@ -236,12 +301,13 @@ Gracias por tu interés en contribuir a OpenTimeTracker. Esta guía te ayudará 
 - [Estándares de Calidad](#estándares-de-calidad)
 - [Cambios en la Base de Datos](#cambios-en-la-base-de-datos)
 - [UI e Internacionalización](#ui-e-internacionalización)
-- [Seguridad](#seguridad-1)
+- [Seguridad](#seguridad)
 - [Obtener Ayuda](#obtener-ayuda)
 
 ## Comenzando
 
 OpenTimeTracker está construido con:
+
 - **Angular 21** para la interfaz
 - **Electron 37** para la aplicación de escritorio
 - **Prisma/SQLite** para persistencia de datos
@@ -260,21 +326,23 @@ La rama principal es `main`, y el desarrollo activo ocurre en la rama `develop`.
 ### Instalación
 
 1. Haz fork y clona el repositorio:
+
    ```bash
    git clone https://github.com/TU_USUARIO/OpenTimeTracker.git
    cd OpenTimeTracker
    ```
 
 2. Instala las dependencias:
+
    ```bash
    npm install
    npm run prisma:generate
    ```
 
 3. Ejecuta la aplicación:
+
    ```bash
-   npm start            # Servidor Angular en puerto 4200
-   npm run dev          # Construye y ejecuta Electron en modo dev
+   npm run dev          # Construye y ejecuta Angular + Electron en modo dev
    ```
 
 ## Flujo de Trabajo
@@ -282,11 +350,13 @@ La rama principal es `main`, y el desarrollo activo ocurre en la rama `develop`.
 ### Crear una Rama
 
 Siempre crea ramas desde `develop` con el prefijo apropiado:
+
 - `feat/` - Nuevas características
 - `fix/` - Corrección de errores
 - `chore/` - Tareas de mantenimiento
 
 Ejemplo:
+
 ```bash
 git checkout develop
 git pull origin develop
@@ -308,6 +378,7 @@ tipo(alcance): descripción
 Tipos: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 Ejemplos:
+
 - `feat(proyectos): añadir funcionalidad de archivo de proyectos`
 - `fix(calendario): corregir cálculo de fecha en vista semanal`
 - `docs(readme): actualizar instrucciones de instalación`
@@ -360,11 +431,12 @@ Tu pull request debe incluir:
 Usamos SonarQube para análisis estático de código. Para ejecutarlo localmente:
 
 1. Inicia SonarQube:
+
    ```bash
    docker-compose up -d  # El primer inicio tarda ~2 minutos
    ```
 
-2. Accede a SonarQube en http://localhost:9000
+2. Accede a SonarQube en <http://localhost:9000>
    - Credenciales por defecto: `admin` / `admin`
    - Cambia la contraseña en el primer inicio
 
@@ -373,30 +445,86 @@ Usamos SonarQube para análisis estático de código. Para ejecutarlo localmente
    - Copia el token
 
 4. Crea un archivo `.env`:
+
    ```
    SONAR_TOKEN=tu_token_generado_aqui
    ```
 
 5. Ejecuta el análisis:
+
    ```bash
    npm run sonar:check
    ```
 
 6. Detén SonarQube:
+
    ```bash
    docker-compose down
    ```
+
+### Configuración del proyecto local en SonarQube
+
+**Paso 1 de 2: Crear un proyecto local**
+
+1. En SonarQube, haz clic en "Create a local project"
+2. Completa los detalles del proyecto:
+   - **Project display name**: `OpenTimeTracker`
+   - **Project key**: `altaskur_OpenTimeTracker` (debe coincidir con `sonar-project.properties`)
+   - **Main branch name**: `develop`
+3. Haz clic en "Next"
+
+**Paso 2 de 2: Configurar proyecto para Clean as You Code**
+
+1. Elige tu baseline para código nuevo:
+   - Recomendado: **Previous version** (opción por defecto)
+   - Esto define qué considera SonarQube como "código nuevo" para el análisis
+2. Haz clic en "Create project"
+
+**Método de Análisis**
+
+1. En la pantalla "How do you want to analyze your repository?"
+2. Selecciona **"Locally"**
+
+**Generación de Token**
+
+1. En la pantalla "Analyze your project":
+   - Genera un **Project Analysis Token**
+   - Dale un nombre descriptivo (ej., `local-analysis`)
+   - Haz clic en "Generate"
+2. Copia el token generado
+
+3. Añade el token a `.env` (no lo subas al repositorio):
+
+   ```
+   SONAR_TOKEN=tu_token_generado_aqui
+   ```
+
+4. Ejecuta el análisis:
+
+   ```bash
+   npm run sonar:check
+   ```
+
+### Solución de problemas de SonarQube
+
+- Asegúrate de que el token de SonarQube esté en el archivo `.env`.
+- Confirma que la clave del proyecto coincida con `sonar-project.properties`.
+- Si aparece una advertencia de versión, actualiza la imagen de SonarQube en `docker-compose.yml`.
+- Para actualizaciones, sigue la ruta 24.12 o reinicia los volúmenes de Docker.
+- El pre-push requiere `sonar:check` y que SonarQube esté en ejecución.
 
 ## Cambios en la Base de Datos
 
 Al modificar el esquema de Prisma:
 
 1. Crea una migración:
+
    ```bash
    npx prisma migrate dev --name descripcion_del_cambio
    ```
 
 2. Actualiza la plantilla de producción:
+
    ```bash
    npm run prisma:template
    ```
@@ -415,12 +543,14 @@ Al modificar el esquema de Prisma:
 ### Añadir Traducciones
 
 Añade nuevas cadenas a ambos archivos de idioma:
+
 - `src/assets/i18n/en.json`
 - `src/assets/i18n/es.json`
 
 ### Accesibilidad
 
 Asegúrate de que tus cambios de UI:
+
 - Tengan etiquetas apropiadas para controles de formulario
 - Mantengan indicadores de foco visibles
 - Cumplan requisitos de contraste de color
