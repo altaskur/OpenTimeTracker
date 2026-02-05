@@ -3,10 +3,12 @@ import { WindowManager } from './window.js';
 import { DatabaseManager } from '../services/database/database.js';
 import { setupIpcHandlers } from '../services/ipc/index.js';
 import { BackupService } from '../services/backup/index.js';
+import { UpdateManager } from '../services/updater/index.js';
 
 let windowManager: WindowManager | null = null;
 let dbManager: DatabaseManager | null = null;
 let backupService: BackupService | null = null;
+let updateManager: UpdateManager | null = null;
 
 const initializeApp = async (): Promise<void> => {
   backupService = new BackupService();
@@ -32,6 +34,14 @@ const initializeApp = async (): Promise<void> => {
   setupIpcHandlers(dbManager, backupService);
   windowManager = new WindowManager();
   await windowManager.createMainWindow();
+
+  // Initialize update manager after window is created
+  updateManager = UpdateManager.getInstance();
+  const mainWindow = windowManager.getMainWindow();
+  if (mainWindow) {
+    updateManager.setMainWindow(mainWindow);
+  }
+  await updateManager.initialize();
 };
 
 app.whenReady().then(initializeApp);
