@@ -216,7 +216,7 @@ export class UpdateService extends BaseDatabaseService {
         this.settings.set(result.settings);
         return result.settings;
       }
-      throw new Error(result.error || 'Failed to get settings');
+      throw new Error(result.error ?? 'Failed to get settings');
     });
   }
 
@@ -236,8 +236,26 @@ export class UpdateService extends BaseDatabaseService {
       if (result.success) {
         this.settings.update((s) => ({ ...s, autoCheckEnabled: enabled }));
       } else {
-        throw new Error(result.error || 'Failed to update settings');
+        throw new Error(result.error ?? 'Failed to update settings');
       }
+    });
+  }
+
+  /**
+   * Gets the current application version.
+   */
+  async getAppVersion(): Promise<string> {
+    if (!globalThis.window?.electronAPI?.getAppVersion) {
+      throw new Error('Update API not available');
+    }
+
+    return this.executeWithErrorHandling('get app version', async () => {
+      const result: UpdateResult =
+        await globalThis.window.electronAPI.getAppVersion();
+      if (result.success && result.version) {
+        return result.version;
+      }
+      throw new Error(result.error ?? 'Failed to get app version');
     });
   }
 

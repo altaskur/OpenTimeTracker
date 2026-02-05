@@ -181,6 +181,7 @@ export interface UpdateResult {
   settings?: UpdateSettings;
   status?: string;
   updateInfo?: UpdateInfo | null;
+  version?: string;
 }
 
 // ==================== UPDATE MODELS ====================
@@ -211,6 +212,7 @@ export interface UpdateResult {
   settings?: UpdateSettings;
   status?: string;
   updateInfo?: UpdateInfo | null;
+  version?: string;
 }
 
 // ==================== ELECTRON API ====================
@@ -410,6 +412,7 @@ declare global {
       checkForUpdates: () => Promise<UpdateResult>;
       downloadUpdate: () => Promise<UpdateResult>;
       installUpdate: () => Promise<UpdateResult>;
+      getAppVersion: () => Promise<UpdateResult>;
       getUpdateSettings: () => Promise<UpdateResult>;
       setUpdateSettings: (
         settings: Partial<UpdateSettings>,

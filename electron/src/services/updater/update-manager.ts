@@ -1,5 +1,5 @@
 import electronUpdater from 'electron-updater';
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import {
   UpdateInfo,
   UpdateSettings,
@@ -12,7 +12,6 @@ const { autoUpdater } = electronUpdater;
 type ElectronUpdateInfo = electronUpdater.UpdateInfo;
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { app } from 'electron';
 import { BackupService } from '../backup/backup.service.js';
 
 /**
@@ -31,7 +30,7 @@ export interface UpdateManagerConfig {
 export class UpdateManager {
   private static instance: UpdateManager;
   private mainWindow: BrowserWindow | null = null;
-  private config: UpdateManagerConfig;
+  private readonly config: UpdateManagerConfig;
   private currentStatus: UpdateStatus = UpdateStatus.Idle;
   private updateInfo: UpdateInfo | null = null;
   private readonly settingsPath: string;

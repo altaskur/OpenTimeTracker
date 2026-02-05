@@ -48,9 +48,7 @@ export class OpenSettingsUpdatesComponent implements OnInit {
 
   readonly loading = signal(false);
   readonly dialogVisible = signal(false);
-  readonly currentVersion = '1.0.0-alpha.3'; // TODO: Get from package.json or environment
-
-  // Expose update service signals to template
+  readonly currentVersion = signal('Unknown');
   readonly updateAvailable = this.updateService.updateAvailable;
   readonly isChecking = this.updateService.isChecking;
   readonly isDownloading = this.updateService.isDownloading;
@@ -61,6 +59,16 @@ export class OpenSettingsUpdatesComponent implements OnInit {
 
   ngOnInit(): void {
     void this.loadSettings();
+    void this.loadCurrentVersion();
+  }
+
+  private async loadCurrentVersion(): Promise<void> {
+    try {
+      const version = await this.updateService.getAppVersion();
+      this.currentVersion.set(version);
+    } catch {
+      this.currentVersion.set('Unknown');
+    }
   }
 
   async loadSettings(): Promise<void> {
@@ -102,7 +110,7 @@ export class OpenSettingsUpdatesComponent implements OnInit {
     try {
       await this.updateService.checkForUpdates();
 
-      // Wait a moment for the update check to complete
+      /* Wait a moment for the update check to complete. */
       setTimeout(() => {
         if (this.updateAvailable()) {
           this.dialogVisible.set(true);
@@ -141,7 +149,7 @@ export class OpenSettingsUpdatesComponent implements OnInit {
   async onInstall(): Promise<void> {
     try {
       await this.updateService.installUpdate();
-      // App will restart, no need for toast
+      /* App will restart, no need for toast. */
     } catch {
       this.messageService.add({
         severity: 'error',
@@ -157,12 +165,12 @@ export class OpenSettingsUpdatesComponent implements OnInit {
   }
 
   openReleasesPage(): void {
-    // Open GitHub releases page in system browser
+    /* Open GitHub releases page in system browser. */
     const url = 'https://github.com/altaskur/OpenTimeTracker/releases';
     if (globalThis.window?.electronAPI?.openExternal) {
       void globalThis.window.electronAPI.openExternal(url);
     } else {
-      // Fallback for web or if API not available
+      /* Fallback for web or if API not available. */
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   }

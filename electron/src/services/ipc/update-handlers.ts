@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import { UpdateManager } from '../updater/update-manager.js';
 import { UpdateSettings } from '../../interfaces/update.interface.js';
 
@@ -108,6 +108,21 @@ export const setupUpdateHandlers = (): void => {
       };
     } catch (error) {
       console.error('[IPC] Failed to get update status:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  });
+
+  /**
+   * Get current application version.
+   */
+  ipcMain.handle('update:get-app-version', async () => {
+    try {
+      return { success: true, version: app.getVersion() };
+    } catch (error) {
+      console.error('[IPC] Failed to get app version:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',

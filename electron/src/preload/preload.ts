@@ -432,6 +432,8 @@ try {
       ipcRenderer.invoke('update:download'),
     installUpdate: (): Promise<UpdateResult> =>
       ipcRenderer.invoke('update:install'),
+    getAppVersion: (): Promise<UpdateResult> =>
+      ipcRenderer.invoke('update:get-app-version'),
     getUpdateSettings: (): Promise<UpdateResult> =>
       ipcRenderer.invoke('update:get-settings'),
     setUpdateSettings: (
