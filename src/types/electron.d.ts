@@ -153,6 +153,66 @@ export interface BackupResult {
   error?: string;
 }
 
+// ==================== UPDATE MODELS ====================
+
+export interface UpdateInfo {
+  version: string;
+  releaseDate: string;
+  releaseName?: string;
+  releaseNotes?: string;
+  size?: number;
+}
+
+export interface DownloadProgress {
+  bytesPerSecond: number;
+  percent: number;
+  transferred: number;
+  total: number;
+}
+
+export interface UpdateSettings {
+  autoCheckEnabled: boolean;
+  lastCheckDate?: Date;
+}
+
+export interface UpdateResult {
+  success: boolean;
+  error?: string;
+  settings?: UpdateSettings;
+  status?: string;
+  updateInfo?: UpdateInfo | null;
+}
+
+// ==================== UPDATE MODELS ====================
+
+export interface UpdateInfo {
+  version: string;
+  releaseDate: string;
+  releaseName?: string;
+  releaseNotes?: string;
+  size?: number;
+}
+
+export interface DownloadProgress {
+  bytesPerSecond: number;
+  percent: number;
+  transferred: number;
+  total: number;
+}
+
+export interface UpdateSettings {
+  autoCheckEnabled: boolean;
+  lastCheckDate?: Date;
+}
+
+export interface UpdateResult {
+  success: boolean;
+  error?: string;
+  settings?: UpdateSettings;
+  status?: string;
+  updateInfo?: UpdateInfo | null;
+}
+
 // ==================== ELECTRON API ====================
 
 export interface DeleteResult {
@@ -342,6 +402,29 @@ declare global {
       exportBackup: () => Promise<BackupResult>;
       importBackup: () => Promise<BackupResult>;
       getBackupDir: () => Promise<string>;
+
+      // System
+      openExternal: (url: string) => Promise<void>;
+
+      // Updates
+      checkForUpdates: () => Promise<UpdateResult>;
+      downloadUpdate: () => Promise<UpdateResult>;
+      installUpdate: () => Promise<UpdateResult>;
+      getUpdateSettings: () => Promise<UpdateResult>;
+      setUpdateSettings: (
+        settings: Partial<UpdateSettings>,
+      ) => Promise<UpdateResult>;
+      getUpdateStatus: () => Promise<UpdateResult>;
+      onUpdateChecking: (callback: () => void) => void;
+      onUpdateAvailable: (callback: (info: UpdateInfo) => void) => void;
+      onUpdateNotAvailable: (
+        callback: (info: { version: string }) => void,
+      ) => void;
+      onDownloadProgress: (
+        callback: (progress: DownloadProgress) => void,
+      ) => void;
+      onUpdateDownloaded: (callback: (info: UpdateInfo) => void) => void;
+      onUpdateError: (callback: (error: { message: string }) => void) => void;
     };
   }
 }
