@@ -3,10 +3,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { OpenTasks } from './open-tasks';
 import { DatabaseService } from '../../services';
-import { provideTranslateTestingModule } from '../../testing/test-utils';
 import { TaskWithTags } from '../../interfaces';
 
 describe('OpenTasks', () => {
@@ -124,11 +124,10 @@ describe('OpenTasks', () => {
     );
 
     await TestBed.configureTestingModule({
-      imports: [OpenTasks, FormsModule],
+      imports: [OpenTasks, FormsModule, TranslateModule.forRoot()],
       providers: [
         { provide: DatabaseService, useValue: mockDatabaseService },
         MessageService,
-        ...provideTranslateTestingModule(),
       ],
     }).compileComponents();
 
@@ -146,8 +145,8 @@ describe('OpenTasks', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should load data on init', async () => {
-      await component.ngOnInit();
+    it('should load data on init', () => {
+      component.ngOnInit();
 
       expect(mockDatabaseService.getTasks).toHaveBeenCalled();
       expect(mockDatabaseService.getProjects).toHaveBeenCalled();
@@ -436,7 +435,7 @@ describe('OpenTasks', () => {
 
     it('should return secondary for unknown status', () => {
       expect(component.getStatusSeverity('Unknown')).toBe('secondary');
-      expect(component.getStatusSeverity(undefined)).toBe('secondary');
+      expect(component.getStatusSeverity()).toBe('secondary');
     });
   });
 

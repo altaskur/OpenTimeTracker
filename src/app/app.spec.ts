@@ -1,11 +1,14 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { App } from './app';
-import { provideTranslateTestingModule } from './testing/test-utils';
+import { TranslateModule } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ActionHistoryService } from './services/action-history.service';
+import { UpdateService } from './services/update/update.service';
+import { signal } from '@angular/core';
 
 describe('App', () => {
   let mockHistoryService: jasmine.SpyObj<ActionHistoryService>;
+  let mockUpdateService: jasmine.SpyObj<UpdateService>;
   let mockElectronAPI: {
     onUndoAction: jasmine.Spy;
     onRedoAction: jasmine.Spy;
@@ -49,6 +52,28 @@ describe('App', () => {
       }),
     );
 
+    // Mock UpdateService with signals
+    mockUpdateService = jasmine.createSpyObj('UpdateService', [
+      'checkForUpdates',
+      'downloadUpdate',
+      'installUpdate',
+    ]);
+    Object.defineProperty(mockUpdateService, 'updateAvailable', {
+      get: () => signal(null),
+    });
+    Object.defineProperty(mockUpdateService, 'downloadProgress', {
+      get: () => signal(null),
+    });
+    Object.defineProperty(mockUpdateService, 'isChecking', {
+      get: () => signal(false),
+    });
+    Object.defineProperty(mockUpdateService, 'isDownloading', {
+      get: () => signal(false),
+    });
+    Object.defineProperty(mockUpdateService, 'updateDownloaded', {
+      get: () => signal(false),
+    });
+
     mockElectronAPI = {
       onUndoAction: jasmine
         .createSpy('onUndoAction')
@@ -67,11 +92,11 @@ describe('App', () => {
     ).electronAPI = mockElectronAPI;
 
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [App, TranslateModule.forRoot()],
       providers: [
-        ...provideTranslateTestingModule(),
         MessageService,
         { provide: ActionHistoryService, useValue: mockHistoryService },
+        { provide: UpdateService, useValue: mockUpdateService },
       ],
     }).compileComponents();
   });
@@ -163,8 +188,8 @@ describe('App without electronAPI', () => {
     delete (window as { electronAPI?: unknown }).electronAPI;
 
     await TestBed.configureTestingModule({
-      imports: [App],
-      providers: [...provideTranslateTestingModule(), MessageService],
+      imports: [App, TranslateModule.forRoot()],
+      providers: [MessageService],
     }).compileComponents();
   });
 

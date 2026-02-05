@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { OpenHome } from './open-home';
 import { Router } from '@angular/router';
-import { provideTranslateTestingModule } from '../../testing/test-utils';
 import { DatabaseService } from '../../services';
 import {
   Task,
@@ -136,11 +136,10 @@ describe('OpenHome', () => {
     mockDbService.getDayOverrides.and.returnValue(Promise.resolve([]));
 
     await TestBed.configureTestingModule({
-      imports: [OpenHome],
+      imports: [OpenHome, TranslateModule.forRoot()],
       providers: [
         { provide: Router, useValue: mockRouter },
         { provide: DatabaseService, useValue: mockDbService },
-        ...provideTranslateTestingModule(),
       ],
     }).compileComponents();
 
