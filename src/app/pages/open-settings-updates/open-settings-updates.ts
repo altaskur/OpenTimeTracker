@@ -163,7 +163,7 @@ export class OpenSettingsUpdatesComponent implements OnInit {
       void globalThis.window.electronAPI.openExternal(url);
     } else {
       // Fallback for web or if API not available
-      window.open(url, '_blank');
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   }
 }
