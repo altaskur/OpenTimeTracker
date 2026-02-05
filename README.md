@@ -94,20 +94,22 @@ It runs Angular and Electron together as intended.
 
 **Comprehensive documentation is available in the project wiki:**
 
-### 👉 **[Visit the Wiki](wiki/Home.md)** 📖
+### 👉 **[Visit the Wiki](https://github.com/altaskur/OpenTimeTracker/wiki)** 📖
 
 Quick access to key documentation:
 
-- 🚀 **[Getting Started](wiki/Getting-Started.md)** - Installation and first steps
-- 📖 **[User Guide](wiki/Getting-Started.md)** - Complete feature guide
-- 🏗️ **[Architecture](wiki/Architecture.md)** - Technical design
-- 💾 **[Database Schema](wiki/Database-Schema.md)** - Data model
-- 🛠️ **[Development Setup](wiki/Development-Setup.md)** - Dev environment setup
-- 🔧 **[Troubleshooting](wiki/Troubleshooting.md)** - Common issues and solutions
-- ❓ **[FAQ](wiki/FAQ.md)** - Frequently asked questions
-- 🗺️ **[Roadmap](wiki/Roadmap.md)** - Future plans
+- 🚀 **[Getting Started](https://github.com/altaskur/OpenTimeTracker/wiki/Getting-Started)** - Installation and first steps
+- 📖 **[User Guide](https://github.com/altaskur/OpenTimeTracker/wiki/Getting-Started)** - Complete feature guide
+- 🏗️ **[Architecture](https://github.com/altaskur/OpenTimeTracker/wiki/Architecture)** - Technical design
+- 💾 **[Database Schema](https://github.com/altaskur/OpenTimeTracker/wiki/Database-Schema)** - Data model
+- 🛠️ **[Development Setup](https://github.com/altaskur/OpenTimeTracker/wiki/Development-Setup)** - Dev environment setup
+- 🔧 **[Troubleshooting](https://github.com/altaskur/OpenTimeTracker/wiki/Troubleshooting)** - Common issues and solutions
+- ❓ **[FAQ](https://github.com/altaskur/OpenTimeTracker/wiki/FAQ)** - Frequently asked questions
+- 🗺️ **[Roadmap](https://github.com/altaskur/OpenTimeTracker/wiki/Roadmap)** - Future plans
 
 All documentation is available in **English** and **Spanish**.
+
+> **Note**: Documentation source files are in the [`wiki/`](wiki/) folder. See [WIKI_MIGRATION.md](WIKI_MIGRATION.md) for instructions on publishing to GitHub Wiki.
 
 ---
 

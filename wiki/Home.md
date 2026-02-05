@@ -37,7 +37,6 @@ OpenTimeTracker is a **free, open-source, local-first time tracking application*
 ### For Users
 
 - **[Getting Started](Getting-Started.md)** - Installation and first steps
-- **[User Guide](User-Guide.md)** - Complete feature guide and usage
 - **[Troubleshooting](Troubleshooting.md)** - Common issues and solutions
 - **[FAQ](FAQ.md)** - Frequently asked questions
 
@@ -46,14 +45,12 @@ OpenTimeTracker is a **free, open-source, local-first time tracking application*
 - **[Development Setup](Development-Setup.md)** - Setting up your development environment
 - **[Architecture](Architecture.md)** - Technical design and system architecture
 - **[Database Schema](Database-Schema.md)** - Data model and relationships
-- **[API Documentation](API-Documentation.md)** - IPC API and service interfaces
 - **[Contributing Guide](Contributing.md)** - How to contribute to the project
 - **[Build & Deployment](Build-and-Deployment.md)** - Building and packaging
 
 ### Project Information
 
 - **[Roadmap](Roadmap.md)** - Future plans and feature requests
-- **[Release Notes](Release-Notes.md)** - Version history and changes
 - **[Security](Security.md)** - Security policy and best practices
 
 ---
@@ -111,7 +108,6 @@ OpenTimeTracker es una **aplicación de seguimiento de tiempo gratuita, de códi
 ### Para Usuarios
 
 - **[Comenzar](Getting-Started.md#guía-de-inicio-español)** - Instalación y primeros pasos
-- **[Guía de Usuario](User-Guide.md#guía-de-usuario-español)** - Guía completa de características
 - **[Solución de Problemas](Troubleshooting.md#solución-de-problemas-español)** - Problemas comunes y soluciones
 - **[Preguntas Frecuentes](FAQ.md#preguntas-frecuentes-español)** - FAQ en español
 
@@ -120,14 +116,12 @@ OpenTimeTracker es una **aplicación de seguimiento de tiempo gratuita, de códi
 - **[Configuración de Desarrollo](Development-Setup.md#configuración-de-desarrollo-español)** - Configurar entorno de desarrollo
 - **[Arquitectura](Architecture.md#arquitectura-español)** - Diseño técnico y arquitectura del sistema
 - **[Esquema de Base de Datos](Database-Schema.md)** - Modelo de datos y relaciones
-- **[Documentación de API](API-Documentation.md)** - API IPC e interfaces de servicio
 - **[Guía de Contribución](Contributing.md)** - Cómo contribuir al proyecto
 - **[Compilación y Despliegue](Build-and-Deployment.md#compilación-y-despliegue-español)** - Compilar y empaquetar
 
 ### Información del Proyecto
 
 - **[Hoja de Ruta](Roadmap.md)** - Planes futuros y solicitudes de características
-- **[Notas de Versión](Release-Notes.md)** - Historial de versiones y cambios
 - **[Seguridad](Security.md)** - Política de seguridad y mejores prácticas
 
 ---
