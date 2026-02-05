@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
+import { TranslateModule } from '@ngx-translate/core';
 import { OpenProjects } from './open-projects';
 import { DatabaseService } from '../../services';
-import { provideTranslateTestingModule } from '../../testing/test-utils';
 import { Project } from '../../../types/electron';
 
 describe('OpenProjects', () => {
@@ -37,11 +37,10 @@ describe('OpenProjects', () => {
     ]);
 
     await TestBed.configureTestingModule({
-      imports: [OpenProjects],
+      imports: [OpenProjects, TranslateModule.forRoot()],
       providers: [
         { provide: DatabaseService, useValue: mockDatabaseService },
         MessageService,
-        ...provideTranslateTestingModule(),
       ],
     }).compileComponents();
 

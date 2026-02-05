@@ -1,0 +1,101 @@
+<p-dialog
+  [header]="dialogHeader() | translate"
+  [visible]="visible()"
+  (visibleChange)="onClose()"
+  [modal]="true"
+  [closable]="!isDownloading()"
+  [closeOnEscape]="!isDownloading()"
+  [style]="{ width: '500px' }"
+>
+  <div class="update-dialog" role="alertdialog">
+    @if (updateInfo()) {
+      <div class="update-dialog__info">
+        <div class="update-dialog__version">
+          <i class="pi pi-arrow-up" aria-hidden="true"></i>
+          <span>
+            <strong>{{ "update.newVersion" | translate }}:</strong>
+            {{ updateInfo()?.version }}
+          </span>
+        </div>
+
+        @if (updateInfo()?.releaseName) {
+          <div class="update-dialog__release-name">
+            {{ updateInfo()?.releaseName }}
+          </div>
+        }
+
+        @if (updateInfo()?.releaseDate) {
+          <div class="update-dialog__date">
+            <strong>{{ "update.releaseDate" | translate }}:</strong>
+            {{ updateInfo()?.releaseDate | date: "medium" }}
+          </div>
+        }
+
+        @if (updateInfo()?.releaseNotes) {
+          <div class="update-dialog__notes">
+            <strong>{{ "update.releaseNotes" | translate }}:</strong>
+            <div class="update-dialog__notes-content">
+              {{ updateInfo()?.releaseNotes }}
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (isDownloading()) {
+      <div class="update-dialog__progress">
+        <p>{{ "update.downloading" | translate }}</p>
+        <p-progressBar [value]="downloadProgress()"></p-progressBar>
+        <p class="update-dialog__progress-text">{{ downloadProgress() }}%</p>
+      </div>
+    }
+
+    @if (isDownloaded()) {
+      <div class="update-dialog__ready">
+        <i
+          class="pi pi-check-circle update-dialog__ready-icon"
+          aria-hidden="true"
+        ></i>
+        <p>{{ "update.readyToInstall" | translate }}</p>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    @if (isDownloaded()) {
+      <p-button
+        [label]="'update.later' | translate"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-times"
+        (onClick)="onClose()"
+      />
+      <p-button
+        [label]="'update.installRestart' | translate"
+        severity="success"
+        icon="pi pi-refresh"
+        (onClick)="onInstall()"
+      />
+    } @else if (isDownloading()) {
+      <p-button
+        [label]="'update.downloadingInProgress' | translate"
+        [disabled]="true"
+        icon="pi pi-spin pi-spinner"
+      />
+    } @else {
+      <p-button
+        [label]="'update.later' | translate"
+        severity="secondary"
+        [outlined]="true"
+        icon="pi pi-times"
+        (onClick)="onClose()"
+      />
+      <p-button
+        [label]="'update.download' | translate"
+        severity="primary"
+        icon="pi pi-download"
+        (onClick)="onDownload()"
+      />
+    }
+  </ng-template>
+</p-dialog>

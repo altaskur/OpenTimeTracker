@@ -1,11 +1,14 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { App } from './app';
-import { provideTranslateTestingModule } from './testing/test-utils';
+import { TranslateModule } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ActionHistoryService } from './services/action-history.service';
+import { UpdateService } from './services/update/update.service';
+import { signal } from '@angular/core';
 
 describe('App', () => {
   let mockHistoryService: jasmine.SpyObj<ActionHistoryService>;
+  let mockUpdateService: jasmine.SpyObj<UpdateService>;
   let mockElectronAPI: {
     onUndoAction: jasmine.Spy;
     onRedoAction: jasmine.Spy;
@@ -49,6 +52,28 @@ describe('App', () => {
       }),
     );
 
+    // Mock UpdateService with signals
+    mockUpdateService = jasmine.createSpyObj('UpdateService', [
+      'checkForUpdates',
+      'downloadUpdate',
+      'installUpdate',
+    ]);
+    Object.defineProperty(mockUpdateService, 'updateAvailable', {
+      get: () => signal(null),
+    });
+    Object.defineProperty(mockUpdateService, 'downloadProgress', {
+      get: () => signal(null),
+    });
+    Object.defineProperty(mockUpdateService, 'isChecking', {
+      get: () => signal(false),
+    });
+    Object.defineProperty(mockUpdateService, 'isDownloading', {
+      get: () => signal(false),
+    });
+    Object.defineProperty(mockUpdateService, 'updateDownloaded', {
+      get: () => signal(false),
+    });
+
     mockElectronAPI = {
       onUndoAction: jasmine
         .createSpy('onUndoAction')
@@ -67,11 +92,11 @@ describe('App', () => {
     ).electronAPI = mockElectronAPI;
 
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [App, TranslateModule.forRoot()],
       providers: [
-        ...provideTranslateTestingModule(),
         MessageService,
         { provide: ActionHistoryService, useValue: mockHistoryService },
+        { provide: UpdateService, useValue: mockUpdateService },
       ],
     }).compileComponents();
   });
@@ -156,6 +181,41 @@ describe('App', () => {
 
     expect(messageService.add).not.toHaveBeenCalled();
   }));
+
+  it('should handle download update', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    mockUpdateService.downloadUpdate.and.returnValue(Promise.resolve());
+
+    await app.onDownloadUpdate();
+
+    expect(mockUpdateService.downloadUpdate).toHaveBeenCalled();
+  });
+
+  it('should handle install update', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    mockUpdateService.installUpdate.and.returnValue(Promise.resolve());
+
+    await app.onInstallUpdate();
+
+    expect(mockUpdateService.installUpdate).toHaveBeenCalled();
+  });
+
+  it('should close update dialog', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.updateDialogVisible.set(true);
+    app.onCloseUpdateDialog();
+
+    expect(app.updateDialogVisible()).toBe(false);
+  });
 });
 
 describe('App without electronAPI', () => {
@@ -163,8 +223,8 @@ describe('App without electronAPI', () => {
     delete (window as { electronAPI?: unknown }).electronAPI;
 
     await TestBed.configureTestingModule({
-      imports: [App],
-      providers: [...provideTranslateTestingModule(), MessageService],
+      imports: [App, TranslateModule.forRoot()],
+      providers: [MessageService],
     }).compileComponents();
   });
 
@@ -174,4 +234,67 @@ describe('App without electronAPI', () => {
     fixture.detectChanges();
     expect(app).toBeTruthy();
   });
+});
+
+describe('App update notifications', () => {
+  it('should show notification when update becomes available', fakeAsync(() => {
+    const updateSignal = signal<{
+      version: string;
+      releaseName?: string;
+      releaseNotes?: string;
+      releaseDate: string;
+    } | null>(null);
+
+    const mockUpdateService = jasmine.createSpyObj('UpdateService', [
+      'checkForUpdates',
+      'downloadUpdate',
+      'installUpdate',
+    ]);
+    Object.defineProperty(mockUpdateService, 'updateAvailable', {
+      get: () => updateSignal,
+    });
+    Object.defineProperty(mockUpdateService, 'downloadProgress', {
+      get: () => signal(null),
+    });
+    Object.defineProperty(mockUpdateService, 'isChecking', {
+      get: () => signal(false),
+    });
+    Object.defineProperty(mockUpdateService, 'isDownloading', {
+      get: () => signal(false),
+    });
+    Object.defineProperty(mockUpdateService, 'updateDownloaded', {
+      get: () => signal(false),
+    });
+
+    TestBed.configureTestingModule({
+      imports: [App, TranslateModule.forRoot()],
+      providers: [
+        MessageService,
+        { provide: UpdateService, useValue: mockUpdateService },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(App);
+    const messageService = TestBed.inject(MessageService);
+    spyOn(messageService, 'add');
+    fixture.detectChanges();
+
+    // Trigger the effect by setting update info
+    updateSignal.set({
+      version: '2.0.0',
+      releaseName: 'Version 2.0.0',
+      releaseNotes: 'New features',
+      releaseDate: '2026-02-01',
+    });
+    fixture.detectChanges();
+    tick();
+
+    expect(messageService.add).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        severity: 'info',
+        sticky: true,
+        data: { action: 'viewUpdate' },
+      }),
+    );
+  }));
 });
