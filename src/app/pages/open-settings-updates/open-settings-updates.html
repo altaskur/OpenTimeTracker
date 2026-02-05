@@ -1,0 +1,115 @@
+<app-open-layout>
+  <p-toast />
+
+  <ng-template pTemplate="header">
+    <header class="settings-updates-header">
+      <h2 class="settings-updates-header__title">
+        <i class="pi pi-refresh"></i>
+        {{ "update.checkForUpdates" | translate }}
+      </h2>
+    </header>
+  </ng-template>
+
+  <div class="settings-updates">
+    <!-- Current Version -->
+    <div class="settings-updates__section">
+      <div class="settings-updates__info">
+        <i class="pi pi-info-circle"></i>
+        <div>
+          <strong>{{ "update.currentVersion" | translate }}:</strong>
+          {{ currentVersion }}
+        </div>
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- Auto-check Setting -->
+    <div class="settings-updates__section">
+      <div class="settings-updates__setting">
+        <div class="settings-updates__setting-label">
+          <i class="pi pi-cog"></i>
+          <span>{{ "update.autoCheckEnabled" | translate }}</span>
+        </div>
+        <p-toggleSwitch
+          [(ngModel)]="settings().autoCheckEnabled"
+          (ngModelChange)="onAutoCheckToggle($event)"
+          [disabled]="loading()"
+        />
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- Check for Updates Button -->
+    <div class="settings-updates__section">
+      <p-button
+        [label]="
+          isChecking()
+            ? ('update.checking' | translate)
+            : ('update.checkForUpdates' | translate)
+        "
+        icon="pi pi-refresh"
+        [loading]="isChecking()"
+        (click)="checkForUpdates()"
+        [disabled]="isChecking()"
+        styleClass="p-button-lg"
+      />
+    </div>
+
+    @if (updateAvailable()) {
+      <div class="settings-updates__update-info">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>
+          {{ "update.newVersion" | translate }}:
+          <strong>{{ updateAvailable()?.version }}</strong>
+        </span>
+        <p-button
+          [label]="'common.view' | translate"
+          (click)="dialogVisible.set(true)"
+          size="small"
+        />
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="settings-updates__error-info">
+        <i class="pi pi-times-circle"></i>
+        <span
+          >{{ "update.errorChecking" | translate }}: {{ errorMessage() }}</span
+        >
+      </div>
+    }
+
+    <p-divider />
+
+    <!-- GitHub Releases Link -->
+    <div class="settings-updates__section">
+      <p-button
+        [label]="'update.viewReleases' | translate"
+        icon="pi pi-external-link"
+        severity="secondary"
+        [outlined]="true"
+        (click)="openReleasesPage()"
+      />
+    </div>
+
+    @if (settings().lastCheckDate) {
+      <div class="settings-updates__last-check">
+        {{ "Last checked" }}: {{ settings().lastCheckDate | date: "medium" }}
+      </div>
+    }
+  </div>
+
+  <!-- Update Dialog -->
+  <app-open-update-dialog
+    [visible]="dialogVisible()"
+    [updateInfo]="updateAvailable()"
+    [downloadProgress]="downloadProgress()"
+    [isDownloading]="isDownloading()"
+    [isDownloaded]="updateDownloaded()"
+    (download)="onDownload()"
+    (install)="onInstall()"
+    (closed)="onDialogClosed()"
+  />
+</app-open-layout>
