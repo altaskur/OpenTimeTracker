@@ -7,7 +7,7 @@ import {
   type Mock,
   type Mocked,
 } from 'vitest';
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import { setupUpdateHandlers } from './update-handlers.js';
 import { UpdateManager } from '../updater/update-manager.js';
 import {
@@ -98,6 +98,10 @@ describe('Update IPC Handlers', () => {
       );
       expect(ipcMain.handle).toHaveBeenCalledWith(
         'update:get-status',
+        expect.any(Function),
+      );
+      expect(ipcMain.handle).toHaveBeenCalledWith(
+        'update:get-app-version',
         expect.any(Function),
       );
     });
@@ -309,6 +313,29 @@ describe('Update IPC Handlers', () => {
         success: false,
         error: 'Status error',
       });
+    });
+  });
+
+  describe('update:get-app-version handler', () => {
+    it('should return app version successfully', async () => {
+      setupUpdateHandlers();
+      const handler = ipcHandlers.get('update:get-app-version')!;
+
+      const result = await handler();
+
+      expect(result).toEqual({ success: true, version: '1.0.0' });
+    });
+
+    it('should handle get version error', async () => {
+      setupUpdateHandlers();
+      const handler = ipcHandlers.get('update:get-app-version')!;
+      (app.getVersion as Mock).mockImplementation(() => {
+        throw new Error('Version error');
+      });
+
+      const result = await handler();
+
+      expect(result).toEqual({ success: false, error: 'Version error' });
     });
   });
 });

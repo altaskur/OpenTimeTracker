@@ -1,6 +1,6 @@
 {
   "name": "open-time-tracker",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "author": "altaskur",
   "license": "GPL-3.0",
   "type": "module",
@@ -23,7 +23,7 @@
     "prisma:studio": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma studio",
     "prisma:migrate": "cross-env DATABASE_URL=file:./dist/data/timetracker.db prisma migrate dev",
     "prisma:template": "node scripts/update-db-template.mjs",
-    "postinstall": "electron-rebuild",
+    "postinstall": "npx @electron/rebuild",
     "test": "ng test",
     "test:coverage": "ng test --code-coverage --watch=false --browsers=ChromeHeadless",
     "test:electron": "vitest run",
@@ -171,6 +171,7 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.3",
     "@angular/build": "^21.0.1",
     "@angular/cli": "^21.0.1",
     "@angular/compiler-cli": "^21.0.1",
@@ -185,7 +186,6 @@
     "dotenv": "^17.2.3",
     "electron": "^37.1.0",
     "electron-builder": "^26.0.12",
-    "electron-rebuild": "^3.2.9",
     "electron-updater": "^6.3.9",
     "eslint": "^9.39.1",
     "husky": "^9.1.7",
@@ -198,7 +198,7 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
-    "prisma": "^7.1.0",
+    "prisma": "^6.19.2",
     "sonarqube-scanner": "^4.3.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "8.46.4",
