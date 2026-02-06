@@ -32,6 +32,7 @@ interface MockElectronAPI {
     (settings: UpdateSettings) => Promise<UpdateResult>
   >;
   getUpdateStatus?: jasmine.Spy<() => Promise<UpdateResult>>;
+  getAppVersion?: jasmine.Spy<() => Promise<UpdateResult>>;
 }
 
 describe('UpdateService', () => {
@@ -480,6 +481,55 @@ describe('UpdateService', () => {
       delete mockElectronAPI.setUpdateSettings;
 
       await expectAsync(service.setAutoCheck(true)).toBeRejectedWithError(
+        'Update API not available',
+      );
+    });
+  });
+
+  describe('getAppVersion', () => {
+    it('should return the app version when available', async () => {
+      mockElectronAPI.getAppVersion = jasmine
+        .createSpy('getAppVersion')
+        .and.returnValue(Promise.resolve({ success: true, version: '1.2.3' }));
+
+      const version = await service.getAppVersion();
+
+      expect(mockElectronAPI.getAppVersion).toHaveBeenCalled();
+      expect(version).toBe('1.2.3');
+    });
+
+    it('should reject when app version retrieval fails', async () => {
+      mockElectronAPI.getAppVersion = jasmine
+        .createSpy('getAppVersion')
+        .and.returnValue(Promise.resolve({ success: false, error: 'boom' }));
+
+      await expectAsync(service.getAppVersion()).toBeRejectedWithError(
+        'Failed to get app version',
+      );
+    });
+
+    it('should reject when version is missing in result', async () => {
+      mockElectronAPI.getAppVersion = jasmine
+        .createSpy('getAppVersion')
+        .and.returnValue(Promise.resolve({ success: true }));
+
+      await expectAsync(service.getAppVersion()).toBeRejectedWithError(
+        'Failed to get app version',
+      );
+    });
+
+    it('should throw when electronAPI is not available', async () => {
+      delete (window as { electronAPI?: unknown }).electronAPI;
+
+      await expectAsync(service.getAppVersion()).toBeRejectedWithError(
+        'Update API not available',
+      );
+    });
+
+    it('should throw when getAppVersion is missing', async () => {
+      delete (mockElectronAPI as { getAppVersion?: unknown }).getAppVersion;
+
+      await expectAsync(service.getAppVersion()).toBeRejectedWithError(
         'Update API not available',
       );
     });
