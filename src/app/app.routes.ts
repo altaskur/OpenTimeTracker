@@ -50,13 +50,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'settings/updates',
-    loadComponent: () =>
-      import('./pages/open-settings-updates/open-settings-updates').then(
-        (m) => m.OpenSettingsUpdatesComponent,
-      ),
-  },
-  {
     path: '**',
     redirectTo: '',
   },

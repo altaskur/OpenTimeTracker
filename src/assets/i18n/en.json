@@ -366,27 +366,5 @@
       "cannotDeleteDefault": "Cannot delete default statuses",
       "cannotDeleteInUse": "Cannot delete: status is in use"
     }
-  },
-  "update": {
-    "availableTitle": "Update Available",
-    "downloadingTitle": "Downloading Update",
-    "readyToInstallTitle": "Ready to Install",
-    "newVersion": "New version",
-    "releaseDate": "Release date",
-    "releaseNotes": "Release notes",
-    "downloading": "Downloading update...",
-    "readyToInstall": "Update ready to install",
-    "later": "Later",
-    "download": "Download",
-    "installRestart": "Install & Restart",
-    "downloadingInProgress": "Downloading...",
-    "checkForUpdates": "Check for Updates",
-    "autoCheckEnabled": "Check for updates on startup",
-    "currentVersion": "Current version",
-    "upToDate": "You're up to date",
-    "checking": "Checking for updates...",
-    "noUpdatesAvailable": "No updates available",
-    "errorChecking": "Error checking for updates",
-    "viewReleases": "View Releases on GitHub"
   }
 }

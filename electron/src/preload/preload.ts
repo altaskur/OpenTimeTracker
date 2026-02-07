@@ -128,34 +128,6 @@ interface BackupResult {
   path?: string;
 }
 
-interface UpdateInfo {
-  version: string;
-  releaseDate: string;
-  releaseName?: string;
-  releaseNotes?: string;
-  size?: number;
-}
-
-interface DownloadProgress {
-  bytesPerSecond: number;
-  percent: number;
-  transferred: number;
-  total: number;
-}
-
-interface UpdateSettings {
-  autoCheckEnabled: boolean;
-  lastCheckDate?: Date;
-}
-
-interface UpdateResult {
-  success: boolean;
-  error?: string;
-  settings?: UpdateSettings;
-  status?: string;
-  updateInfo?: UpdateInfo | null;
-}
-
 try {
   const electronAPI = {
     // Projects
@@ -424,48 +396,6 @@ try {
 
     // System
     openExternal: (url: string): Promise<void> => shell.openExternal(url),
-
-    // Updates
-    checkForUpdates: (): Promise<UpdateResult> =>
-      ipcRenderer.invoke('update:check'),
-    downloadUpdate: (): Promise<UpdateResult> =>
-      ipcRenderer.invoke('update:download'),
-    installUpdate: (): Promise<UpdateResult> =>
-      ipcRenderer.invoke('update:install'),
-    getAppVersion: (): Promise<UpdateResult> =>
-      ipcRenderer.invoke('update:get-app-version'),
-    getUpdateSettings: (): Promise<UpdateResult> =>
-      ipcRenderer.invoke('update:get-settings'),
-    setUpdateSettings: (
-      settings: Partial<UpdateSettings>,
-    ): Promise<UpdateResult> =>
-      ipcRenderer.invoke('update:set-settings', settings),
-    getUpdateStatus: (): Promise<UpdateResult> =>
-      ipcRenderer.invoke('update:get-status'),
-    onUpdateChecking: (callback: () => void): void => {
-      ipcRenderer.on('update:checking', () => callback());
-    },
-    onUpdateAvailable: (callback: (info: UpdateInfo) => void): void => {
-      ipcRenderer.on('update:available', (_event, info) => callback(info));
-    },
-    onUpdateNotAvailable: (
-      callback: (info: { version: string }) => void,
-    ): void => {
-      ipcRenderer.on('update:not-available', (_event, info) => callback(info));
-    },
-    onDownloadProgress: (
-      callback: (progress: DownloadProgress) => void,
-    ): void => {
-      ipcRenderer.on('update:download-progress', (_event, progress) =>
-        callback(progress),
-      );
-    },
-    onUpdateDownloaded: (callback: (info: UpdateInfo) => void): void => {
-      ipcRenderer.on('update:downloaded', (_event, info) => callback(info));
-    },
-    onUpdateError: (callback: (error: { message: string }) => void): void => {
-      ipcRenderer.on('update:error', (_event, error) => callback(error));
-    },
   };
 
   contextBridge.exposeInMainWorld('electronAPI', electronAPI);

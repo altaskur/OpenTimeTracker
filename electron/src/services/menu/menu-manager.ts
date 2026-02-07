@@ -54,7 +54,6 @@ const menuTranslations: Record<string, Record<string, string>> = {
     tags: 'Etiquetas',
     dayTypes: 'Tipos de Día',
     taskStatuses: 'Estados de Tarea',
-    checkForUpdates: 'Buscar Actualizaciones...',
   },
   en: {
     home: 'Home',
@@ -93,7 +92,6 @@ const menuTranslations: Record<string, Record<string, string>> = {
     tags: 'Tags',
     dayTypes: 'Day Types',
     taskStatuses: 'Task Statuses',
-    checkForUpdates: 'Check for Updates...',
   },
 };
 
@@ -302,13 +300,6 @@ export class MenuManager {
             accelerator: 'CmdOrCtrl+/',
             click: (): void => {
               this.showKeyboardShortcuts();
-            },
-          },
-          { type: 'separator' },
-          {
-            label: this.t('checkForUpdates'),
-            click: (): void => {
-              this.navigateTo('/settings/updates');
             },
           },
           { type: 'separator' },
