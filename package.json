@@ -131,12 +131,6 @@
           "path": "/Applications"
         }
       ]
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "altaskur",
-      "repo": "OpenTimeTracker",
-      "releaseType": "release"
     }
   },
   "prettier": {
@@ -165,7 +159,6 @@
     "@prisma/adapter-better-sqlite3": "^7.1.0",
     "@prisma/client": "^7.1.0",
     "better-sqlite3": "^12.5.0",
-    "electron-updater": "^6.3.9",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.3.0",

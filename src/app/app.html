@@ -3,26 +3,3 @@
 <div class="app-container">
   <router-outlet></router-outlet>
 </div>
-
-<!-- Global Update Dialog -->
-<app-open-update-dialog
-  [visible]="updateDialogVisible()"
-  [updateInfo]="updateService.updateAvailable()"
-  [downloadProgress]="updateService.downloadProgress()"
-  [isDownloading]="updateService.isDownloading()"
-  [isDownloaded]="updateService.updateDownloaded()"
-  (download)="onDownloadUpdate()"
-  (install)="onInstallUpdate()"
-  (closed)="onCloseUpdateDialog()"
-/>
-
-<app-open-update-dialog
-  [visible]="updateDialogVisible()"
-  [updateInfo]="updateService.updateAvailable()"
-  [downloadProgress]="updateService.downloadProgress()"
-  [isDownloading]="updateService.isDownloading()"
-  [isDownloaded]="updateService.updateDownloaded()"
-  (download)="onDownloadUpdate()"
-  (install)="onInstallUpdate()"
-  (closed)="onCloseUpdateDialog()"
-/>
