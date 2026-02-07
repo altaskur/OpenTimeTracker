@@ -4,7 +4,6 @@ import { setupDatabaseHandlers } from './database-handlers.js';
 import { setupThemeHandlers } from './theme-handlers.js';
 import { setupLanguageHandlers } from './language-handlers.js';
 import { setupBackupHandlers } from './backup-handlers.js';
-import { setupUpdateHandlers } from './update-handlers.js';
 
 /**
  * Sets up all IPC handlers
@@ -16,7 +15,6 @@ export const setupIpcHandlers = (
   setupDatabaseHandlers(dbManager);
   setupThemeHandlers(dbManager);
   setupLanguageHandlers(dbManager);
-  setupUpdateHandlers();
   if (backupService) {
     setupBackupHandlers(backupService);
   }

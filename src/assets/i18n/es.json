@@ -366,27 +366,5 @@
       "cannotDeleteDefault": "No se pueden eliminar los estados predeterminados",
       "cannotDeleteInUse": "No se puede eliminar: el estado está en uso"
     }
-  },
-  "update": {
-    "availableTitle": "Actualización Disponible",
-    "downloadingTitle": "Descargando Actualización",
-    "readyToInstallTitle": "Lista para Instalar",
-    "newVersion": "Nueva versión",
-    "releaseDate": "Fecha de lanzamiento",
-    "releaseNotes": "Notas de la versión",
-    "downloading": "Descargando actualización...",
-    "readyToInstall": "Actualización lista para instalar",
-    "later": "Más tarde",
-    "download": "Descargar",
-    "installRestart": "Instalar y Reiniciar",
-    "downloadingInProgress": "Descargando...",
-    "checkForUpdates": "Buscar Actualizaciones",
-    "autoCheckEnabled": "Buscar actualizaciones al iniciar",
-    "currentVersion": "Versión actual",
-    "upToDate": "Estás actualizado",
-    "checking": "Buscando actualizaciones...",
-    "noUpdatesAvailable": "No hay actualizaciones disponibles",
-    "errorChecking": "Error al buscar actualizaciones",
-    "viewReleases": "Ver Lanzamientos en GitHub"
   }
 }
