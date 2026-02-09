@@ -12,9 +12,13 @@ describe('ElectronNavigationService', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockElectronAPI: MockElectronAPI;
   let navigationCallback: ((route: string) => void) | null = null;
+  let originalElectronAPI: unknown;
 
   beforeEach(() => {
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+
+    // Save original electronAPI
+    originalElectronAPI = (window as WindowWithOptionalElectronAPI).electronAPI;
 
     // Setup mock electronAPI
     mockElectronAPI = {
@@ -41,8 +45,10 @@ describe('ElectronNavigationService', () => {
 
   afterEach(() => {
     navigationCallback = null;
-    delete (window as WindowWithOptionalElectronAPI).electronAPI;
+    // Restore original electronAPI instead of deleting
+    (window as WindowWithOptionalElectronAPI).electronAPI = originalElectronAPI as Partial<Window['electronAPI']>;
   });
+
 
   it('should be created', () => {
     service = TestBed.inject(ElectronNavigationService);

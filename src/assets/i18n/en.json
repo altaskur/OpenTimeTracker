@@ -365,6 +365,19 @@
       "add": "Add",
       "cannotDeleteDefault": "Cannot delete default statuses",
       "cannotDeleteInUse": "Cannot delete: status is in use"
+    },
+    "updates": {
+      "title": "Updates",
+      "settings": "Settings",
+      "autoCheck": "Check for updates automatically",
+      "checkForUpdates": "Check for Updates",
+      "checkNow": "Check Now",
+      "upToDate": "You are using the latest version",
+      "newVersionAvailable": "New version available",
+      "download": "Download",
+      "currentVersionNotes": "Current Version Release Notes",
+      "releaseNotes": "Release Notes",
+      "noReleaseNotes": "No release notes available."
     }
   }
 }

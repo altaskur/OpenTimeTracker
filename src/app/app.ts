@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, NgZone, OnDestroy } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
+import { UpdateBannerComponent } from './components/update-banner/update-banner.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,6 +10,7 @@ import {
   TranslationService,
 } from './services';
 import { ActionHistoryService } from './services/action-history.service';
+import { UpdateService } from './services/update.service';
 
 /**
  * Root component of the application.
@@ -16,7 +18,8 @@ import { ActionHistoryService } from './services/action-history.service';
  */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastModule],
+  standalone: true,
+  imports: [RouterOutlet, ToastModule, UpdateBannerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -28,12 +31,14 @@ export class App implements OnInit, OnDestroy {
   private readonly translationService = inject(TranslationService);
   private readonly historyService = inject(ActionHistoryService);
   private readonly messageService = inject(MessageService);
+  private readonly updateService = inject(UpdateService);
   private readonly translate = inject(TranslateService);
   private readonly ngZone = inject(NgZone);
   private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.setupHistoryListeners();
+    this.updateService.init();
   }
 
   ngOnDestroy(): void {

@@ -396,6 +396,20 @@ try {
 
     // System
     openExternal: (url: string): Promise<void> => shell.openExternal(url),
+
+    // Updates
+    checkForUpdates: (): Promise<{
+      updateAvailable: boolean;
+      version: string;
+      url: string;
+      releaseNotes?: string;
+    }> => ipcRenderer.invoke('check-for-updates'),
+
+    // App Info
+    getVersion: (): Promise<string> => ipcRenderer.invoke('get-version'),
+
+    // Release Info
+    getReleaseByTag: (tag: string): Promise<any> => ipcRenderer.invoke('get-release-by-tag', tag),
   };
 
   contextBridge.exposeInMainWorld('electronAPI', electronAPI);

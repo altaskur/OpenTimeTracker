@@ -159,6 +159,21 @@ export interface DeleteResult {
   success: boolean;
 }
 
+export interface UpdateCheckResult {
+  updateAvailable: boolean;
+  version: string;
+  url: string;
+  releaseNotes?: string;
+}
+
+export interface GitHubRelease {
+  tag_name: string;
+  html_url: string;
+  body: string;
+  name: string;
+  published_at: string;
+}
+
 declare global {
   interface Window {
     electronAPI: {
@@ -345,8 +360,17 @@ declare global {
 
       // System
       openExternal: (url: string) => Promise<void>;
+
+      // Updates
+      checkForUpdates: () => Promise<UpdateCheckResult>;
+
+      // App Info
+      getVersion: () => Promise<string>;
+
+      // Release Info
+      getReleaseByTag: (tag: string) => Promise<GitHubRelease | null>;
     };
   }
 }
 
-export {};
+export { };

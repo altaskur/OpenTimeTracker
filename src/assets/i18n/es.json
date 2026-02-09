@@ -365,6 +365,19 @@
       "add": "Añadir",
       "cannotDeleteDefault": "No se pueden eliminar los estados predeterminados",
       "cannotDeleteInUse": "No se puede eliminar: el estado está en uso"
+    },
+    "updates": {
+      "title": "Actualizaciones",
+      "settings": "Configuración",
+      "autoCheck": "Buscar actualizaciones automáticamente",
+      "checkForUpdates": "Buscar actualizaciones",
+      "checkNow": "Comprobar ahora",
+      "upToDate": "Estás usando la última versión",
+      "newVersionAvailable": "Nueva versión disponible",
+      "download": "Descargar",
+      "currentVersionNotes": "Notas de la versión actual",
+      "releaseNotes": "Notas de la versión",
+      "noReleaseNotes": "No hay notas de la versión disponibles."
     }
   }
 }
