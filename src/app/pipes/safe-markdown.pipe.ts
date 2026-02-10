@@ -34,9 +34,11 @@ export class SafeMarkdownPipe implements PipeTransform {
     'code',
     'pre',
     'blockquote',
+    'b',
+    'i',
   ];
 
-  private readonly allowedAttributes = ['href', 'target', 'rel', 'class'];
+  private readonly allowedAttributes = ['href', 'target', 'rel', 'class', 'id'];
 
   private readonly sanitizer = inject(DomSanitizer);
 

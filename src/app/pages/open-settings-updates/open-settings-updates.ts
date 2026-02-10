@@ -203,8 +203,8 @@ import { UpdateDialogComponent } from '../../components/update-dialog/update-dia
 })
 export class OpenSettingsUpdatesComponent implements OnInit {
   updateService = inject(UpdateService);
-  private ngZone = inject(NgZone);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   lastCheckResult: UpdateCheckResult | null = null;
   currentVersion = '...';
@@ -268,7 +268,7 @@ export class OpenSettingsUpdatesComponent implements OnInit {
     if (globalThis.window?.electronAPI) {
       globalThis.window.electronAPI.openExternal(repoUrl);
     } else {
-      window.open(repoUrl, '_blank');
+      window.open(repoUrl, '_blank', 'noopener');
     }
   }
 

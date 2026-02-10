@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { OpenSettingsUpdatesComponent } from './open-settings-updates';
 import { UpdateService } from '../../services/update.service';
 import { MessageService } from 'primeng/api';
@@ -129,6 +134,66 @@ describe('OpenSettingsUpdatesComponent', () => {
 
     expect(component.lastCheckResult).toBeNull();
   });
+
+  it('should call openDownloadPage', () => {
+    component.handleDownload();
+    expect(updateServiceMock.openDownloadPage).toHaveBeenCalled();
+  });
+
+  it('should open GitHub releases via electronAPI if available', () => {
+    const event = new Event('click');
+    spyOn(event, 'preventDefault');
+    const mockElectronAPI = {
+      openExternal: jasmine.createSpy('openExternal'),
+    };
+    (window as unknown as { electronAPI: typeof mockElectronAPI }).electronAPI =
+      mockElectronAPI;
+
+    component.openGitHubReleases(event);
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(mockElectronAPI.openExternal).toHaveBeenCalledWith(
+      'https://github.com/altaskur/OpenTimeTracker/releases',
+    );
+  });
+
+  it('should open GitHub releases via window.open if electronAPI is not available', () => {
+    const event = new Event('click');
+    spyOn(event, 'preventDefault');
+    const win = window as unknown as { electronAPI?: unknown };
+    const originalElectronAPI = win.electronAPI;
+    delete win.electronAPI;
+    spyOn(window, 'open');
+
+    component.openGitHubReleases(event);
+
+    expect(window.open).toHaveBeenCalledWith(
+      'https://github.com/altaskur/OpenTimeTracker/releases',
+      '_blank',
+      'noopener',
+    );
+
+    // Restore
+    win.electronAPI = originalElectronAPI;
+  });
+
+  it('should show current version notes', fakeAsync(() => {
+    component.currentVersionReleaseNotes = null;
+    updateServiceMock.getReleaseByTag.and.returnValue(
+      Promise.resolve({
+        tag_name: 'v1.0.0',
+        html_url: 'url',
+        body: 'Notes',
+        name: 'Name',
+        published_at: 'date',
+      }),
+    );
+
+    component.showCurrentVersionNotes();
+    tick();
+
+    expect(component.currentVersionDialogVisible).toBeTrue();
+    expect(updateServiceMock.getReleaseByTag).toHaveBeenCalled();
+  }));
 });
 
 describe('OpenSettingsUpdatesComponent without release notes', () => {
