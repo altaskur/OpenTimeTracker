@@ -62,156 +62,166 @@
     </div>
   </header>
 
-  <div class="calendar__grid">
-    <div class="calendar__weekdays">
-      @for (day of weekDays(); track day) {
-        <div class="calendar__weekday">{{ day }}</div>
-      }
-      <div class="calendar__weekday calendar__weekday--summary">
-        {{ "calendar.weekSummary" | translate }}
-      </div>
-    </div>
-
-    <div class="calendar__days">
-      @for (day of calendarDays(); track day.dateString; let i = $index) {
-        <div
-          class="calendar__day"
-          [class.calendar__day--other-month]="!day.isCurrentMonth"
-          [class.calendar__day--today]="day.isToday"
-          [class.calendar__day--non-work]="!day.isWorkDay"
-          [class.calendar__day--has-override]="day.dayOverride"
-          [class.calendar__day--has-tasks]="day.timeEntries.length > 0"
-          [class.calendar__day--last-work]="day.isLastWorkDayOfWeek"
-          [style.--day-type-color]="getDayTypeColor(day)"
-          (click)="onDayAreaClick(day, $event)"
-          (keydown.enter)="onDayAreaClick(day, $event)"
-          tabindex="0"
-          role="button"
-        >
-          <div class="calendar__day-header">
-            <span class="calendar__day-number">{{ day.dayNumber }}</span>
-            @if (day.isCurrentMonth) {
-              <div class="calendar__day-actions">
-                <p-button
-                  [icon]="
-                    day.dayOverride?.dayType
-                      ? 'pi pi-calendar'
-                      : 'pi pi-calendar-plus'
-                  "
-                  [rounded]="true"
-                  [text]="true"
-                  size="small"
-                  [style.color]="day.dayOverride?.dayType?.color"
-                  (onClick)="onDayClick(day)"
-                  [pTooltip]="
-                    day.dayOverride?.dayType?.name ||
-                    ('calendar.addSpecialDay' | translate)
-                  "
-                />
-                <p-button
-                  icon="pi pi-plus"
-                  [rounded]="true"
-                  [text]="true"
-                  size="small"
-                  (onClick)="onAddTimeClick(day, $event)"
-                  [pTooltip]="'calendar.addTime' | translate"
-                />
-              </div>
-            }
-          </div>
-
-          @if (day.isCurrentMonth) {
-            @if (day.dayOverride?.note) {
-              <div
-                class="calendar__day-note"
-                [pTooltip]="day.dayOverride?.note ?? ''"
-              >
-                {{ day.dayOverride?.note }}
-              </div>
-            }
-            @if (day.workedMinutes > 0 || day.plannedMinutes > 0) {
-              <div class="calendar__hours">
-                <span
-                  class="calendar__hours-worked"
-                  [class.calendar__hours--complete]="
-                    day.workedMinutes >= day.plannedMinutes &&
-                    day.plannedMinutes > 0
-                  "
-                  [class.calendar__hours--over]="
-                    day.workedMinutes > day.plannedMinutes &&
-                    day.plannedMinutes > 0
-                  "
-                >
-                  {{ formatTime(day.workedMinutes) }}
-                </span>
-                @if (day.plannedMinutes > 0) {
-                  <span class="calendar__hours-separator">/</span>
-                  <span class="calendar__hours-planned">{{
-                    formatTime(day.plannedMinutes)
-                  }}</span>
+  <p-table
+    [value]="weeks()"
+    [tableStyle]="{ 'table-layout': 'fixed', height: '100%' }"
+    styleClass="p-datatable-sm calendar-table"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        @for (day of weekDays(); track day) {
+          <th class="calendar__weekday">{{ day }}</th>
+        }
+        <th class="calendar__weekday calendar__weekday--summary">
+          {{ "calendar.weekSummary" | translate }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-week>
+      <tr>
+        @for (day of week; track day.dateString) {
+          <td
+            class="calendar__cell"
+            [class.calendar__day--other-month]="!day.isCurrentMonth"
+            [class.calendar__day--today]="day.isToday"
+            [class.calendar__day--non-work]="!day.isWorkDay"
+            [class.calendar__day--has-override]="day.dayOverride"
+            [class.calendar__day--has-tasks]="day.timeEntries.length > 0"
+            [class.calendar__day--last-work]="day.isLastWorkDayOfWeek"
+            [style.--day-type-color]="getDayTypeColor(day)"
+            (click)="onDayAreaClick(day, $event)"
+            (keydown.enter)="onDayAreaClick(day, $event)"
+            tabindex="0"
+            role="button"
+          >
+            <div class="calendar__day-content">
+              <div class="calendar__day-header">
+                <span class="calendar__day-number">{{ day.dayNumber }}</span>
+                @if (day.isCurrentMonth) {
+                  <div class="calendar__day-actions">
+                    <p-button
+                      [icon]="
+                        day.dayOverride?.dayType
+                          ? 'pi pi-calendar'
+                          : 'pi pi-calendar-plus'
+                      "
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      [style.color]="day.dayOverride?.dayType?.color"
+                      (onClick)="onDayClick(day)"
+                      [pTooltip]="
+                        day.dayOverride?.dayType?.name ||
+                        ('calendar.addSpecialDay' | translate)
+                      "
+                    />
+                    <p-button
+                      icon="pi pi-plus"
+                      [rounded]="true"
+                      [text]="true"
+                      size="small"
+                      (onClick)="onAddTimeClick(day, $event)"
+                      [pTooltip]="'calendar.addTime' | translate"
+                    />
+                  </div>
                 }
               </div>
-            }
-          }
 
-          <div class="calendar__tasks">
-            @for (entry of day.timeEntries.slice(0, 2); track entry.id) {
-              <div
-                class="calendar__task"
-                [class.calendar__task--no-task]="!entry.task"
-                [style.--status-color]="entry.task?.status?.color || '#6b7280'"
-                [pTooltip]="
-                  entry.task?.name || ('timeEntry.noTask' | translate)
-                "
-                (click)="onTimeEntryClick(entry.id, $event)"
-                (keydown.enter)="onTimeEntryClick(entry.id, $event)"
-                tabindex="0"
-                role="button"
-              >
-                <span class="calendar__task-name">{{
-                  entry.task?.name || ("timeEntry.noTask" | translate)
-                }}</span>
-                <span class="calendar__task-time">{{
-                  formatTime(entry.minutes)
-                }}</span>
+              @if (day.isCurrentMonth) {
+                @if (day.dayOverride?.note) {
+                  <div
+                    class="calendar__day-note"
+                    [pTooltip]="day.dayOverride?.note ?? ''"
+                  >
+                    {{ day.dayOverride?.note }}
+                  </div>
+                }
+                @if (day.workedMinutes > 0 || day.plannedMinutes > 0) {
+                  <div class="calendar__hours">
+                    <span
+                      class="calendar__hours-worked"
+                      [class.calendar__hours--complete]="
+                        day.workedMinutes >= day.plannedMinutes &&
+                        day.plannedMinutes > 0
+                      "
+                      [class.calendar__hours--over]="
+                        day.workedMinutes > day.plannedMinutes &&
+                        day.plannedMinutes > 0
+                      "
+                    >
+                      {{ formatTime(day.workedMinutes) }}
+                    </span>
+                    @if (day.plannedMinutes > 0) {
+                      <span class="calendar__hours-separator">/</span>
+                      <span class="calendar__hours-planned">{{
+                        formatTime(day.plannedMinutes)
+                      }}</span>
+                    }
+                  </div>
+                }
+              }
+
+              <div class="calendar__tasks">
+                @for (entry of day.timeEntries.slice(0, 2); track entry.id) {
+                  <div
+                    class="calendar__task"
+                    [class.calendar__task--no-task]="!entry.task"
+                    [style.--status-color]="
+                      entry.task?.status?.color || '#6b7280'
+                    "
+                    [pTooltip]="
+                      entry.task?.name || ('timeEntry.noTask' | translate)
+                    "
+                    (click)="onTimeEntryClick(entry.id, $event)"
+                    (keydown.enter)="onTimeEntryClick(entry.id, $event)"
+                    tabindex="0"
+                    role="button"
+                  >
+                    <span class="calendar__task-name">{{
+                      entry.task?.name || ("timeEntry.noTask" | translate)
+                    }}</span>
+                    <span class="calendar__task-time">{{
+                      formatTime(entry.minutes)
+                    }}</span>
+                  </div>
+                }
+                @if (day.timeEntries.length > 2) {
+                  <div
+                    class="calendar__more"
+                    (click)="onShowAllEntries(day, $event)"
+                    (keydown.enter)="onShowAllEntries(day, $event)"
+                    tabindex="0"
+                    role="button"
+                    [pTooltip]="getEntriesPreview(day)"
+                    tooltipPosition="top"
+                  >
+                    +{{ day.timeEntries.length - 2 }}
+                    {{ "calendar.more" | translate }}
+                  </div>
+                }
               </div>
-            }
-            @if (day.timeEntries.length > 2) {
-              <div
-                class="calendar__more"
-                (click)="onShowAllEntries(day, $event)"
-                (keydown.enter)="onShowAllEntries(day, $event)"
-                tabindex="0"
-                role="button"
-                [pTooltip]="getEntriesPreview(day)"
-                tooltipPosition="top"
-              >
-                +{{ day.timeEntries.length - 2 }}
-                {{ "calendar.more" | translate }}
-              </div>
-            }
-          </div>
-        </div>
-        @if ((i + 1) % 7 === 0) {
-          <div
-            class="calendar__week-summary"
-            [class.calendar__week-summary--complete]="
-              isWeekComplete(day.weekNumber)
-            "
-            [class.calendar__week-summary--over]="isWeekOver(day.weekNumber)"
-          >
-            <div class="calendar__week-worked">
-              {{ formatTime(getWeekWorked(day.weekNumber)) }}
             </div>
-            <div class="calendar__week-separator">/</div>
-            <div class="calendar__week-planned">
-              {{ formatTime(getWeekPlanned(day.weekNumber)) }}
-            </div>
-          </div>
+          </td>
         }
-      }
-    </div>
-  </div>
+        <!-- Week Summary Column -->
+        <td
+          class="calendar__week-summary"
+          [class.calendar__week-summary--complete]="
+            isWeekComplete(week[0].weekNumber)
+          "
+          [class.calendar__week-summary--over]="isWeekOver(week[0].weekNumber)"
+        >
+          <div class="calendar__week-worked">
+            {{ formatTime(getWeekWorked(week[0].weekNumber)) }}
+          </div>
+          <div class="calendar__week-separator">/</div>
+          <div class="calendar__week-planned">
+            {{ formatTime(getWeekPlanned(week[0].weekNumber)) }}
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
 
 <!-- Day Entries Dialog -->

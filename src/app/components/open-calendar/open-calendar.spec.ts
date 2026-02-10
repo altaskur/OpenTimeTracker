@@ -589,19 +589,39 @@ describe('OpenCalendar', () => {
       expect(component.isWeekOver(0)).toBeFalse();
     });
 
-    it('should return true when worked equals planned', () => {
+    it('should return true when worked greater than planned in a week', () => {
+      // 10th of current month is likely in a middle week
+      const targetDate = new Date(today.getFullYear(), today.getMonth(), 10);
+      const targetDateStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+
+      const hugeEntry: TimeEntry = {
+        ...mockTimeEntry,
+        date: targetDateStr,
+        minutes: 5000,
+      };
+
       fixture.componentRef.setInput('monthConfig', mockMonthConfig);
+      fixture.componentRef.setInput('timeEntries', [hugeEntry]);
       fixture.detectChanges();
 
-      const weekNum = 2;
-      const summary = component.weekSummaries()[weekNum];
-      if (
-        summary &&
-        summary.plannedMinutes > 0 &&
-        summary.workedMinutes >= summary.plannedMinutes
-      ) {
-        expect(component.isWeekComplete(weekNum)).toBeTrue();
+      const day = component
+        .calendarDays()
+        .find((d) => d.dateString === targetDateStr);
+
+      if (day) {
+        expect(component.isWeekComplete(day.weekNumber)).toBeTrue();
+      } else {
+        fail('Could not find target day in created calendar');
       }
+    });
+  });
+
+  describe('weeks computation', () => {
+    it('should group days into weeks', () => {
+      const weeks = component.weeks();
+      expect(weeks.length).toBe(6); // 42 days / 7 = 6 weeks
+      expect(weeks[0].length).toBe(7);
+      expect(weeks[0][0]).toBeDefined();
     });
   });
 
