@@ -14,8 +14,8 @@
   },
   "scripts": {
     "start": "ng serve",
-    "build": "ng build && tsc --project electron/build/tsconfig.json && tsc --project electron/build/tsconfig.preload.json",
-    "dev": "ng build --configuration=development && tsc --project electron/build/tsconfig.json && tsc --project electron/build/tsconfig.preload.json && electron .",
+    "build": "npm run prisma:generate && ng build && tsc --project electron/build/tsconfig.json && tsc --project electron/build/tsconfig.preload.json",
+    "dev": "npm run prisma:generate && ng build --configuration=development && tsc --project electron/build/tsconfig.json && tsc --project electron/build/tsconfig.preload.json && electron .",
     "dist": "npm run build && electron-builder",
     "dist:win": "npm run build && electron-builder --win",
     "dist:linux": "npm run build && electron-builder --linux",
@@ -50,6 +50,7 @@
     },
     "files": [
       "dist/**/*",
+      "node_modules/.prisma/**/*",
       "node_modules/@prisma/client/**/*",
       "node_modules/@prisma/adapter-better-sqlite3/**/*",
       "node_modules/better-sqlite3/**/*",
@@ -64,6 +65,7 @@
       "dist/electron/generated/**/*",
       "prisma/template.db"
     ],
+    "asar": true,
     "win": {
       "target": [
         {
