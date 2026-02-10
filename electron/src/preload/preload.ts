@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer, shell } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
 /**
  * Type definitions for database entities
@@ -128,8 +128,21 @@ interface BackupResult {
   path?: string;
 }
 
+interface GitHubRelease {
+  tag_name: string;
+  html_url: string;
+  body: string;
+  name: string;
+  published_at: string;
+}
+
 try {
   const electronAPI = {
+    // ...
+    // Release Info
+    getReleaseByTag: (tag: string): Promise<GitHubRelease> =>
+      ipcRenderer.invoke('get-release-by-tag', tag),
+
     // Projects
     getProjects: (): Promise<Project[]> => ipcRenderer.invoke('get-projects'),
     createProject: (name: string, description?: string): Promise<Project> =>
@@ -395,7 +408,19 @@ try {
     getBackupDir: (): Promise<string> => ipcRenderer.invoke('backup-get-dir'),
 
     // System
-    openExternal: (url: string): Promise<void> => shell.openExternal(url),
+    openExternal: (url: string): Promise<void> =>
+      ipcRenderer.invoke('open-external', url),
+
+    // Updates
+    checkForUpdates: (): Promise<{
+      updateAvailable: boolean;
+      version: string;
+      url: string;
+      releaseNotes?: string;
+    }> => ipcRenderer.invoke('check-for-updates'),
+
+    // App Info
+    getVersion: (): Promise<string> => ipcRenderer.invoke('get-version'),
   };
 
   contextBridge.exposeInMainWorld('electronAPI', electronAPI);

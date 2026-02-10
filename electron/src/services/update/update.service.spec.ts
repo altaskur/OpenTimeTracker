@@ -1,0 +1,203 @@
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { app } from 'electron';
+import { UpdateService } from './update.service.js';
+
+// Mock global fetch
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
+
+describe('UpdateService', () => {
+    let updateService: UpdateService;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        updateService = new UpdateService();
+        (app.getVersion as Mock).mockReturnValue('1.0.0');
+    });
+
+    describe('checkForUpdates', () => {
+        it('should return updateAvailable true when newer version exists', async () => {
+            const mockRelease = {
+                tag_name: 'v2.0.0',
+                html_url: 'https://github.com/altaskur/OpenTimeTracker/releases/tag/v2.0.0',
+                body: 'Release notes for v2.0.0',
+            };
+
+            mockFetch.mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve(mockRelease),
+            });
+
+            const result = await updateService.checkForUpdates();
+
+            expect(result.updateAvailable).toBe(true);
+            expect(result.version).toBe('2.0.0');
+            expect(result.url).toBe(mockRelease.html_url);
+            expect(result.releaseNotes).toBe(mockRelease.body);
+        });
+
+        it('should return updateAvailable false when current version is latest', async () => {
+            const mockRelease = {
+                tag_name: 'v1.0.0',
+                html_url: 'https://github.com/altaskur/OpenTimeTracker/releases/tag/v1.0.0',
+                body: 'Current version notes',
+            };
+
+            mockFetch.mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve(mockRelease),
+            });
+
+            const result = await updateService.checkForUpdates();
+
+            expect(result.updateAvailable).toBe(false);
+            expect(result.version).toBe('1.0.0');
+        });
+
+        it('should return updateAvailable false when current version is newer', async () => {
+            const mockRelease = {
+                tag_name: 'v0.9.0',
+                html_url: 'https://github.com/altaskur/OpenTimeTracker/releases/tag/v0.9.0',
+                body: 'Old version notes',
+            };
+
+            mockFetch.mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve(mockRelease),
+            });
+
+            const result = await updateService.checkForUpdates();
+
+            expect(result.updateAvailable).toBe(false);
+        });
+
+        it('should return updateAvailable false when fetch fails', async () => {
+            mockFetch.mockResolvedValue({
+                ok: false,
+                statusText: 'Not Found',
+            });
+
+            const result = await updateService.checkForUpdates();
+
+            expect(result.updateAvailable).toBe(false);
+            expect(result.version).toBe('');
+            expect(result.url).toBe('');
+        });
+
+        it('should return updateAvailable false on network error', async () => {
+            mockFetch.mockRejectedValue(new Error('Network error'));
+
+            const result = await updateService.checkForUpdates();
+
+            expect(result.updateAvailable).toBe(false);
+            expect(result.version).toBe('');
+            expect(result.url).toBe('');
+        });
+
+        it('should handle version tags without v prefix', async () => {
+            const mockRelease = {
+                tag_name: '2.0.0',
+                html_url: 'https://github.com/altaskur/OpenTimeTracker/releases/tag/2.0.0',
+                body: 'Notes',
+            };
+
+            mockFetch.mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve(mockRelease),
+            });
+
+            const result = await updateService.checkForUpdates();
+
+            expect(result.updateAvailable).toBe(true);
+            expect(result.version).toBe('2.0.0');
+        });
+    });
+
+    describe('getReleaseByTag', () => {
+        it('should return release data for valid tag', async () => {
+            const mockRelease = {
+                tag_name: 'v1.0.0',
+                html_url: 'https://github.com/altaskur/OpenTimeTracker/releases/tag/v1.0.0',
+                body: 'Release notes for v1.0.0',
+            };
+
+            mockFetch.mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve(mockRelease),
+            });
+
+            const result = await updateService.getReleaseByTag('v1.0.0');
+
+            expect(result).toEqual(mockRelease);
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.github.com/repos/altaskur/OpenTimeTracker/releases/tags/v1.0.0',
+                expect.objectContaining({
+                    headers: expect.objectContaining({
+                        'User-Agent': 'OpenTimeTracker/1.0.0',
+                        'Accept': 'application/vnd.github.v3+json',
+                    }),
+                })
+            );
+        });
+
+        it('should return null when release not found', async () => {
+            mockFetch.mockResolvedValue({
+                ok: false,
+                statusText: 'Not Found',
+            });
+
+            const result = await updateService.getReleaseByTag('v99.99.99');
+
+            expect(result).toBeNull();
+        });
+
+        it('should return null on network error', async () => {
+            mockFetch.mockRejectedValue(new Error('Network error'));
+
+            const result = await updateService.getReleaseByTag('v1.0.0');
+
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('compareVersions', () => {
+        // Access private method via prototype for testing
+        const compareVersions = (v1: string, v2: string): number => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return (updateService as any).compareVersions(v1, v2);
+        };
+
+        it('should return 1 when first version is greater', () => {
+            expect(compareVersions('2.0.0', '1.0.0')).toBe(1);
+            expect(compareVersions('1.1.0', '1.0.0')).toBe(1);
+            expect(compareVersions('1.0.1', '1.0.0')).toBe(1);
+            expect(compareVersions('1.0.0', '0.9.9')).toBe(1);
+        });
+
+        it('should return -1 when first version is less', () => {
+            expect(compareVersions('1.0.0', '2.0.0')).toBe(-1);
+            expect(compareVersions('1.0.0', '1.1.0')).toBe(-1);
+            expect(compareVersions('1.0.0', '1.0.1')).toBe(-1);
+            expect(compareVersions('0.9.9', '1.0.0')).toBe(-1);
+        });
+
+        it('should return 0 when versions are equal', () => {
+            expect(compareVersions('1.0.0', '1.0.0')).toBe(0);
+            expect(compareVersions('2.5.3', '2.5.3')).toBe(0);
+        });
+
+        it('should handle versions with different part counts', () => {
+            expect(compareVersions('1.0.0', '1.0')).toBe(0);
+            expect(compareVersions('1.0', '1.0.0')).toBe(0);
+            expect(compareVersions('1.0.1', '1.0')).toBe(1);
+            expect(compareVersions('1.0', '1.0.1')).toBe(-1);
+        });
+
+        it('should handle versions with alpha/beta suffixes by treating non-numeric as NaN', () => {
+            // '1.0.0-alpha.5' becomes [1, 0, NaN] which compares as 0 when NaN
+            // So '1.0.0' [1,0,0] compared to '1.0.0-alpha.5' [1,0,NaN] - NaN becomes 0
+            // This test documents current behavior, not ideal handling
+            expect(compareVersions('1.0.0', '1.0.0-alpha')).toBe(0); // NaN treated as 0
+        });
+    });
+});

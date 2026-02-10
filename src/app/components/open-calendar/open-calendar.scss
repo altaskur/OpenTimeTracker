@@ -61,6 +61,7 @@
 
 .calendar__stat.balance-positive {
   background: var(--c-positive-bg);
+
   .calendar__stat-value {
     color: var(--c-positive-color);
   }
@@ -68,6 +69,7 @@
 
 .calendar__stat.balance-negative {
   background: var(--c-negative-bg);
+
   .calendar__stat-value {
     color: var(--c-negative-color);
   }
@@ -79,53 +81,66 @@
   gap: 0.5rem;
 }
 
-.calendar__grid {
-  display: flex;
-  flex-direction: column;
+::ng-deep .calendar-table {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
+
+  .p-datatable-wrapper {
+    height: 100%;
+  }
+
+  table {
+    height: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  thead th {
+    background: var(--c-surface-subtle);
+    color: var(--p-text-muted-color);
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    border-bottom: 1px solid var(--p-surface-border);
+    border-right: 1px solid var(--p-surface-border);
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  tbody td {
+    border-right: 1px solid var(--p-surface-border);
+    border-bottom: 1px solid var(--p-surface-border);
+    padding: 0;
+    vertical-align: top;
+    height: 1px;
+    /* Allow percentage height in children */
+
+    &:last-child {
+      border-right: none;
+    }
+  }
 }
 
-.calendar__weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr) minmax(80px, 100px);
-  border-bottom: 1px solid var(--p-surface-border);
-}
-
-.calendar__weekday {
-  padding: 0.5rem;
-  text-align: center;
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--p-text-muted-color);
-  background: var(--c-surface-subtle);
-}
-
-.calendar__days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr) minmax(80px, 100px);
-  grid-template-rows: repeat(6, 1fr);
-  flex: 1;
-}
-
-.calendar__day {
-  display: flex;
-  flex-direction: column;
-  padding: 0.25rem;
-  border-right: 1px solid var(--p-surface-border);
-  border-bottom: 1px solid var(--p-surface-border);
-  min-height: 80px;
+.calendar__cell {
   cursor: pointer;
   transition: background-color 0.2s;
+  height: 100%;
 
   &:hover {
     background: var(--p-surface-hover);
   }
+}
 
-  &:nth-child(7n) {
-    border-right: none;
-  }
+.calendar__day-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 120px;
+  padding: 0.25rem;
 }
 
 .calendar__day--other-month {
@@ -184,7 +199,7 @@
   }
 }
 
-.calendar__day:hover .calendar__day-actions {
+.calendar__cell:hover .calendar__day-actions {
   opacity: 1;
 }
 
@@ -236,6 +251,7 @@
 
 .calendar__hours--complete {
   background: var(--c-positive-bg);
+
   .calendar__hours-worked {
     color: var(--c-positive-color);
   }
@@ -243,6 +259,7 @@
 
 .calendar__hours--over {
   background: var(--c-over-bg);
+
   .calendar__hours-worked {
     color: var(--c-over-color);
   }
@@ -257,11 +274,9 @@
 }
 
 .calendar__day--has-override {
-  background: color-mix(
-    in srgb,
-    var(--day-type-color, var(--p-primary-color)) 8%,
-    transparent
-  );
+  background: color-mix(in srgb,
+      var(--day-type-color, var(--p-primary-color)) 8%,
+      transparent);
 
   .calendar__day-number {
     color: var(--p-text-muted-color);
@@ -296,11 +311,9 @@
   cursor: pointer;
   transition: transform 0.1s;
   border-left: 3px solid var(--status-color, var(--p-surface-400));
-  background: color-mix(
-    in srgb,
-    var(--status-color, var(--p-surface-400)) 15%,
-    transparent
-  );
+  background: color-mix(in srgb,
+      var(--status-color, var(--p-surface-400)) 15%,
+      transparent);
 
   &:hover {
     transform: translateX(2px);
@@ -456,22 +469,18 @@
     padding: 0.75rem 1rem;
     border-radius: var(--p-border-radius);
     border-left: 3px solid var(--status-color, var(--p-surface-300));
-    background: color-mix(
-      in srgb,
-      var(--status-color, var(--p-surface-400)) 15%,
-      transparent
-    );
+    background: color-mix(in srgb,
+        var(--status-color, var(--p-surface-400)) 15%,
+        transparent);
     cursor: pointer;
     transition:
       background-color 0.2s,
       transform 0.1s;
 
     &:hover {
-      background: color-mix(
-        in srgb,
-        var(--status-color, var(--p-surface-400)) 25%,
-        transparent
-      );
+      background: color-mix(in srgb,
+          var(--status-color, var(--p-surface-400)) 25%,
+          transparent);
       transform: translateX(2px);
     }
 

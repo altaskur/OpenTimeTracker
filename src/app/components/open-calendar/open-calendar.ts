@@ -13,6 +13,7 @@ import { TagModule } from 'primeng/tag';
 import { ChipModule } from 'primeng/chip';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   Task,
@@ -88,6 +89,7 @@ interface WeekSummary {
     TooltipModule,
     TranslateModule,
     DialogModule,
+    TableModule,
   ],
   templateUrl: './open-calendar.html',
   styleUrl: './open-calendar.scss',
@@ -174,6 +176,18 @@ export class OpenCalendar implements OnInit {
     const config = this.monthConfig();
     const overrides = this.dayOverrides();
     return this.generateCalendarDays(date, tasks, entries, config, overrides);
+  });
+
+  /**
+   * Groups calendar days into weeks for table display
+   */
+  weeks = computed(() => {
+    const days = this.calendarDays();
+    const weeks: CalendarDay[][] = [];
+    for (let i = 0; i < days.length; i += 7) {
+      weeks.push(days.slice(i, i + 7));
+    }
+    return weeks;
   });
 
   ngOnInit(): void {
