@@ -18,6 +18,7 @@ describe('App', () => {
     autoCheck: ReturnType<typeof signal<boolean>>;
     updateAvailable: ReturnType<typeof signal<null>>;
     checking: ReturnType<typeof signal<boolean>>;
+    lastChecked: ReturnType<typeof signal<null>>;
   };
   let undoCallback: () => void;
   let redoCallback: () => void;
@@ -72,7 +73,9 @@ describe('App', () => {
         }),
       checkForUpdates: jasmine
         .createSpy('checkForUpdates')
-        .and.returnValue(Promise.resolve({ updateAvailable: false, version: '', url: '' })),
+        .and.returnValue(
+          Promise.resolve({ updateAvailable: false, version: '', url: '' }),
+        ),
     };
 
     mockUpdateService = {
@@ -80,10 +83,12 @@ describe('App', () => {
       autoCheck: signal(true),
       updateAvailable: signal(null),
       checking: signal(false),
+      lastChecked: signal(null),
     };
 
     // Save original electronAPI and set mock
-    originalElectronAPI = (window as unknown as { electronAPI?: unknown }).electronAPI;
+    originalElectronAPI = (window as unknown as { electronAPI?: unknown })
+      .electronAPI;
     (
       window as unknown as { electronAPI?: typeof mockElectronAPI }
     ).electronAPI = mockElectronAPI;
@@ -100,7 +105,8 @@ describe('App', () => {
 
   afterEach(() => {
     // Restore original electronAPI
-    (window as unknown as { electronAPI?: unknown }).electronAPI = originalElectronAPI;
+    (window as unknown as { electronAPI?: unknown }).electronAPI =
+      originalElectronAPI;
   });
 
   it('should create the app', () => {
@@ -186,6 +192,7 @@ describe('App without electronAPI', () => {
     autoCheck: ReturnType<typeof signal<boolean>>;
     updateAvailable: ReturnType<typeof signal<null>>;
     checking: ReturnType<typeof signal<boolean>>;
+    lastChecked: ReturnType<typeof signal<null>>;
   };
   let savedElectronAPI: unknown;
 
@@ -199,6 +206,7 @@ describe('App without electronAPI', () => {
       autoCheck: signal(true),
       updateAvailable: signal(null),
       checking: signal(false),
+      lastChecked: signal(null),
     };
 
     await TestBed.configureTestingModule({
