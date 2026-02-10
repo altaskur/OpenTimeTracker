@@ -605,6 +605,15 @@ describe('OpenCalendar', () => {
     });
   });
 
+  describe('weeks computation', () => {
+    it('should group days into weeks', () => {
+      const weeks = component.weeks();
+      expect(weeks.length).toBe(6); // 42 days / 7 = 6 weeks
+      expect(weeks[0].length).toBe(7);
+      expect(weeks[0][0]).toBeDefined();
+    });
+  });
+
   describe('month totals with data', () => {
     it('should calculate month worked correctly with entries', () => {
       fixture.componentRef.setInput('timeEntries', [mockTimeEntry]);
