@@ -3,15 +3,26 @@ import { App } from './app';
 import { TranslateModule } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ActionHistoryService } from './services/action-history.service';
+import { UpdateService } from './services/update.service';
+import { signal } from '@angular/core';
 
 describe('App', () => {
   let mockHistoryService: jasmine.SpyObj<ActionHistoryService>;
   let mockElectronAPI: {
     onUndoAction: jasmine.Spy;
     onRedoAction: jasmine.Spy;
+    checkForUpdates: jasmine.Spy;
+  };
+  let mockUpdateService: {
+    init: jasmine.Spy;
+    autoCheck: ReturnType<typeof signal<boolean>>;
+    updateAvailable: ReturnType<typeof signal<null>>;
+    checking: ReturnType<typeof signal<boolean>>;
+    lastChecked: ReturnType<typeof signal<null>>;
   };
   let undoCallback: () => void;
   let redoCallback: () => void;
+  let originalElectronAPI: unknown;
 
   beforeEach(async () => {
     mockHistoryService = jasmine.createSpyObj('ActionHistoryService', [
@@ -60,8 +71,24 @@ describe('App', () => {
         .and.callFake((cb: () => void) => {
           redoCallback = cb;
         }),
+      checkForUpdates: jasmine
+        .createSpy('checkForUpdates')
+        .and.returnValue(
+          Promise.resolve({ updateAvailable: false, version: '', url: '' }),
+        ),
     };
 
+    mockUpdateService = {
+      init: jasmine.createSpy('init'),
+      autoCheck: signal(true),
+      updateAvailable: signal(null),
+      checking: signal(false),
+      lastChecked: signal(null),
+    };
+
+    // Save original electronAPI and set mock
+    originalElectronAPI = (window as unknown as { electronAPI?: unknown })
+      .electronAPI;
     (
       window as unknown as { electronAPI?: typeof mockElectronAPI }
     ).electronAPI = mockElectronAPI;
@@ -71,13 +98,15 @@ describe('App', () => {
       providers: [
         MessageService,
         { provide: ActionHistoryService, useValue: mockHistoryService },
+        { provide: UpdateService, useValue: mockUpdateService },
       ],
     }).compileComponents();
   });
 
   afterEach(() => {
-    delete (window as unknown as { electronAPI?: typeof mockElectronAPI })
-      .electronAPI;
+    // Restore original electronAPI
+    (window as unknown as { electronAPI?: unknown }).electronAPI =
+      originalElectronAPI;
   });
 
   it('should create the app', () => {
@@ -158,13 +187,40 @@ describe('App', () => {
 });
 
 describe('App without electronAPI', () => {
+  let mockUpdateService: {
+    init: jasmine.Spy;
+    autoCheck: ReturnType<typeof signal<boolean>>;
+    updateAvailable: ReturnType<typeof signal<null>>;
+    checking: ReturnType<typeof signal<boolean>>;
+    lastChecked: ReturnType<typeof signal<null>>;
+  };
+  let savedElectronAPI: unknown;
+
   beforeEach(async () => {
+    // Save and delete electronAPI for this test suite
+    savedElectronAPI = (window as { electronAPI?: unknown }).electronAPI;
     delete (window as { electronAPI?: unknown }).electronAPI;
+
+    mockUpdateService = {
+      init: jasmine.createSpy('init'),
+      autoCheck: signal(true),
+      updateAvailable: signal(null),
+      checking: signal(false),
+      lastChecked: signal(null),
+    };
 
     await TestBed.configureTestingModule({
       imports: [App, TranslateModule.forRoot()],
-      providers: [MessageService],
+      providers: [
+        MessageService,
+        { provide: UpdateService, useValue: mockUpdateService },
+      ],
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    // Restore original electronAPI
+    (window as { electronAPI?: unknown }).electronAPI = savedElectronAPI;
   });
 
   it('should create without electron API', () => {

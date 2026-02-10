@@ -53,7 +53,8 @@ const menuTranslations: Record<string, Record<string, string>> = {
     maintenance: 'Mantenimiento',
     tags: 'Etiquetas',
     dayTypes: 'Tipos de Día',
-    taskStatuses: 'Estados de Tarea',
+    taskStatuses: 'Tipos de Día',
+    checkForUpdates: 'Buscar Actualizaciones',
   },
   en: {
     home: 'Home',
@@ -92,6 +93,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     tags: 'Tags',
     dayTypes: 'Day Types',
     taskStatuses: 'Task Statuses',
+    checkForUpdates: 'Check for Updates',
   },
 };
 
@@ -121,21 +123,21 @@ export class MenuManager {
     const template: MenuItemConstructorOptions[] = [
       ...(isMac
         ? [
-            {
-              label: app.name,
-              submenu: [
-                { role: 'about' as const },
-                { type: 'separator' as const },
-                { role: 'services' as const },
-                { type: 'separator' as const },
-                { role: 'hide' as const },
-                { role: 'hideOthers' as const },
-                { role: 'unhide' as const },
-                { type: 'separator' as const },
-                { role: 'quit' as const },
-              ],
-            },
-          ]
+          {
+            label: app.name,
+            submenu: [
+              { role: 'about' as const },
+              { type: 'separator' as const },
+              { role: 'services' as const },
+              { type: 'separator' as const },
+              { role: 'hide' as const },
+              { role: 'hideOthers' as const },
+              { role: 'unhide' as const },
+              { type: 'separator' as const },
+              { role: 'quit' as const },
+            ],
+          },
+        ]
         : []),
 
       {
@@ -172,13 +174,13 @@ export class MenuManager {
           ...(isMac
             ? []
             : [
-                { type: 'separator' as const },
-                {
-                  label: this.t('exit'),
-                  accelerator: 'Alt+F4',
-                  role: 'quit' as const,
-                },
-              ]),
+              { type: 'separator' as const },
+              {
+                label: this.t('exit'),
+                accelerator: 'Alt+F4',
+                role: 'quit' as const,
+              },
+            ]),
         ],
       },
 
@@ -287,6 +289,12 @@ export class MenuManager {
       {
         label: this.t('help'),
         submenu: [
+          {
+            label: this.t('checkForUpdates'),
+            click: (): void => {
+              this.navigateTo('/settings/updates');
+            },
+          },
           {
             label: this.t('documentation'),
             click: (): void => {

@@ -123,8 +123,12 @@ describe('ActionHistoryService', () => {
         description: 'Updated task',
         previousData: { name: 'Old' },
         newData: { name: 'New' },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -147,8 +151,12 @@ describe('ActionHistoryService', () => {
         description: 'Test',
         previousData: null,
         newData: {},
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -169,8 +177,12 @@ describe('ActionHistoryService', () => {
         description: 'Created project',
         previousData: null,
         newData: { name: 'Test' },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -228,8 +240,12 @@ describe('ActionHistoryService', () => {
         description: 'Deleted task',
         previousData: { name: 'Task to delete' },
         newData: null,
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -292,8 +308,12 @@ describe('ActionHistoryService', () => {
           description: `Action ${i}`,
           previousData: null,
           newData: {},
-          execute: () => Promise.resolve(),
-          undo: () => Promise.resolve(),
+          execute: async () => {
+            /* empty */
+          },
+          undo: async () => {
+            /* empty */
+          },
         });
       }
     });
@@ -321,8 +341,12 @@ describe('ActionHistoryService', () => {
         description: 'Test',
         previousData: null,
         newData: {},
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       });
     });
 
@@ -424,6 +448,7 @@ describe('ActionHistoryService', () => {
       mockElectronAPI.createActionHistory.and.returnValue(
         Promise.reject(new Error('DB error')),
       );
+      spyOn(console, 'error').and.stub();
 
       const params: ExecuteActionParams = {
         entityType: 'Project',
@@ -432,8 +457,12 @@ describe('ActionHistoryService', () => {
         description: 'Test',
         previousData: null,
         newData: {},
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -485,7 +514,7 @@ describe('ActionHistoryService', () => {
       mockElectronAPI.getActionHistory.and.returnValue(
         Promise.reject(new Error('Load error')),
       );
-      spyOn(console, 'error');
+      spyOn(console, 'error').and.stub();
 
       await service.loadFromDatabase();
 
@@ -517,8 +546,12 @@ describe('ActionHistoryService', () => {
           description: `Action ${i}`,
           previousData: null,
           newData: {},
-          execute: () => Promise.resolve(),
-          undo: () => Promise.resolve(),
+          execute: async () => {
+            /* empty */
+          },
+          undo: async () => {
+            /* empty */
+          },
         });
       }
 
@@ -540,8 +573,12 @@ describe('ActionHistoryService', () => {
         description: 'Test',
         previousData: null,
         newData: {},
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -566,8 +603,12 @@ describe('ActionHistoryService', () => {
         description: 'Test',
         previousData: null,
         newData: {},
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -593,8 +634,12 @@ describe('ActionHistoryService', () => {
           taskId: 't1',
           notes: 'Test',
         },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -614,8 +659,12 @@ describe('ActionHistoryService', () => {
           minutes: 0,
           note: 'Holiday',
         },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -630,8 +679,12 @@ describe('ActionHistoryService', () => {
         description: 'Created day type',
         previousData: null,
         newData: { name: 'Holiday', color: '#ff0000', defaultMinutes: 0 },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -646,8 +699,12 @@ describe('ActionHistoryService', () => {
         description: 'Created tag',
         previousData: null,
         newData: { name: 'Bug' },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -662,8 +719,12 @@ describe('ActionHistoryService', () => {
         description: 'Updated month config',
         previousData: { workDays: '1,2,3,4,5' },
         newData: { workDays: '1,2,3,4' },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -680,8 +741,12 @@ describe('ActionHistoryService', () => {
         description: 'Updated project',
         previousData: { name: 'Old' },
         newData: { name: 'New' },
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -697,8 +762,12 @@ describe('ActionHistoryService', () => {
         description: 'Deleted task',
         previousData: { name: 'Task 1', projectId: 'p1' },
         newData: null,
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       };
 
       await service.execute(params);
@@ -730,8 +799,12 @@ describe('ActionHistoryService', () => {
         description: 'Action 1',
         previousData: null,
         newData: {},
-        execute: () => Promise.resolve(),
-        undo: () => Promise.resolve(),
+        execute: async () => {
+          /* empty */
+        },
+        undo: async () => {
+          /* empty */
+        },
       });
 
       const count = await service.undoTo('action-1');
