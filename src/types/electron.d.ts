@@ -163,7 +163,7 @@ export interface UpdateCheckResult {
   updateAvailable: boolean;
   version: string;
   url: string;
-  releaseNotes?: string;
+  releaseNotes?: string | null;
 }
 
 export interface GitHubRelease {
@@ -373,4 +373,4 @@ declare global {
   }
 }
 
-export { };
+export {};

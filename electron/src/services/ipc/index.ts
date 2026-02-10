@@ -7,6 +7,8 @@ import { setupLanguageHandlers } from './language-handlers.js';
 import { setupBackupHandlers } from './backup-handlers.js';
 import { setupUpdateHandlers } from './update-handlers.js';
 
+import { setupSystemHandlers } from './system-handlers.js';
+
 /**
  * Sets up all IPC handlers
  */
@@ -24,4 +26,5 @@ export const setupIpcHandlers = (
     setupBackupHandlers(backupService);
   }
   setupUpdateHandlers(updateService);
+  setupSystemHandlers();
 };

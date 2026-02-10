@@ -377,7 +377,17 @@
       "download": "Descargar",
       "currentVersionNotes": "Notas de la versión actual",
       "releaseNotes": "Notas de la versión",
-      "noReleaseNotes": "No hay notas de la versión disponibles."
+      "noReleaseNotes": "No hay notas de la versión disponibles.",
+      "currentVersion": "Versión actual",
+      "viewDetails": "Ver detalles",
+      "viewReleasesOnGitHub": "Ver lanzamientos en GitHub",
+      "lastChecked": "Última comprobación",
+      "updateAvailable": "Actualización disponible",
+      "newVersion": "Nueva versión",
+      "releaseDate": "Fecha de lanzamiento",
+      "whatIsNew": "Novedades",
+      "later": "Más tarde",
+      "viewReleaseNotes": "Ver notas de la versión"
     }
   }
 }
