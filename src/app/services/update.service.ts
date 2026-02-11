@@ -16,24 +16,54 @@ export class UpdateService {
   checking = signal<boolean>(false);
   autoCheck = signal<boolean>(true);
   lastChecked = signal<Date | null>(null);
+  private initialized = false;
 
   constructor() {
-    // Load auto-check preference
-    const savedAutoCheck = localStorage.getItem('autoCheckUpdates');
-    if (savedAutoCheck !== null) {
-      this.autoCheck.set(JSON.parse(savedAutoCheck));
-    }
+    // Initialization is deferred to avoid async operations in constructor
   }
 
-  init(): void {
+  /**
+   * Loads auto-check preference from database via Electron IPC
+   */
+  private async loadAutoCheckPreference(): Promise<void> {
+    if (!globalThis.window?.electronAPI) {
+      return;
+    }
+
+    try {
+      const value = await globalThis.window.electronAPI.getAutoCheckUpdates();
+      this.autoCheck.set(value);
+    } catch (error) {
+      console.error('Error loading auto-check preference:', error);
+      // Default to true on error
+      this.autoCheck.set(true);
+    }
+    this.initialized = true;
+  }
+
+  async init(): Promise<void> {
+    // Ensure we load preferences first
+    if (!this.initialized) {
+      await this.loadAutoCheckPreference();
+    }
+
     if (this.autoCheck()) {
       this.checkForUpdates();
     }
   }
 
-  toggleAutoCheck(value: boolean): void {
+  async toggleAutoCheck(value: boolean): Promise<void> {
     this.autoCheck.set(value);
-    localStorage.setItem('autoCheckUpdates', JSON.stringify(value));
+
+    if (!globalThis.window?.electronAPI) {
+      return;
+    }
+
+    try {
+      await globalThis.window.electronAPI.setAutoCheckUpdates(value);
+    } catch (error) {
+      console.error('Error saving auto-check preference:', error);
+    }
   }
 
   async checkForUpdates(manual = false): Promise<UpdateCheckResult | null> {

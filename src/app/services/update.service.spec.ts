@@ -8,6 +8,8 @@ describe('UpdateService', () => {
     checkForUpdates: jasmine.Spy;
     openExternal: jasmine.Spy;
     getReleaseByTag: jasmine.Spy;
+    getAutoCheckUpdates: jasmine.Spy;
+    setAutoCheckUpdates: jasmine.Spy;
   };
 
   beforeEach(() => {
@@ -20,12 +22,15 @@ describe('UpdateService', () => {
       checkForUpdates: jasmine.createSpy('checkForUpdates'),
       openExternal: jasmine.createSpy('openExternal'),
       getReleaseByTag: jasmine.createSpy('getReleaseByTag'),
+      getAutoCheckUpdates: jasmine
+        .createSpy('getAutoCheckUpdates')
+        .and.returnValue(Promise.resolve(true)),
+      setAutoCheckUpdates: jasmine
+        .createSpy('setAutoCheckUpdates')
+        .and.returnValue(Promise.resolve()),
     };
     (window as unknown as { electronAPI: typeof mockElectronAPI }).electronAPI =
       mockElectronAPI;
-
-    // Clear localStorage
-    localStorage.clear();
 
     TestBed.configureTestingModule({
       providers: [UpdateService],
@@ -38,7 +43,6 @@ describe('UpdateService', () => {
     // Restore original electronAPI
     (window as unknown as { electronAPI?: unknown }).electronAPI =
       originalElectronAPI;
-    localStorage.clear();
   });
 
   it('should be created', () => {
@@ -46,21 +50,27 @@ describe('UpdateService', () => {
   });
 
   describe('constructor', () => {
-    it('should load autoCheck preference from localStorage', () => {
-      localStorage.setItem('autoCheckUpdates', 'false');
+    it('should initialize service without loading preferences', () => {
+      const newService = new UpdateService();
+      // Constructor no debe cargar preferencias automáticamente
+      expect(newService.autoCheck()).toBe(true); // Valor por defecto
+      expect(mockElectronAPI.getAutoCheckUpdates).not.toHaveBeenCalled();
+    });
+
+    it('should default to true when electronAPI not available', () => {
+      delete (window as { electronAPI?: unknown }).electronAPI;
 
       const newService = new UpdateService();
 
-      expect(newService.autoCheck()).toBe(false);
-    });
-
-    it('should default to true when no localStorage value', () => {
-      expect(service.autoCheck()).toBe(true);
+      expect(newService.autoCheck()).toBe(true);
     });
   });
 
   describe('init', () => {
-    it('should check for updates when autoCheck is true', () => {
+    it('should load preferences and check for updates when autoCheck is true', async () => {
+      mockElectronAPI.getAutoCheckUpdates.and.returnValue(
+        Promise.resolve(true),
+      );
       mockElectronAPI.checkForUpdates.and.returnValue(
         Promise.resolve({
           updateAvailable: false,
@@ -69,31 +79,89 @@ describe('UpdateService', () => {
         }),
       );
 
-      service.init();
+      await service.init();
 
+      expect(mockElectronAPI.getAutoCheckUpdates).toHaveBeenCalled();
       expect(mockElectronAPI.checkForUpdates).toHaveBeenCalled();
     });
 
-    it('should not check for updates when autoCheck is false', () => {
-      service.autoCheck.set(false);
+    it('should not check for updates when autoCheck is false', async () => {
+      mockElectronAPI.getAutoCheckUpdates.and.returnValue(
+        Promise.resolve(false),
+      );
 
-      service.init();
+      await service.init();
 
+      expect(mockElectronAPI.getAutoCheckUpdates).toHaveBeenCalled();
       expect(mockElectronAPI.checkForUpdates).not.toHaveBeenCalled();
+    });
+
+    it('should load preferences only once', async () => {
+      mockElectronAPI.getAutoCheckUpdates.and.returnValue(
+        Promise.resolve(true),
+      );
+      mockElectronAPI.checkForUpdates.and.returnValue(
+        Promise.resolve({
+          updateAvailable: false,
+          version: '1.0.0',
+          url: '',
+        }),
+      );
+
+      await service.init();
+      await service.init();
+
+      expect(mockElectronAPI.getAutoCheckUpdates).toHaveBeenCalledTimes(1);
+    });
+
+    it('should default to true on database error', async () => {
+      mockElectronAPI.getAutoCheckUpdates.and.returnValue(
+        Promise.reject(new Error('DB error')),
+      );
+      mockElectronAPI.checkForUpdates.and.returnValue(
+        Promise.resolve({
+          updateAvailable: false,
+          version: '1.0.0',
+          url: '',
+        }),
+      );
+
+      await service.init();
+
+      expect(service.autoCheck()).toBe(true);
+      expect(mockElectronAPI.checkForUpdates).toHaveBeenCalled();
     });
   });
 
   describe('toggleAutoCheck', () => {
-    it('should update autoCheck signal', () => {
-      service.toggleAutoCheck(false);
+    it('should update autoCheck signal', async () => {
+      // Initialize service to load preference
+      await service.init();
+
+      await service.toggleAutoCheck(false);
 
       expect(service.autoCheck()).toBe(false);
     });
 
-    it('should save preference to localStorage', () => {
-      service.toggleAutoCheck(false);
+    it('should save preference to database', async () => {
+      await service.init();
 
-      expect(localStorage.getItem('autoCheckUpdates')).toBe('false');
+      await service.toggleAutoCheck(false);
+
+      expect(mockElectronAPI.setAutoCheckUpdates).toHaveBeenCalledWith(false);
+    });
+
+    it('should handle database errors gracefully', async () => {
+      await service.init();
+
+      mockElectronAPI.setAutoCheckUpdates.and.returnValue(
+        Promise.reject(new Error('DB error')),
+      );
+
+      await service.toggleAutoCheck(false);
+
+      // Signal should still be updated even on error
+      expect(service.autoCheck()).toBe(false);
     });
   });
 
