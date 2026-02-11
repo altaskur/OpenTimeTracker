@@ -6,6 +6,7 @@ import { setupThemeHandlers } from './theme-handlers.js';
 import { setupLanguageHandlers } from './language-handlers.js';
 import { setupBackupHandlers } from './backup-handlers.js';
 import { setupUpdateHandlers } from './update-handlers.js';
+import { setupAutoCheckUpdatesHandlers } from './auto-check-updates-handlers.js';
 
 import { setupSystemHandlers } from './system-handlers.js';
 
@@ -21,6 +22,7 @@ export const setupIpcHandlers = (
     setupDatabaseHandlers(dbManager);
     setupThemeHandlers(dbManager);
     setupLanguageHandlers(dbManager);
+    setupAutoCheckUpdatesHandlers(dbManager);
   }
   if (backupService) {
     setupBackupHandlers(backupService);

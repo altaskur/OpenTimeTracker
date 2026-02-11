@@ -150,11 +150,12 @@ model DayOverride {
 }
 
 model AppSettings {
-  id        String   @id @default("app_settings")
-  darkMode  Boolean  @default(true) @map("dark_mode")
-  language  String   @default("es")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id               String   @id @default("app_settings")
+  darkMode         Boolean  @default(true) @map("dark_mode")
+  language         String   @default("es")
+  autoCheckUpdates Boolean  @default(true) @map("auto_check_updates")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("app_settings")
 }
