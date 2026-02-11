@@ -418,6 +418,10 @@ try {
       url: string;
       releaseNotes?: string;
     }> => ipcRenderer.invoke('check-for-updates'),
+    getAutoCheckUpdates: (): Promise<boolean> =>
+      ipcRenderer.invoke('get-auto-check-updates'),
+    setAutoCheckUpdates: (value: boolean): Promise<void> =>
+      ipcRenderer.invoke('set-auto-check-updates', value),
 
     // App Info
     getVersion: (): Promise<string> => ipcRenderer.invoke('get-version'),

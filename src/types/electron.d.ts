@@ -363,6 +363,8 @@ declare global {
 
       // Updates
       checkForUpdates: () => Promise<UpdateCheckResult>;
+      getAutoCheckUpdates: () => Promise<boolean>;
+      setAutoCheckUpdates: (value: boolean) => Promise<void>;
 
       // App Info
       getVersion: () => Promise<string>;
