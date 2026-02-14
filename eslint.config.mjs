@@ -6,7 +6,7 @@ import angular from "angular-eslint";
 
 export default defineConfig([
   {
-    ignores: ["vitest.config.ts", "prisma.config.ts"],
+    ignores: ["vitest.config.ts", "prisma.config.ts", ".storybook/**/*"],
   },
   {
     files: ["src/**/*.ts"],
