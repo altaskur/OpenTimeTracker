@@ -53,3 +53,7 @@ Thumbs.db
 
 # Prisma generated client
 electron/src/generated/
+
+*storybook.log
+storybook-static
+documentation.json
