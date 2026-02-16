@@ -4,30 +4,33 @@
 
     <!-- Stats Panel -->
     <div class="stats-panel">
-      <app-stats-card
-        type="today"
-        icon="pi-sun"
-        labelKey="home.stats.today"
+      <app-open-card
+        variant="stats-time"
+        [statsModifier]="'today'"
+        [icon]="'pi-sun'"
+        [iconLabel]="'home.stats.today' | translate"
         [worked]="formatTime(stats().todayWorked)"
         [target]="formatTime(stats().todayTarget)"
         [remaining]="formatTime(stats().todayRemaining)"
         [progress]="todayProgress()"
       />
 
-      <app-stats-card
-        type="week"
-        icon="pi-calendar-clock"
-        labelKey="home.stats.week"
+      <app-open-card
+        variant="stats-time"
+        [statsModifier]="'week'"
+        [icon]="'pi-calendar-clock'"
+        [iconLabel]="'home.stats.week' | translate"
         [worked]="formatTime(stats().weekWorked)"
         [target]="formatTime(stats().weekTarget)"
         [remaining]="formatTime(stats().weekRemaining)"
         [progress]="weekProgress()"
       />
 
-      <app-stats-card
-        type="tasks"
-        icon="pi-check-square"
-        labelKey="home.stats.tasksToday"
+      <app-open-card
+        variant="stats-count"
+        [statsModifier]="'tasks'"
+        [icon]="'pi-check-square'"
+        [iconLabel]="'home.stats.tasksToday' | translate"
         [bigNumber]="stats().tasksWorkedToday"
       />
     </div>
@@ -47,7 +50,14 @@
       <div class="tasks-grid" role="list">
         @for (task of pendingTasks(); track task.id) {
           <div role="listitem">
-            <app-task-card [task]="task" />
+            <app-open-card
+              variant="task"
+              [title]="task.name"
+              [subtitle]="task.description || undefined"
+              [status]="getStatusDisplayName(task.status?.name)"
+              [statusSeverity]="getStatusSeverity(task.status?.name)"
+              [tags]="getTaskTags(task)"
+            />
           </div>
         }
       </div>
@@ -67,7 +77,11 @@
       <div class="projects-grid" role="list">
         @for (project of openProjects(); track project.id) {
           <div role="listitem">
-            <app-project-card [project]="project" />
+            <app-open-card
+              variant="project"
+              [icon]="'pi-folder'"
+              [title]="project.name"
+            />
           </div>
         }
       </div>

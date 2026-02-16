@@ -3,12 +3,10 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 import { DatabaseService } from '../../services';
-import { StatsCard } from './components/stats-card/stats-card';
-import { TaskCard } from './components/task-card/task-card';
-import { ProjectCard } from './components/project-card/project-card';
+import { OpenCard } from '../../components/open-card/open-card';
 import {
   Task,
   Project,
@@ -46,9 +44,7 @@ interface TimeStats {
     ButtonModule,
     OpenLayoutComponent,
     TranslateModule,
-    StatsCard,
-    TaskCard,
-    ProjectCard,
+    OpenCard,
   ],
   templateUrl: './open-home.html',
   styleUrl: './open-home.scss',
@@ -56,6 +52,7 @@ interface TimeStats {
 export class OpenHome implements OnInit {
   private readonly router = inject(Router);
   private readonly dbService = inject(DatabaseService);
+  private readonly translate = inject(TranslateService);
 
   pendingTasks = signal<Task[]>([]);
   openProjects = signal<Project[]>([]);
@@ -288,6 +285,59 @@ export class OpenHome implements OnInit {
     } else {
       return `${mins}m`;
     }
+  }
+
+  /**
+   * Gets translated status display name
+   */
+  getStatusDisplayName(statusName?: string): string {
+    if (!statusName) return this.translate.instant('status.pending');
+    return this.translate.instant(statusName);
+  }
+
+  /**
+   * Gets status severity for PrimeNG tag
+   */
+  getStatusSeverity(
+    statusName?: string,
+  ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+    const name = statusName?.toLowerCase() ?? '';
+    if (
+      name.includes('completed') ||
+      name.includes('completada') ||
+      name.includes('done')
+    ) {
+      return 'success';
+    }
+    if (
+      name.includes('progress') ||
+      name.includes('curso') ||
+      name.includes('working')
+    ) {
+      return 'info';
+    }
+    if (
+      name.includes('blocked') ||
+      name.includes('bloqueada') ||
+      name.includes('error')
+    ) {
+      return 'danger';
+    }
+    if (
+      name.includes('pending') ||
+      name.includes('pendiente') ||
+      name.includes('todo')
+    ) {
+      return 'warn';
+    }
+    return 'secondary';
+  }
+
+  /**
+   * Gets task tags as string array
+   */
+  getTaskTags(task: Task): string[] {
+    return task.tags?.map((t) => t.tag.name) ?? [];
   }
 
   goToTasks(): void {

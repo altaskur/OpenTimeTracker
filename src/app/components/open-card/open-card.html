@@ -1,0 +1,92 @@
+<article [class]="'open-card open-card--' + variant()">
+  @switch (variant()) {
+    <!-- Project variant -->
+    @case ("project") {
+      <p-card>
+        <div class="open-card__header">
+          @if (icon()) {
+            <i [class]="'pi ' + icon()"></i>
+          }
+          <h3 class="open-card__name">{{ title() }}</h3>
+        </div>
+      </p-card>
+    }
+
+    <!-- Stats time variant (today/week) -->
+    @case ("stats-time") {
+      <p-card
+        class="stats-card"
+        [ngClass]="statsModifier() ? 'stats-card--' + statsModifier() : ''"
+      >
+        <div class="stats-card__header">
+          @if (icon()) {
+            <i [class]="'pi ' + icon()"></i>
+          }
+          @if (iconLabel()) {
+            <span>{{ iconLabel() }}</span>
+          }
+        </div>
+        <div class="stats-card__content">
+          <div class="stats-card__time">
+            <span class="stats-card__worked">{{ worked() }}</span>
+            <span class="stats-card__separator">/</span>
+            <span class="stats-card__target">{{ target() }}</span>
+          </div>
+          <p-progressBar
+            appProgressbarAriaFix
+            [value]="progress()"
+            [showValue]="false"
+            [attr.aria-label]="progressLabel()"
+            [attr.aria-valuetext]="progress() + '%'"
+          />
+          @if (remaining()) {
+            <div class="stats-card__remaining">
+              {{ remaining() }}
+            </div>
+          }
+        </div>
+      </p-card>
+    }
+
+    <!-- Stats count variant (tasks) -->
+    @case ("stats-count") {
+      <p-card class="stats-card stats-card--tasks">
+        <div class="stats-card__header">
+          @if (icon()) {
+            <i [class]="'pi ' + icon()"></i>
+          }
+          @if (iconLabel()) {
+            <span>{{ iconLabel() }}</span>
+          }
+        </div>
+        <div class="stats-card__content">
+          <div class="stats-card__big-number">
+            {{ bigNumber() }}
+          </div>
+        </div>
+      </p-card>
+    }
+
+    <!-- Task variant -->
+    @case ("task") {
+      <p-card>
+        @if (title()) {
+          <h2 class="task-card__name">{{ title() }}</h2>
+        }
+        @if (subtitle()) {
+          <p class="task-card__description">{{ subtitle() }}</p>
+        }
+        <div class="task-card__footer">
+          <div class="task-card__meta">
+            @if (status()) {
+              <p-tag [value]="status()!" [severity]="statusSeverity()" />
+            }
+            @for (tag of tags(); track tag) {
+              <p-chip [label]="tag" />
+            }
+          </div>
+        </div>
+      </p-card>
+    }
+  }
+</article>

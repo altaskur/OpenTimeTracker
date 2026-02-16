@@ -1,0 +1,45 @@
+/**
+ * Dialog Polish Mixin
+ *
+ * Provides consistent, professional styling for all dialog components.
+ * Includes elevation, typography hierarchy, spacing, and visual separation.
+ */
+
+@mixin dialog-polish {
+  ::ng-deep .p-dialog {
+    box-shadow: var(--elevation-modal);
+    border-radius: var(--radius-lg);
+
+    .p-dialog-header {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+      padding-block: 1.25rem;
+      border-bottom: 1px solid var(--p-surface-border);
+    }
+
+    .p-dialog-content {
+      padding-block: 1.5rem;
+    }
+
+    .p-dialog-footer {
+      padding-block: 1rem;
+      border-top: 1px solid var(--p-surface-border);
+      gap: 0.75rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Input field labels in dialogs */
+    label {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--p-text-color);
+    }
+
+    /* Form field spacing */
+    .p-field,
+    .p-fluid {
+      margin-bottom: 1rem;
+    }
+  }
+}

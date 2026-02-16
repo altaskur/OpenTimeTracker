@@ -1,3 +1,7 @@
+@use "../../themes/dialog-polish" as *;
+
+@include dialog-polish;
+
 .day-override {
   display: flex;
   flex-direction: column;
@@ -10,9 +14,9 @@
   gap: 0.75rem;
   padding: 1rem;
   background: var(--c-surface-subtle);
-  border-radius: var(--p-border-radius);
-  font-size: 1rem;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   color: var(--p-text-color);
   text-transform: capitalize;
 

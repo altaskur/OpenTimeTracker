@@ -10,6 +10,43 @@
 html {
   font-size: 14px;
 
+  /* Design System Tokens - Elevation */
+  --elevation-none: none;
+  --elevation-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --elevation-sm: 0 2px 4px rgba(15, 23, 42, 0.06);
+  --elevation-md: 0 4px 8px rgba(15, 23, 42, 0.08);
+  --elevation-lg: 0 8px 16px rgba(15, 23, 42, 0.1);
+  --elevation-xl: 0 12px 24px rgba(15, 23, 42, 0.12);
+  --elevation-hover: 0 8px 16px rgba(15, 23, 42, 0.12);
+  --elevation-modal: 0 24px 48px rgba(15, 23, 42, 0.2);
+
+  /* Design System Tokens - Typography */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Design System Tokens - Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Design System Tokens - Transitions */
+  --transition-fast: 150ms;
+  --transition-base: 200ms;
+  --transition-slow: 300ms;
+
   /* Custom semantic colors - Light mode */
   --c-positive-bg: var(--p-green-50);
   --c-positive-color: var(--p-green-600);
@@ -19,16 +56,25 @@ html {
   --c-over-color: var(--p-blue-600);
   --c-info-bg: var(--p-blue-50);
   --c-info-color: var(--p-blue-700);
-  --c-primary-bg: var(--p-primary-50);
-  --c-primary-color: var(--p-primary-600);
-  --c-primary-border: var(--p-primary-200);
-  --c-surface-subtle: var(--p-surface-50);
-  --c-surface-muted: var(--p-surface-100);
+  --c-primary-bg: var(--p-teal-50);
+  --c-primary-color: var(--p-teal-600);
+  --c-primary-border: var(--p-teal-200);
+  --c-surface-subtle: var(--p-slate-50);
+  --c-surface-muted: var(--p-slate-100);
 }
 
 html.my-app-dark {
-  background-color: var(--p-surface-900);
-  color: var(--p-surface-0);
+  background-color: var(--p-slate-900);
+  color: var(--p-slate-200);
+
+  /* Design System Tokens - Elevation (Dark mode) */
+  --elevation-xs: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --elevation-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --elevation-md: 0 4px 8px rgba(0, 0, 0, 0.25);
+  --elevation-lg: 0 8px 16px rgba(0, 0, 0, 0.3);
+  --elevation-xl: 0 12px 24px rgba(0, 0, 0, 0.35);
+  --elevation-hover: 0 8px 16px rgba(0, 0, 0, 0.35);
+  --elevation-modal: 0 24px 48px rgba(0, 0, 0, 0.5);
 
   /* Custom semantic colors - Dark mode */
   --c-positive-bg: color-mix(in srgb, var(--p-green-500) 15%, transparent);
@@ -39,11 +85,11 @@ html.my-app-dark {
   --c-over-color: var(--p-blue-400);
   --c-info-bg: color-mix(in srgb, var(--p-blue-500) 15%, transparent);
   --c-info-color: var(--p-blue-400);
-  --c-primary-bg: color-mix(in srgb, var(--p-primary-500) 15%, transparent);
-  --c-primary-color: var(--p-primary-400);
-  --c-primary-border: color-mix(in srgb, var(--p-primary-500) 30%, transparent);
-  --c-surface-subtle: color-mix(in srgb, var(--p-surface-0) 3%, transparent);
-  --c-surface-muted: color-mix(in srgb, var(--p-surface-0) 8%, transparent);
+  --c-primary-bg: color-mix(in srgb, var(--p-teal-500) 15%, transparent);
+  --c-primary-color: var(--p-teal-400);
+  --c-primary-border: color-mix(in srgb, var(--p-teal-500) 30%, transparent);
+  --c-surface-subtle: color-mix(in srgb, var(--p-slate-200) 3%, transparent);
+  --c-surface-muted: color-mix(in srgb, var(--p-slate-200) 8%, transparent);
 }
 
 body {
@@ -54,7 +100,66 @@ body {
     color 0.3s;
 }
 
-.p-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+/* Enhanced input states */
+.p-inputtext,
+.p-dropdown,
+.p-multiselect,
+.p-calendar .p-inputtext {
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+
+  &:enabled:focus {
+    border-color: var(--p-primary-color);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--p-primary-color) 15%, transparent);
+  }
+
+  &.p-invalid {
+    border-color: var(--p-red-500);
+
+    &:focus {
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--p-red-500) 15%, transparent);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* Enhanced button states */
+.p-button {
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+
+  &:enabled:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-hover);
+  }
+
+  &:enabled:active {
+    transform: translateY(0);
+    box-shadow: var(--elevation-sm);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
+}
+
+/* Enhanced interactive states for clickable elements */
+.p-checkbox,
+.p-radiobutton {
+  &:focus-within {
+    .p-checkbox-box,
+    .p-radiobutton-box {
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--p-primary-color) 15%, transparent);
+    }
+  }
 }

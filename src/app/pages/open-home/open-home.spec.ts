@@ -554,4 +554,62 @@ describe('OpenHome', () => {
       ).toBeUndefined();
     });
   });
+
+  describe('status and tags helpers', () => {
+    it('should translate pending status when status is undefined', () => {
+      expect(component.getStatusDisplayName(undefined)).toBe('status.pending');
+    });
+
+    it('should translate provided status key', () => {
+      expect(component.getStatusDisplayName('status.completed')).toBe(
+        'status.completed',
+      );
+    });
+
+    it('should return success severity', () => {
+      expect(component.getStatusSeverity('Completed')).toBe('success');
+      expect(component.getStatusSeverity('Completada')).toBe('success');
+      expect(component.getStatusSeverity('Done')).toBe('success');
+    });
+
+    it('should return info severity', () => {
+      expect(component.getStatusSeverity('In Progress')).toBe('info');
+      expect(component.getStatusSeverity('En curso')).toBe('info');
+      expect(component.getStatusSeverity('Working')).toBe('info');
+    });
+
+    it('should return danger severity', () => {
+      expect(component.getStatusSeverity('Blocked')).toBe('danger');
+      expect(component.getStatusSeverity('Bloqueada')).toBe('danger');
+      expect(component.getStatusSeverity('Error')).toBe('danger');
+    });
+
+    it('should return warn severity', () => {
+      expect(component.getStatusSeverity('Pending')).toBe('warn');
+      expect(component.getStatusSeverity('Pendiente')).toBe('warn');
+      expect(component.getStatusSeverity('Todo')).toBe('warn');
+    });
+
+    it('should return secondary for unknown severity', () => {
+      expect(component.getStatusSeverity('Unknown')).toBe('secondary');
+      expect(component.getStatusSeverity(undefined)).toBe('secondary');
+    });
+
+    it('should extract task tags', () => {
+      const taskWithTags = {
+        ...mockTasks[0],
+        tags: [
+          { tag: { id: 't1', name: 'Bug' } },
+          { tag: { id: 't2', name: 'UI' } },
+        ],
+      } as Task;
+
+      expect(component.getTaskTags(taskWithTags)).toEqual(['Bug', 'UI']);
+    });
+
+    it('should return empty array when task has no tags', () => {
+      const taskWithoutTags = { ...mockTasks[0], tags: [] } as Task;
+      expect(component.getTaskTags(taskWithoutTags)).toEqual([]);
+    });
+  });
 });

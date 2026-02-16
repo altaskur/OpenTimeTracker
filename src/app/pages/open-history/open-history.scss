@@ -108,7 +108,7 @@ tr.undone {
 .json-display {
   background: var(--p-surface-100);
   border: 1px solid var(--p-surface-200);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 1rem;
   margin: 0;
   font-family: "Fira Code", "Consolas", monospace;
