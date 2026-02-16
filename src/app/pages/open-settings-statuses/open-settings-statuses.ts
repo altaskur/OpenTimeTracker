@@ -49,7 +49,7 @@ export class OpenSettingsStatusesComponent implements OnInit {
   readonly statuses = signal<TaskStatus[]>([]);
   readonly loading = signal(false);
   readonly newStatusName = signal('');
-  readonly newStatusColor = signal('#6b7280');
+  readonly newStatusColor = signal('#475569');
   readonly editingId = signal<string | null>(null);
   readonly editingName = signal('');
   readonly editingColor = signal('');
@@ -87,7 +87,7 @@ export class OpenSettingsStatusesComponent implements OnInit {
     try {
       await this.db.createTaskStatus(name, this.newStatusColor());
       this.newStatusName.set('');
-      this.newStatusColor.set('#6b7280');
+      this.newStatusColor.set('#475569');
       await this.loadStatuses();
       this.messageService.add({
         severity: 'success',

@@ -17,7 +17,7 @@ import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
 
-import { AuraBlack } from './themes/aura-black.preset';
+import { AuraOpen } from './themes/aura-open.preset';
 import {
   GlobalErrorHandler,
   ThemeService,
@@ -40,7 +40,7 @@ export const appConfig: ApplicationConfig = {
     }),
     providePrimeNG({
       theme: {
-        preset: AuraBlack,
+        preset: AuraOpen,
         options: {
           darkModeSelector: '.my-app-dark',
         },

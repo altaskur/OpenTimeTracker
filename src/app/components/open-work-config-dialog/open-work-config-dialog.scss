@@ -1,3 +1,7 @@
+@use "../../themes/dialog-polish" as *;
+
+@include dialog-polish;
+
 .work-config {
   display: flex;
   flex-direction: column;
@@ -11,8 +15,8 @@
 }
 
 .work-config__label {
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   color: var(--p-text-color);
 }
 
