@@ -37,7 +37,9 @@
     "sonar:check": "npm run test:coverage && npm run test:electron:coverage && npm run sonar && node scripts/check-sonar-quality-gate.mjs",
     "prepare": "husky",
     "lint": "ng lint",
-    "lint:fix": "ng lint --fix"
+    "lint:fix": "ng lint --fix",
+    "storybook": "ng run OpenTimeTracker:storybook",
+    "build-storybook": "ng run OpenTimeTracker:build-storybook"
   },
   "build": {
     "appId": "com.altaskur.opentimetracker",
@@ -209,7 +211,17 @@
     "sonarqube-scanner": "^4.3.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "8.46.4",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.15",
+    "storybook": "^10.2.8",
+    "@storybook/angular": "^10.2.8",
+    "@storybook/addon-a11y": "^10.2.8",
+    "@storybook/addon-docs": "^10.2.8",
+    "@storybook/addon-onboarding": "^10.2.8",
+    "@angular-devkit/build-angular": "^21.0.1",
+    "@angular-devkit/architect": "^0.2100.1",
+    "@angular-devkit/core": "^21.0.1",
+    "@angular/platform-browser-dynamic": "^21.0.1",
+    "@compodoc/compodoc": "^1.2.1"
   },
   "lint-staged": {
     "*.{ts,js}": [
