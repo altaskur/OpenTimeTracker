@@ -12,6 +12,7 @@
   <a href="#what-is-opentimetracker">What is</a> •
   <a href="#key-features">Key Features</a> •
   <a href="#quick-start">Quick start</a> •
+  <a href="#-documentation">Documentation</a> •
   <a href="#contributing">Contributing</a> •
   <a href="#license">License</a>
 </p>
@@ -87,6 +88,31 @@ npm run dev
 npm run dev is the recommended and supported development command.
 It runs Angular and Electron together as intended.
 
+---
+
+## 📚 Documentation
+
+**Comprehensive documentation is available in the project wiki:**
+
+### 👉 **[Visit the Wiki](https://github.com/altaskur/OpenTimeTracker/wiki)** 📖
+
+Quick access to key documentation:
+
+- 🚀 **[Getting Started](https://github.com/altaskur/OpenTimeTracker/wiki/Getting-Started)** - Installation and first steps
+- 📖 **[User Guide](https://github.com/altaskur/OpenTimeTracker/wiki/Getting-Started)** - Complete feature guide
+- 🏗️ **[Architecture](https://github.com/altaskur/OpenTimeTracker/wiki/Architecture)** - Technical design
+- 💾 **[Database Schema](https://github.com/altaskur/OpenTimeTracker/wiki/Database-Schema)** - Data model
+- 🛠️ **[Development Setup](https://github.com/altaskur/OpenTimeTracker/wiki/Development-Setup)** - Dev environment setup
+- 🔧 **[Troubleshooting](https://github.com/altaskur/OpenTimeTracker/wiki/Troubleshooting)** - Common issues and solutions
+- ❓ **[FAQ](https://github.com/altaskur/OpenTimeTracker/wiki/FAQ)** - Frequently asked questions
+- 🗺️ **[Roadmap](https://github.com/altaskur/OpenTimeTracker/wiki/Roadmap)** - Future plans
+
+All documentation is available in **English** and **Spanish**.
+
+> **Note**: Documentation source files are in the [`wiki/`](wiki/) folder. See [WIKI_MIGRATION.md](WIKI_MIGRATION.md) for instructions on publishing to GitHub Wiki.
+
+---
+
 ## 🧪 Project status
 
 ⚠️ Alpha stage
@@ -99,19 +125,19 @@ Feedback, bug reports and contributions are welcome.
 ## 🤝 Contributing
 
 Interested in contributing? Great ❤️
-All contribution-related documentation lives outside this README to keep things clear and up to date.
 
-📘 CONTRIBUTING.md — setup, workflow and quality checks
+**📖 [Visit the Wiki](wiki/Home.md)** for comprehensive documentation.
 
-🧭 COLLABORATION.md — technical and architectural details
+All contribution-related documentation lives outside this README to keep things clear and up to date:
 
-🛡️ SECURITY.md — how to report vulnerabilities
+- 📘 **[CONTRIBUTING.md](CONTRIBUTING.md)** — setup, workflow and quality checks
+- 🧭 **[COLLABORATION.md](COLLABORATION.md)** — technical and architectural details
+- 🛡️ **[SECURITY.md](SECURITY.md)** — how to report vulnerabilities
+- 📜 **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** — community guidelines
+- 📚 **[Project Wiki](wiki/Home.md)** — comprehensive documentation
+- 🌐 **[DeepWiki](https://deepwiki.com/altaskur/OpenTimeTracker)** — optional, supplementary documentation (secondary)
 
-📜 CODE_OF_CONDUCT.md — community guidelines
-
-🌐 DeepWiki — optional, supplementary documentation (secondary): <https://deepwiki.com/altaskur/OpenTimeTracker>
-
-Before opening a PR, please read CONTRIBUTING.md.
+Before opening a PR, please read **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
 ## 📄 License
 
