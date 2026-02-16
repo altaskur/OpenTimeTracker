@@ -137,7 +137,7 @@ describe('OpenSettingsStatusesComponent', () => {
         '#ff0000',
       );
       expect(component.newStatusName()).toBe('');
-      expect(component.newStatusColor()).toBe('#6b7280');
+      expect(component.newStatusColor()).toBe('#475569');
       expect(mockMessageService.add).toHaveBeenCalled();
     }));
 

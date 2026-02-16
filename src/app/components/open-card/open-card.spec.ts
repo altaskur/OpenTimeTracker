@@ -84,6 +84,28 @@ describe('OpenCard', () => {
       const labelElement = compiled.querySelector('.stats-card__header span');
       expect(labelElement?.textContent?.trim()).toBe('Today');
     });
+
+    it('should expose accessible progress label with worked and target', () => {
+      expect(component.progressLabel()).toBe('Progress: 4:30 of 8:00 (56%)');
+    });
+
+    it('should render ARIA attributes for progressbar', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const progressBar = compiled.querySelector('p-progressbar');
+      expect(progressBar?.getAttribute('aria-label')).toBe(
+        'Progress: 4:30 of 8:00 (56%)',
+      );
+      expect(progressBar?.getAttribute('aria-valuetext')).toBe('56%');
+    });
+
+    it('should fallback progress label when worked and target are empty', () => {
+      fixture.componentRef.setInput('worked', '');
+      fixture.componentRef.setInput('target', '');
+      fixture.componentRef.setInput('progress', 10);
+      fixture.detectChanges();
+
+      expect(component.progressLabel()).toBe('Progress: 10%');
+    });
   });
 
   describe('Stats Count Variant', () => {

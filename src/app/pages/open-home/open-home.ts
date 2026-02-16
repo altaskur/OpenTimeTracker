@@ -301,7 +301,7 @@ export class OpenHome implements OnInit {
   getStatusSeverity(
     statusName?: string,
   ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
-    const name = statusName?.toLowerCase() || '';
+    const name = statusName?.toLowerCase() ?? '';
     if (
       name.includes('completed') ||
       name.includes('completada') ||
@@ -337,7 +337,7 @@ export class OpenHome implements OnInit {
    * Gets task tags as string array
    */
   getTaskTags(task: Task): string[] {
-    return task.tags?.map((t) => t.tag.name) || [];
+    return task.tags?.map((t) => t.tag.name) ?? [];
   }
 
   goToTasks(): void {
