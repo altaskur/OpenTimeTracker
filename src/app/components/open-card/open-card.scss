@@ -1,7 +1,8 @@
 /* Base card styles - common to all variants */
 .open-card {
-  height: 100%;
+  height: 134px;
   width: 100%;
+  max-width: 356px;
 
   ::ng-deep .p-card {
     height: 100%;
@@ -11,6 +12,7 @@
     transition:
       box-shadow var(--transition-base),
       transform var(--transition-base);
+    overflow: hidden;
 
     &:hover {
       box-shadow: var(--elevation-md);
@@ -20,6 +22,11 @@
 
   ::ng-deep .p-card-body {
     height: 100%;
+    padding: 0.75rem 1rem;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
   }
 
   /* Common header styles */
@@ -31,6 +38,7 @@
     i {
       font-size: 1.5rem;
       color: var(--p-primary-color);
+      flex-shrink: 0;
     }
   }
 
@@ -39,6 +47,9 @@
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
     color: var(--p-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -156,6 +167,9 @@
       font-size: var(--font-size-base);
       font-weight: var(--font-weight-semibold);
       color: var(--p-text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &__description {
