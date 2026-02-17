@@ -206,28 +206,26 @@ export class OpenHome implements OnInit {
    * Counts work days in the week from config
    */
   private getWorkDaysCount(monthConfig: MonthConfig): number {
-    try {
-      const workDays = JSON.parse(monthConfig.workDays);
-      return Array.isArray(workDays) ? workDays.length : 5;
-    } catch {
-      return 5;
-    }
+    const workDays = monthConfig.workDays
+      ?.split(',')
+      .map((d) => parseInt(d, 10))
+      .filter((d) => !isNaN(d));
+    return workDays?.length ?? 5;
   }
 
   /**
    * Checks if a day of week is a work day
    */
   private isWorkDay(dayOfWeek: number, monthConfig: MonthConfig): boolean {
-    try {
-      const workDays = JSON.parse(monthConfig.workDays);
-      return Array.isArray(workDays) && workDays.includes(dayOfWeek);
-    } catch {
-      return dayOfWeek >= 1 && dayOfWeek <= 5;
-    }
+    const workDays = monthConfig.workDays
+      ?.split(',')
+      .map((d) => parseInt(d, 10))
+      .filter((d) => !isNaN(d)) || [1, 2, 3, 4, 5];
+    return workDays.includes(dayOfWeek);
   }
 
   /**
-   * Gets target minutes for a specific day
+   * Gets target minutes for a specific day using daySchedule (same logic as calendar)
    */
   private getDayTarget(
     date: Date,
@@ -238,18 +236,26 @@ export class OpenHome implements OnInit {
     const override = dayOverrides.find((o) => o.date === dateStr);
 
     if (override) {
+      if (override.dayTypeId) {
+        return 0;
+      }
       return override.minutes ?? 0;
     }
 
-    const dayOfWeek = date.getDay();
+    const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay();
     if (!this.isWorkDay(dayOfWeek, monthConfig)) {
       return 0;
     }
 
-    const workDaysCount = this.getWorkDaysCount(monthConfig);
-    return workDaysCount > 0
-      ? Math.round(monthConfig.weeklyMinutes / workDaysCount)
-      : 0;
+    // Use daySchedule for per-day minutes (consistent with calendar)
+    try {
+      const daySchedule: Record<string, number> = monthConfig.daySchedule
+        ? JSON.parse(monthConfig.daySchedule)
+        : { '1': 480, '2': 480, '3': 480, '4': 480, '5': 480 };
+      return daySchedule[String(dayOfWeek)] ?? 480;
+    } catch {
+      return 480;
+    }
   }
 
   /**
