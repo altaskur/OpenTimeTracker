@@ -4,12 +4,14 @@
 
   h1 {
     margin: 0 0 0.5rem;
-    font-size: 2rem;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
   }
 
   p {
     margin: 0 0 1.5rem;
-    opacity: 0.8;
+    font-size: var(--font-size-lg);
+    color: var(--p-text-muted-color);
   }
 }
 
@@ -25,11 +27,14 @@
 
   h1 {
     margin: 0 0 1rem;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
   }
 
   h2 {
     margin: 0 0 1rem;
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
   }
 }
 
@@ -39,6 +44,22 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
+
+  >* {
+    max-width: 356px;
+  }
+}
+
+.task-panel,
+.projects-panel {
+  margin-bottom: 1.5rem;
+}
+
+.tasks-grid,
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 356px));
+  gap: 1rem;
 }
 
 .stats-card {
@@ -54,13 +75,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     margin-bottom: 0.75rem;
     color: var(--p-text-muted-color);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
 
     i {
-      font-size: 1.125rem;
+      font-size: var(--font-size-lg);
     }
   }
 
@@ -77,8 +98,8 @@
   }
 
   &__worked {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
     color: var(--p-primary-color);
   }
 
@@ -88,18 +109,18 @@
   }
 
   &__target {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     color: var(--p-text-muted-color);
   }
 
   &__remaining {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--p-text-muted-color);
   }
 
   &__big-number {
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
     color: var(--p-primary-color);
     text-align: center;
     line-height: 1;
@@ -139,44 +160,15 @@
     text-align: center;
 
     i {
-      font-size: 3rem;
-      opacity: 0.5;
+      font-size: var(--font-size-4xl);
+      color: var(--p-text-muted-color);
     }
 
     p {
       margin: 0;
-      opacity: 0.7;
+      font-size: var(--font-size-base);
+      color: var(--p-text-muted-color);
     }
-  }
-}
-
-.tasks-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-auto-rows: 1fr;
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem;
-
-  > [role="listitem"] {
-    display: flex;
-    min-height: 150px;
-  }
-}
-
-/* ==================== PROJECTS GRID ==================== */
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-rows: 1fr;
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-
-  > [role="listitem"] {
-    display: flex;
   }
 }
 

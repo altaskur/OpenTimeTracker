@@ -3,12 +3,10 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
 import { DatabaseService } from '../../services';
-import { StatsCard } from './components/stats-card/stats-card';
-import { TaskCard } from './components/task-card/task-card';
-import { ProjectCard } from './components/project-card/project-card';
+import { OpenCard } from '../../components/open-card/open-card';
 import {
   Task,
   Project,
@@ -46,9 +44,7 @@ interface TimeStats {
     ButtonModule,
     OpenLayoutComponent,
     TranslateModule,
-    StatsCard,
-    TaskCard,
-    ProjectCard,
+    OpenCard,
   ],
   templateUrl: './open-home.html',
   styleUrl: './open-home.scss',
@@ -56,6 +52,7 @@ interface TimeStats {
 export class OpenHome implements OnInit {
   private readonly router = inject(Router);
   private readonly dbService = inject(DatabaseService);
+  private readonly translate = inject(TranslateService);
 
   pendingTasks = signal<Task[]>([]);
   openProjects = signal<Project[]>([]);
@@ -209,28 +206,26 @@ export class OpenHome implements OnInit {
    * Counts work days in the week from config
    */
   private getWorkDaysCount(monthConfig: MonthConfig): number {
-    try {
-      const workDays = JSON.parse(monthConfig.workDays);
-      return Array.isArray(workDays) ? workDays.length : 5;
-    } catch {
-      return 5;
-    }
+    const workDays = monthConfig.workDays
+      ?.split(',')
+      .map((d) => parseInt(d, 10))
+      .filter((d) => !isNaN(d));
+    return workDays?.length ?? 5;
   }
 
   /**
    * Checks if a day of week is a work day
    */
   private isWorkDay(dayOfWeek: number, monthConfig: MonthConfig): boolean {
-    try {
-      const workDays = JSON.parse(monthConfig.workDays);
-      return Array.isArray(workDays) && workDays.includes(dayOfWeek);
-    } catch {
-      return dayOfWeek >= 1 && dayOfWeek <= 5;
-    }
+    const workDays = monthConfig.workDays
+      ?.split(',')
+      .map((d) => parseInt(d, 10))
+      .filter((d) => !isNaN(d)) || [1, 2, 3, 4, 5];
+    return workDays.includes(dayOfWeek);
   }
 
   /**
-   * Gets target minutes for a specific day
+   * Gets target minutes for a specific day using daySchedule (same logic as calendar)
    */
   private getDayTarget(
     date: Date,
@@ -241,18 +236,26 @@ export class OpenHome implements OnInit {
     const override = dayOverrides.find((o) => o.date === dateStr);
 
     if (override) {
+      if (override.dayTypeId) {
+        return 0;
+      }
       return override.minutes ?? 0;
     }
 
-    const dayOfWeek = date.getDay();
+    const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay();
     if (!this.isWorkDay(dayOfWeek, monthConfig)) {
       return 0;
     }
 
-    const workDaysCount = this.getWorkDaysCount(monthConfig);
-    return workDaysCount > 0
-      ? Math.round(monthConfig.weeklyMinutes / workDaysCount)
-      : 0;
+    // Use daySchedule for per-day minutes (consistent with calendar)
+    try {
+      const daySchedule: Record<string, number> = monthConfig.daySchedule
+        ? JSON.parse(monthConfig.daySchedule)
+        : { '1': 480, '2': 480, '3': 480, '4': 480, '5': 480 };
+      return daySchedule[String(dayOfWeek)] ?? 480;
+    } catch {
+      return 480;
+    }
   }
 
   /**
@@ -288,6 +291,59 @@ export class OpenHome implements OnInit {
     } else {
       return `${mins}m`;
     }
+  }
+
+  /**
+   * Gets translated status display name
+   */
+  getStatusDisplayName(statusName?: string): string {
+    if (!statusName) return this.translate.instant('status.pending');
+    return this.translate.instant(statusName);
+  }
+
+  /**
+   * Gets status severity for PrimeNG tag
+   */
+  getStatusSeverity(
+    statusName?: string,
+  ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+    const name = statusName?.toLowerCase() ?? '';
+    if (
+      name.includes('completed') ||
+      name.includes('completada') ||
+      name.includes('done')
+    ) {
+      return 'success';
+    }
+    if (
+      name.includes('progress') ||
+      name.includes('curso') ||
+      name.includes('working')
+    ) {
+      return 'info';
+    }
+    if (
+      name.includes('blocked') ||
+      name.includes('bloqueada') ||
+      name.includes('error')
+    ) {
+      return 'danger';
+    }
+    if (
+      name.includes('pending') ||
+      name.includes('pendiente') ||
+      name.includes('todo')
+    ) {
+      return 'warn';
+    }
+    return 'secondary';
+  }
+
+  /**
+   * Gets task tags as string array
+   */
+  getTaskTags(task: Task): string[] {
+    return task.tags?.map((t) => t.tag.name) ?? [];
   }
 
   goToTasks(): void {

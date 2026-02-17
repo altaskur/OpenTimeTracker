@@ -1,3 +1,7 @@
+@use "../../themes/dialog-polish" as *;
+
+@include dialog-polish;
+
 .day-types {
   display: flex;
   flex-direction: column;
@@ -7,7 +11,7 @@
 .day-types__form {
   padding: 1rem;
   background: var(--p-surface-50);
-  border-radius: var(--p-border-radius);
+  border-radius: var(--radius-md);
 }
 
 .day-types__form-row {

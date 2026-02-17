@@ -23,6 +23,7 @@ Brief guide to contribute consistently. English first, Spanish version below.
    ```bash
    npm start            # Angular dev server on 4200
    npm run dev          # build + Electron dev mode
+   npm run storybook    # UI component explorer
    ```
 
 ## Workflow
@@ -68,6 +69,7 @@ Brief guide to contribute consistently. English first, Spanish version below.
 ## UI and i18n
 
 - Uses PrimeNG/PrimeFlex, dark theme by default.
+- Use Storybook to develop components in isolation.
 - Add strings in src/assets/i18n/en.json and src/assets/i18n/es.json.
 - Mind accessibility: labels, visible focus, contrast.
 
@@ -113,6 +115,7 @@ Guía breve para contribuir de forma consistente.
    ```bash
    npm start            # servidor Angular en 4200
    npm run dev          # build + Electron en modo desarrollo
+   npm run storybook    # explorador de componentes UI
    ```
 
 ### Flujo de trabajo
@@ -158,6 +161,7 @@ Guía breve para contribuir de forma consistente.
 ### UI e i18n
 
 - Componentes con PrimeNG/PrimeFlex, tema oscuro por defecto.
+- Usa Storybook para desarrollar componentes de forma aislada.
 - Añade cadenas en src/assets/i18n/en.json y src/assets/i18n/es.json.
 - Cuida accesibilidad: labels, focus visible, contrastes.
 

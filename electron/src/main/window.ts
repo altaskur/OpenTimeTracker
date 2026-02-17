@@ -38,18 +38,25 @@ export class WindowManager {
    * Loads the Angular application
    */
   private async loadApplication(): Promise<void> {
-    const indexPath = getIndexPath();
-    console.log('Index path:', indexPath);
+    const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
 
-    if (fs.existsSync(indexPath)) {
-      this.navigationHandler = new NavigationHandler(this.mainWindow!);
-      this.navigationHandler.setupNavigationHandlers();
-      this.navigationHandler.loadIndex();
+    if (rendererUrl) {
+      console.log('Loading renderer from:', rendererUrl);
+      await this.mainWindow?.loadURL(rendererUrl);
     } else {
-      console.error('index.html not found at:', indexPath);
-      this.mainWindow?.loadURL(
-        `data:text/html,<h1>Error: index.html not found</h1><p>Path: ${indexPath}</p>`,
-      );
+      const indexPath = getIndexPath();
+      console.log('Index path:', indexPath);
+
+      if (fs.existsSync(indexPath)) {
+        this.navigationHandler = new NavigationHandler(this.mainWindow!);
+        this.navigationHandler.setupNavigationHandlers();
+        this.navigationHandler.loadIndex();
+      } else {
+        console.error('index.html not found at:', indexPath);
+        this.mainWindow?.loadURL(
+          `data:text/html,<h1>Error: index.html not found</h1><p>Path: ${indexPath}</p>`,
+        );
+      }
     }
   }
 

@@ -1,0 +1,205 @@
+/* Base card styles - common to all variants */
+.open-card {
+  height: 134px;
+  width: 100%;
+  max-width: 356px;
+
+  ::ng-deep .p-card {
+    height: 100%;
+    box-shadow: var(--elevation-sm);
+    border: 1px solid var(--p-surface-border);
+    border-radius: var(--radius-lg);
+    transition:
+      box-shadow var(--transition-base),
+      transform var(--transition-base);
+    overflow: hidden;
+
+    &:hover {
+      box-shadow: var(--elevation-md);
+      transform: translateY(-2px);
+    }
+  }
+
+  ::ng-deep .p-card-body {
+    height: 100%;
+    padding: 0.75rem 1rem;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+
+  /* Common header styles */
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 1.5rem;
+      color: var(--p-primary-color);
+      flex-shrink: 0;
+    }
+  }
+
+  &__name {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--p-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Stats time variant specific styles */
+.open-card--stats-time,
+.open-card--stats-count {
+  .stats-card {
+    height: 100%;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--p-text-muted-color);
+
+      i {
+        font-size: var(--font-size-xl);
+      }
+    }
+
+    &__content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    &__time {
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+    }
+
+    &__worked {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--p-text-color);
+    }
+
+    &__separator {
+      color: var(--p-text-muted-color);
+    }
+
+    &__target {
+      font-size: var(--font-size-base);
+      color: var(--p-text-muted-color);
+    }
+
+    &__remaining {
+      font-size: var(--font-size-sm);
+      color: var(--p-text-muted-color);
+    }
+
+    &__big-number {
+      font-size: var(--font-size-4xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--p-text-color);
+      text-align: center;
+      padding: 0.5rem 0;
+    }
+
+    &--today {
+      ::ng-deep .p-progressbar .p-progressbar-value {
+        background: var(--p-primary-color);
+      }
+    }
+
+    &--week {
+      ::ng-deep .p-progressbar .p-progressbar-value {
+        background: var(--p-blue-500);
+      }
+    }
+
+    &--tasks {
+      .stats-card__header i {
+        color: var(--p-green-500);
+      }
+    }
+  }
+}
+
+/* Task variant specific styles */
+.open-card--task {
+  ::ng-deep .p-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::ng-deep .p-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::ng-deep .p-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .task-card {
+    &__project {
+      font-size: var(--font-size-xs);
+      color: var(--p-primary-color);
+      font-weight: var(--font-weight-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    &__name {
+      margin: 0.25rem 0 0.5rem;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--p-text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &__description {
+      margin: 0 0 0.75rem;
+      font-size: var(--font-size-sm);
+      color: var(--p-text-muted-color);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    &__footer {
+      margin-top: auto;
+    }
+
+    &__meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    &__hours {
+      font-size: var(--font-size-xs);
+      color: var(--p-text-muted-color);
+      background: var(--p-surface-100);
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-md);
+    }
+  }
+}
