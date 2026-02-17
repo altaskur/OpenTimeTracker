@@ -1,14 +1,24 @@
 {
-  "extends": "./build/tsconfig.json",
   "compilerOptions": {
-    "types": ["node"],
-    "esModuleInterop": true,
-    "composite": true,
-    "declaration": true,
-    "outDir": "./dist",
+    "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "isolatedModules": true
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "baseUrl": "..",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "composite": true,
+    "sourceMap": true,
+    "isolatedModules": true,
+    "paths": {
+      "@prisma/generated/*": ["prisma/generated/client/*"]
+    }
   },
   "include": ["src/**/*.spec.ts", "src/**/*.ts"]
 }
