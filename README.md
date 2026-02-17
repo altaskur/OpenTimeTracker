@@ -82,6 +82,9 @@ cd OpenTimeTracker
 npm install
 npm run prisma:generate
 npm run dev
+
+# Run Storybook (Component Explorer)
+npm run storybook
 ```
 
 npm run dev is the recommended and supported development command.
@@ -104,6 +107,8 @@ All contribution-related documentation lives outside this README to keep things 
 📘 CONTRIBUTING.md — setup, workflow and quality checks
 
 🧭 COLLABORATION.md — technical and architectural details
+
+🤖 AI_GUIDELINES.md — context and rules for AI assistants
 
 🛡️ SECURITY.md — how to report vulnerabilities
 
