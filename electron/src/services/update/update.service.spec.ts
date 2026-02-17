@@ -22,11 +22,13 @@ describe('UpdateService', () => {
         html_url:
           'https://github.com/altaskur/OpenTimeTracker/releases/tag/v2.0.0',
         body: 'Release notes for v2.0.0',
+        draft: false,
+        prerelease: false,
       };
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(mockRelease),
+        json: () => Promise.resolve([mockRelease]),
       });
 
       const result = await updateService.checkForUpdates();
@@ -43,11 +45,13 @@ describe('UpdateService', () => {
         html_url:
           'https://github.com/altaskur/OpenTimeTracker/releases/tag/v1.0.0',
         body: 'Current version notes',
+        draft: false,
+        prerelease: false,
       };
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(mockRelease),
+        json: () => Promise.resolve([mockRelease]),
       });
 
       const result = await updateService.checkForUpdates();
@@ -62,11 +66,13 @@ describe('UpdateService', () => {
         html_url:
           'https://github.com/altaskur/OpenTimeTracker/releases/tag/v0.9.0',
         body: 'Old version notes',
+        draft: false,
+        prerelease: false,
       };
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(mockRelease),
+        json: () => Promise.resolve([mockRelease]),
       });
 
       const result = await updateService.checkForUpdates();
@@ -103,17 +109,50 @@ describe('UpdateService', () => {
         html_url:
           'https://github.com/altaskur/OpenTimeTracker/releases/tag/2.0.0',
         body: 'Notes',
+        draft: false,
+        prerelease: false,
       };
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(mockRelease),
+        json: () => Promise.resolve([mockRelease]),
       });
 
       const result = await updateService.checkForUpdates();
 
       expect(result.updateAvailable).toBe(true);
       expect(result.version).toBe('2.0.0');
+    });
+
+    it('should ignore draft releases', async () => {
+      const mockReleases = [
+        {
+          tag_name: 'v2.0.0',
+          html_url:
+            'https://github.com/altaskur/OpenTimeTracker/releases/tag/v2.0.0',
+          body: 'Draft release',
+          draft: true,
+          prerelease: false,
+        },
+        {
+          tag_name: 'v1.0.0',
+          html_url:
+            'https://github.com/altaskur/OpenTimeTracker/releases/tag/v1.0.0',
+          body: 'Release notes',
+          draft: false,
+          prerelease: false,
+        },
+      ];
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockReleases),
+      });
+
+      const result = await updateService.checkForUpdates();
+
+      expect(result.updateAvailable).toBe(false);
+      expect(result.version).toBe('1.0.0');
     });
   });
 
@@ -124,6 +163,8 @@ describe('UpdateService', () => {
         html_url:
           'https://github.com/altaskur/OpenTimeTracker/releases/tag/v1.0.0',
         body: 'Release notes for v1.0.0',
+        draft: false,
+        prerelease: false,
       };
 
       mockFetch.mockResolvedValue({
