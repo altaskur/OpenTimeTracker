@@ -166,7 +166,7 @@ describe('Paths Utility', () => {
       const result = getIndexPath();
 
       expect(result).toContain('OpenTimeTracker');
-      expect(result).toContain('browser');
+      expect(result).toContain('renderer');
       expect(result).toContain('index.html');
     });
 

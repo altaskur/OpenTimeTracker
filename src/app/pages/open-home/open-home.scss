@@ -44,6 +44,22 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
+
+  >* {
+    max-width: 356px;
+  }
+}
+
+.task-panel,
+.projects-panel {
+  margin-bottom: 1.5rem;
+}
+
+.tasks-grid,
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 356px));
+  gap: 1rem;
 }
 
 .stats-card {
@@ -153,36 +169,6 @@
       font-size: var(--font-size-base);
       color: var(--p-text-muted-color);
     }
-  }
-}
-
-.tasks-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-auto-rows: 1fr;
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem;
-
-  > [role="listitem"] {
-    display: flex;
-    min-height: 150px;
-  }
-}
-
-/* ==================== PROJECTS GRID ==================== */
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  grid-auto-rows: 1fr;
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-
-  > [role="listitem"] {
-    display: flex;
   }
 }
 

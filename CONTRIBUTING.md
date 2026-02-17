@@ -254,6 +254,13 @@ When modifying the Prisma schema:
 - Dark theme (Aura Black) is the default
 - Follow existing component patterns
 
+* +### Storybook
+* +We use [Storybook](https://storybook.js.org/) for UI component development and documentation.
+* +- **Run Storybook**: `npm run storybook` (accessible at http://localhost:6006)
+  +- **Build Storybook**: `npm run build-storybook`
+  +- **Creating Stories**: Add `*.stories.ts` files alongside your components.
+  +- **Documentation**: Storybook documentation is auto-generated using Compodoc. Ensure `documentation.json` is up-to-date if you encounter issues.
+
 ### Adding Translations
 
 Add new strings to both language files:
@@ -539,6 +546,13 @@ Al modificar el esquema de Prisma:
 - Usa componentes PrimeNG y utilidades PrimeFlex
 - El tema oscuro (Aura Black) es el predeterminado
 - Sigue los patrones de componentes existentes
+
+* +### Storybook
+* +Usamos [Storybook](https://storybook.js.org/) para el desarrollo y documentación de componentes de UI.
+* +- **Ejecutar Storybook**: `npm run storybook` (accesible en http://localhost:6006)
+  +- **Construir Storybook**: `npm run build-storybook`
+  +- **Crear Historias**: Añade archivos `*.stories.ts` junto a tus componentes.
+  +- **Documentación**: La documentación de Storybook se genera automáticamente usando Compodoc. Asegúrate de que `documentation.json` esté actualizado si encuentras problemas.
 
 ### Añadir Traducciones
 

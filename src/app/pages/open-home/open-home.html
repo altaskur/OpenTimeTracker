@@ -35,56 +35,58 @@
       />
     </div>
 
-    <h2>{{ "home.pendingTasks" | translate }}</h2>
+    <div class="task-panel">
+      <h2>{{ "home.pendingTasks" | translate }}</h2>
 
-    @if (loading()) {
-      <p class="loading-text">{{ "home.loading" | translate }}</p>
-    } @else if (pendingTasks().length === 0) {
-      <p-card class="empty-state">
-        <div class="empty-content">
-          <i class="pi pi-check-circle" aria-hidden="true"></i>
-          <p>{{ "home.empty" | translate }}</p>
-        </div>
-      </p-card>
-    } @else {
-      <div class="tasks-grid" role="list">
-        @for (task of pendingTasks(); track task.id) {
-          <div role="listitem">
-            <app-open-card
-              variant="task"
-              [title]="task.name"
-              [subtitle]="task.description || undefined"
-              [status]="getStatusDisplayName(task.status?.name)"
-              [statusSeverity]="getStatusSeverity(task.status?.name)"
-              [tags]="getTaskTags(task)"
-            />
+      @if (loading()) {
+        <p class="loading-text">{{ "home.loading" | translate }}</p>
+      } @else if (pendingTasks().length === 0) {
+        <p-card class="empty-state">
+          <div class="empty-content">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            <p>{{ "home.empty" | translate }}</p>
           </div>
-        }
-      </div>
-    }
-
-    <!-- Open Projects Section -->
-    <h2>{{ "home.openProjects" | translate }}</h2>
-
-    @if (openProjects().length === 0) {
-      <p-card class="empty-state">
-        <div class="empty-content">
-          <i class="pi pi-folder-open" aria-hidden="true"></i>
-          <p>{{ "home.emptyProjects" | translate }}</p>
+        </p-card>
+      } @else {
+        <div class="tasks-grid" role="list">
+          @for (task of pendingTasks(); track task.id) {
+            <div role="listitem">
+              <app-open-card
+                variant="task"
+                [title]="task.name"
+                [subtitle]="task.description || undefined"
+                [status]="getStatusDisplayName(task.status?.name)"
+                [statusSeverity]="getStatusSeverity(task.status?.name)"
+                [tags]="getTaskTags(task)"
+              />
+            </div>
+          }
         </div>
-      </p-card>
-    } @else {
-      <div class="projects-grid" role="list">
-        @for (project of openProjects(); track project.id) {
-          <div role="listitem">
-            <app-open-card
-              variant="project"
-              [icon]="'pi-folder'"
-              [title]="project.name"
-            />
+      }
+    </div>
+    <div class="projects-panel">
+      <h2>{{ "home.openProjects" | translate }}</h2>
+
+      @if (openProjects().length === 0) {
+        <p-card class="empty-state">
+          <div class="empty-content">
+            <i class="pi pi-folder-open" aria-hidden="true"></i>
+            <p>{{ "home.emptyProjects" | translate }}</p>
           </div>
-        }
-      </div>
-    }
+        </p-card>
+      } @else {
+        <div class="projects-grid" role="list">
+          @for (project of openProjects(); track project.id) {
+            <div role="listitem">
+              <app-open-card
+                variant="project"
+                [icon]="'pi-folder'"
+                [title]="project.name"
+              />
+            </div>
+          }
+        </div>
+      }
+    </div>
   </section>
 </app-open-layout>

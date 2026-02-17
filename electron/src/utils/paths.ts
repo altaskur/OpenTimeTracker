@@ -53,9 +53,8 @@ export const getBackupPath = (): string => {
 
 /**
  * Gets the path to the Angular index.html file.
- * In development: dist/OpenTimeTracker/browser/index.html
- * In production: resources/app.asar/dist/OpenTimeTracker/browser/index.html
- * Note: Uses process.resourcesPath for cross-platform compatibility (Windows/macOS/Linux)
+ * In development: dist/renderer/index.html (relative to main.js via __dirname)
+ * In production: resources/app.asar/dist/renderer/index.html
  */
 export const getIndexPath = (): string => {
   if (isPackaged()) {
@@ -63,24 +62,17 @@ export const getIndexPath = (): string => {
       process.resourcesPath,
       'app.asar',
       'dist',
-      'OpenTimeTracker',
-      'browser',
+      'renderer',
       'index.html',
     );
   }
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    'OpenTimeTracker',
-    'browser',
-    'index.html',
-  );
+  return path.join(__dirname, '../renderer/index.html');
 };
 
 /**
  * Gets the path to the preload script.
- * Note: Uses process.resourcesPath for cross-platform compatibility (Windows/macOS/Linux)
+ * In development: dist/preload/preload.js (relative to main.js via __dirname)
+ * In production: resources/app.asar/dist/preload/preload.js
  */
 export const getPreloadPath = (): string => {
   if (isPackaged()) {
@@ -88,12 +80,11 @@ export const getPreloadPath = (): string => {
       process.resourcesPath,
       'app.asar',
       'dist',
-      'electron',
       'preload',
       'preload.js',
     );
   }
-  return path.join(__dirname, '..', 'preload', 'preload.js');
+  return path.join(__dirname, '../preload/preload.js');
 };
 
 /**
