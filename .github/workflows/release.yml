@@ -62,6 +62,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-tools
+
       - name: Generate Prisma client
         run: npm run prisma:generate
 
