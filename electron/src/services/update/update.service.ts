@@ -11,11 +11,13 @@ interface GitHubRelease {
   tag_name: string;
   html_url: string;
   body: string;
+  draft: boolean;
+  prerelease: boolean;
 }
 
 export class UpdateService {
   private readonly GITHUB_API_URL =
-    'https://api.github.com/repos/altaskur/OpenTimeTracker/releases/latest';
+    'https://api.github.com/repos/altaskur/OpenTimeTracker/releases';
 
   async checkForUpdates(): Promise<UpdateCheckResult> {
     try {
@@ -31,8 +33,15 @@ export class UpdateService {
         return { updateAvailable: false, version: '', url: '' };
       }
 
-      const release = (await response.json()) as GitHubRelease;
-      const latestVersion = release.tag_name.replace(/^v/, '');
+      const releases = (await response.json()) as GitHubRelease[];
+      // Filter out drafts, but allow prereleases since we are in alpha
+      const latestRelease = releases.find((r) => !r.draft);
+
+      if (!latestRelease) {
+        return { updateAvailable: false, version: '', url: '' };
+      }
+
+      const latestVersion = latestRelease.tag_name.replace(/^v/, '');
       const currentVersion = app.getVersion();
 
       const updateAvailable =
@@ -41,8 +50,8 @@ export class UpdateService {
       return {
         updateAvailable,
         version: latestVersion,
-        url: release.html_url,
-        releaseNotes: release.body,
+        url: latestRelease.html_url,
+        releaseNotes: latestRelease.body,
       };
     } catch (error) {
       console.error('Error checking for updates:', error);
