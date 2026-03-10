@@ -29,11 +29,13 @@ npm run dist:win / dist:linux / dist:mac # Platform-specific packaging
 
 # Database
 npm run prisma:generate                  # Regenerate Prisma client
-npx prisma migrate dev --name <name>     # Create a new migration
+npm run prisma:migrate                   # Create a new migration (prompts for name)
+npm run prisma:push                      # Push schema changes without a migration file
 npm run prisma:template                  # Update prisma/template.db after migrations
 npm run prisma:studio                    # Open Prisma Studio
 
-# Quality
+# Quality (requires SonarQube running: docker-compose up -d)
+npm run sonar                            # Run SonarQube analysis only
 npm run sonar:check                      # Full check: tests + coverage + SonarQube analysis
 
 # Storybook
