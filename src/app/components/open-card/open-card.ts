@@ -10,7 +10,18 @@ import { OpenCardProgressbarAriaFixDirective } from './open-card-progressbar-ari
 /**
  * Card variant type
  */
-export type CardVariant = 'project' | 'task' | 'stats-time' | 'stats-count';
+export type CardVariant =
+  | 'project'
+  | 'task'
+  | 'stats-time'
+  | 'stats-ring'
+  | 'stats-count';
+
+/** Radius of the stats-ring progress circle, in its own viewBox units. */
+const RING_RADIUS = 52;
+
+/** Circumference of the stats-ring progress circle (2πr). */
+export const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 /**
  * Generic card component for displaying projects, tasks, and statistics
@@ -21,6 +32,7 @@ export type CardVariant = 'project' | 'task' | 'stats-time' | 'stats-count';
  * - **project**: Simple project card with icon and title
  * - **task**: Task card with title, subtitle, status, and tags
  * - **stats-time**: Statistics with time worked/target and progress bar
+ * - **stats-ring**: Statistics with time worked/target and a circular progress ring
  * - **stats-count**: Statistics with a large number display
  *
  * @example Project variant
@@ -146,6 +158,20 @@ export class OpenCard {
       return `Progress: ${worked} of ${target} (${progressValue}%)`;
     }
     return `Progress: ${progressValue}%`;
+  });
+
+  /**
+   * Circumference of the progress ring, used as its stroke-dasharray
+   */
+  readonly ringCircumference = RING_CIRCUMFERENCE;
+
+  /**
+   * stroke-dashoffset that leaves `progress` percent of the ring drawn.
+   * Progress is clamped so out-of-range values cannot overdraw the ring.
+   */
+  ringOffset = computed(() => {
+    const clamped = Math.min(100, Math.max(0, this.progress()));
+    return RING_CIRCUMFERENCE * (1 - clamped / 100);
   });
 
   /**

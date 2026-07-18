@@ -108,6 +108,62 @@ describe('OpenCard', () => {
     });
   });
 
+  describe('Stats Ring Variant', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('variant', 'stats-ring');
+      fixture.componentRef.setInput('statsModifier', 'today');
+      fixture.componentRef.setInput('icon', 'pi-sun');
+      fixture.componentRef.setInput('iconLabel', 'Today');
+      fixture.componentRef.setInput('worked', '3:15');
+      fixture.componentRef.setInput('target', '8:00');
+      fixture.componentRef.setInput('remaining', '4:45');
+      fixture.componentRef.setInput('progress', 41);
+      fixture.detectChanges();
+    });
+
+    it('should render stats-ring card', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.open-card--stats-ring')).toBeTruthy();
+      expect(compiled.querySelector('.stats-card__ring')).toBeTruthy();
+    });
+
+    it('should display the progress percentage in the ring label', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const label = compiled.querySelector('.stats-card__ring-label');
+      expect(label?.textContent?.trim()).toBe('41%');
+    });
+
+    it('should expose progress semantics via role="progressbar"', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const bar = compiled.querySelector('[role="progressbar"]');
+      expect(bar?.getAttribute('aria-valuenow')).toBe('41');
+      expect(bar?.getAttribute('aria-valuemin')).toBe('0');
+      expect(bar?.getAttribute('aria-valuemax')).toBe('100');
+      expect(bar?.getAttribute('aria-label')).toBe(
+        'Progress: 3:15 of 8:00 (41%)',
+      );
+    });
+
+    it('should offset the ring stroke proportionally to progress', () => {
+      // At 41% the drawn arc leaves 59% of the circumference as offset.
+      const expected = component.ringCircumference * (1 - 41 / 100);
+      expect(component.ringOffset()).toBeCloseTo(expected, 5);
+    });
+
+    it('should clamp out-of-range progress when computing the offset', () => {
+      fixture.componentRef.setInput('progress', 150);
+      fixture.detectChanges();
+      expect(component.ringOffset()).toBeCloseTo(0, 5);
+
+      fixture.componentRef.setInput('progress', -20);
+      fixture.detectChanges();
+      expect(component.ringOffset()).toBeCloseTo(
+        component.ringCircumference,
+        5,
+      );
+    });
+  });
+
   describe('Stats Count Variant', () => {
     beforeEach(() => {
       fixture.componentRef.setInput('variant', 'stats-count');

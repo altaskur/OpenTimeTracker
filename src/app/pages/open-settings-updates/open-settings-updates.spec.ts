@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import {
   ComponentFixture,
   TestBed,
@@ -58,6 +59,7 @@ describe('OpenSettingsUpdatesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [OpenSettingsUpdatesComponent, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         provideNoopAnimations(),
         { provide: UpdateService, useValue: updateServiceMock },
         MessageService,
@@ -236,6 +238,7 @@ describe('OpenSettingsUpdatesComponent without release notes', () => {
     await TestBed.configureTestingModule({
       imports: [OpenSettingsUpdatesComponent, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         provideNoopAnimations(),
         { provide: UpdateService, useValue: updateServiceMock },
         MessageService,

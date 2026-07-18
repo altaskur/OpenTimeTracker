@@ -1,0 +1,19 @@
+<nav
+  class="settings-tabs"
+  role="tablist"
+  [attr.aria-label]="'settings.nav.title' | translate"
+>
+  @for (tab of tabs; track tab.route) {
+    <a
+      class="settings-tabs__tab"
+      role="tab"
+      routerLinkActive="settings-tabs__tab--active"
+      #rla="routerLinkActive"
+      [routerLink]="tab.route"
+      [attr.aria-selected]="rla.isActive"
+      [attr.tabindex]="rla.isActive ? 0 : -1"
+    >
+      {{ tab.labelKey | translate }}
+    </a>
+  }
+</nav>

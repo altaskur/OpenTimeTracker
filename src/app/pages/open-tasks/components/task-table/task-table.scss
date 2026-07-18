@@ -1,43 +1,107 @@
-/* ==================== TASK TABLE ==================== */
-.task-table {
-  &__actions-col {
-    width: 150px;
-  }
+/* ==================== TASK LIST ==================== */
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
 
-  &__task-name {
-    display: block;
-    font-weight: 500;
-  }
-
-  &__task-description {
-    display: block;
-    color: var(--text-color-secondary);
-    margin-top: 0.25rem;
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
-
-  &__tag {
-    font-size: 0.75rem;
-  }
-
-  &__no-data {
-    color: var(--text-color-secondary);
-    font-style: italic;
-  }
-
+  &__loading,
   &__empty {
+    margin: 0;
+    padding: 1.5rem;
     text-align: center;
-    color: var(--text-color-secondary);
-    padding: 2rem;
+    color: var(--p-text-muted-color);
+  }
+}
+
+/* Card-style row with a status-coloured accent on the leading edge. */
+.task-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1.125rem;
+  background-color: var(--p-surface-card);
+  border: 1px solid var(--p-surface-border);
+  border-left: 3px solid var(--status-accent, var(--p-surface-400));
+  border-radius: var(--radius-xl);
+  transition: transform var(--transition-fast);
+
+  &:hover {
+    transform: translateX(3px);
+  }
+
+  /* Status accent, reusing the tag severity vocabulary. */
+  &--success {
+    --status-accent: var(--p-green-500);
+  }
+
+  &--info {
+    --status-accent: var(--p-primary-color);
+  }
+
+  &--warn {
+    --status-accent: var(--p-yellow-500);
+  }
+
+  &--danger {
+    --status-accent: var(--p-red-500);
+  }
+
+  &--secondary {
+    --status-accent: var(--p-surface-400);
+  }
+
+  &__main {
+    min-width: 220px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__name {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-base);
+    color: var(--p-text-color);
+  }
+
+  &__description {
+    font-size: var(--font-size-sm);
+    color: var(--p-text-muted-color);
+  }
+
+  &__project {
+    margin-top: 0.125rem;
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--p-text-muted-color);
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__hours {
+    font-size: var(--font-size-sm);
+    color: var(--p-text-muted-color);
+    background-color: var(--c-surface-muted);
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-lg);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    margin-left: 0.25rem;
   }
 }
 

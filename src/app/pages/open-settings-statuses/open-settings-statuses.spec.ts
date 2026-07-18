@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import {
   ComponentFixture,
   TestBed,
@@ -56,6 +57,7 @@ describe('OpenSettingsStatusesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [OpenSettingsStatusesComponent, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         provideNoopAnimations(),
         { provide: DatabaseService, useValue: mockDbService },
       ],

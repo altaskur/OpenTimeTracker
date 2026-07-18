@@ -13,6 +13,7 @@ import { DatabaseService } from '../../services/database/database.service';
 import { DayType } from '../../../types/electron';
 import { OpenDayTypesDialogComponent } from '../../components/open-day-types-dialog/open-day-types-dialog';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
+import { OpenSettingsTabsComponent } from '../../components/open-settings-tabs/open-settings-tabs';
 
 /**
  * Settings page for managing day types.
@@ -26,6 +27,7 @@ import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
     ToastModule,
     OpenDayTypesDialogComponent,
     OpenLayoutComponent,
+    OpenSettingsTabsComponent,
   ],
   providers: [MessageService],
   templateUrl: './open-settings-day-types.html',
