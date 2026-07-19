@@ -7,7 +7,7 @@ import { OpenCard } from './open-card';
  * Extended type for story args including theme and locale controls
  */
 interface StoryArgs {
-  variant?: 'project' | 'task' | 'stats-time' | 'stats-count';
+  variant?: 'project' | 'task' | 'stats-time' | 'stats-ring' | 'stats-count';
   statsModifier?: 'today' | 'week' | 'tasks';
   icon?: string;
   iconLabel?: string;
@@ -155,7 +155,7 @@ with a unified implementation using 4 variants.
   argTypes: {
     variant: {
       control: 'select',
-      options: ['project', 'task', 'stats-time', 'stats-count'],
+      options: ['project', 'task', 'stats-time', 'stats-ring', 'stats-count'],
       description: 'Card variant type',
     },
     statsModifier: {
@@ -214,6 +214,38 @@ export const StatsToday: Story = {
     worked: { control: 'text' },
     target: { control: 'text' },
     remaining: { control: 'text' },
+    // Hide other variant controls
+    title: { table: { disable: true } },
+    subtitle: { table: { disable: true } },
+    status: { table: { disable: true } },
+    statusSeverity: { table: { disable: true } },
+    tags: { table: { disable: true } },
+    bigNumber: { table: { disable: true } },
+  },
+};
+
+/**
+ * Today's time statistics as a hero card with a circular progress ring.
+ * Used as the leading card on the dashboard.
+ */
+export const StatsTodayRing: Story = {
+  ...createI18nStory({
+    variant: 'stats-ring',
+    statsModifier: 'today',
+    icon: 'pi-sun',
+    worked: '3h 15m',
+    target: '8h',
+    remaining: '4h 45m',
+    theme: 'dark',
+    locale: 'es',
+  }),
+
+  argTypes: {
+    // Show only stats-ring relevant controls
+    worked: { control: 'text' },
+    target: { control: 'text' },
+    remaining: { control: 'text' },
+    progress: { control: { type: 'range', min: 0, max: 100 } },
     // Hide other variant controls
     title: { table: { disable: true } },
     subtitle: { table: { disable: true } },

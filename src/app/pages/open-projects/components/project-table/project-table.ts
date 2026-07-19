@@ -1,7 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
@@ -10,18 +9,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Project } from '../../../../../types/electron';
 
 /**
- * Reusable project table component for displaying projects
+ * Reusable project list component. Renders each project as a card-style row,
+ * replacing the previous PrimeNG data table.
  */
 @Component({
   selector: 'app-project-table',
-  imports: [
-    DatePipe,
-    TableModule,
-    ButtonModule,
-    TagModule,
-    TooltipModule,
-    TranslateModule,
-  ],
+  imports: [DatePipe, ButtonModule, TagModule, TooltipModule, TranslateModule],
   templateUrl: './project-table.html',
   styleUrl: './project-table.scss',
 })

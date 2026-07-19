@@ -53,11 +53,67 @@
   }
 }
 
+/* The hero card has to clear the 116px ring, so it opts out of the base size. */
+.open-card--stats-ring {
+  height: auto;
+  min-height: 172px;
+  max-width: none;
+
+  ::ng-deep .p-card-body {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
 /* Stats time variant specific styles */
 .open-card--stats-time,
+.open-card--stats-ring,
 .open-card--stats-count {
   .stats-card {
     height: 100%;
+
+    &__ring-layout {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    &__ring {
+      position: relative;
+      width: 116px;
+      height: 116px;
+      flex-shrink: 0;
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &__ring-track {
+      stroke: var(--p-surface-border);
+    }
+
+    &__ring-value {
+      stroke: var(--p-primary-color);
+      transition: stroke-dashoffset var(--transition-slow);
+    }
+
+    &__ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-family-display);
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-2xl);
+      color: var(--p-text-color);
+    }
+
+    &__ring-body {
+      flex: 1;
+      min-width: 0;
+    }
 
     &__header {
       display: flex;
@@ -119,15 +175,21 @@
       }
     }
 
+    /* The redesign runs both progress meters in the accent colour. */
     &--week {
       ::ng-deep .p-progressbar .p-progressbar-value {
-        background: var(--p-blue-500);
+        background: var(--p-primary-color);
       }
     }
 
     &--tasks {
       .stats-card__header i {
-        color: var(--p-green-500);
+        color: var(--p-primary-color);
+      }
+
+      .stats-card__big-number {
+        font-family: var(--font-family-display);
+        color: var(--p-primary-color);
       }
     }
   }

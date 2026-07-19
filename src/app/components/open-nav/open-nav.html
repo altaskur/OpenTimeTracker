@@ -1,0 +1,90 @@
+<header class="open-nav">
+  <div class="open-nav__brand">
+    <img
+      class="open-nav__logo"
+      src="./assets/logo.png"
+      alt=""
+      aria-hidden="true"
+      width="34"
+      height="34"
+    />
+    <span class="open-nav__wordmark">OpenTimeTracker</span>
+  </div>
+
+  <div class="open-nav__actions">
+    <nav class="open-nav__tabs" [attr.aria-label]="'menu.mainNav' | translate">
+      @for (tab of tabs; track tab.route) {
+        <a
+          class="open-nav__tab"
+          [routerLink]="tab.route"
+          routerLinkActive="open-nav__tab--active"
+          #rla="routerLinkActive"
+          [routerLinkActiveOptions]="{ exact: tab.exact }"
+          [attr.aria-current]="rla.isActive ? 'page' : null"
+        >
+          {{ tab.labelKey | translate }}
+        </a>
+      }
+    </nav>
+
+    <div class="open-nav__icons">
+      <a
+        class="open-nav__icon"
+        [routerLink]="historyRoute"
+        routerLinkActive="open-nav__icon--active"
+        #historyLink="routerLinkActive"
+        [attr.aria-current]="historyLink.isActive ? 'page' : null"
+        [attr.aria-label]="'history.title' | translate"
+        [pTooltip]="'history.title' | translate"
+        tooltipPosition="bottom"
+      >
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16">
+          <circle
+            cx="8"
+            cy="8"
+            r="6.3"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.3"
+          />
+          <path
+            d="M8 4.5 V8 L10.5 9.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-linecap="round"
+          />
+        </svg>
+      </a>
+      <a
+        class="open-nav__icon"
+        [class.open-nav__icon--active]="settingsActive()"
+        [routerLink]="settingsRoute"
+        [attr.aria-current]="settingsActive() ? 'page' : null"
+        [attr.aria-label]="'menu.settings' | translate"
+        [pTooltip]="'menu.settings' | translate"
+        tooltipPosition="bottom"
+      >
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16">
+          <circle
+            cx="8"
+            cy="8"
+            r="2.4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.3"
+          />
+          <circle
+            cx="8"
+            cy="8"
+            r="6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-dasharray="1.3 2"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+</header>

@@ -18,6 +18,7 @@ import { ToastModule } from 'primeng/toast';
 import { DatabaseService } from '../../services/database/database.service';
 import { TaskStatus } from '../../../types/electron';
 import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
+import { OpenSettingsTabsComponent } from '../../components/open-settings-tabs/open-settings-tabs';
 
 /**
  * Settings page for managing task statuses.
@@ -35,6 +36,7 @@ import { OpenLayoutComponent } from '../../components/open-layout/open-layout';
     TranslateModule,
     ToastModule,
     OpenLayoutComponent,
+    OpenSettingsTabsComponent,
   ],
   providers: [MessageService],
   templateUrl: './open-settings-statuses.html',

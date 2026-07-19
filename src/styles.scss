@@ -1,10 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Bundled locally rather than via Google Fonts: the app must render correctly offline. */
+@use "@fontsource/inter/400.css" as inter-400;
+@use "@fontsource/inter/500.css" as inter-500;
+@use "@fontsource/inter/600.css" as inter-600;
+@use "@fontsource/inter/700.css" as inter-700;
+@use "@fontsource/manrope/600.css" as manrope-600;
+@use "@fontsource/manrope/700.css" as manrope-700;
+@use "@fontsource/manrope/800.css" as manrope-800;
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Roboto", sans-serif;
+  font-family: var(--font-family-base);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-family-display);
+  letter-spacing: -0.02em;
 }
 
 html {
@@ -21,6 +37,9 @@ html {
   --elevation-modal: 0 24px 48px rgba(15, 23, 42, 0.2);
 
   /* Design System Tokens - Typography */
+  --font-family-base: "Inter", sans-serif;
+  --font-family-display: "Manrope", sans-serif;
+
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -56,16 +75,16 @@ html {
   --c-over-color: var(--p-blue-600);
   --c-info-bg: var(--p-blue-50);
   --c-info-color: var(--p-blue-700);
-  --c-primary-bg: var(--p-teal-50);
-  --c-primary-color: var(--p-teal-600);
-  --c-primary-border: var(--p-teal-200);
-  --c-surface-subtle: var(--p-slate-50);
-  --c-surface-muted: var(--p-slate-100);
+  --c-primary-bg: var(--p-primary-50);
+  --c-primary-color: var(--p-primary-500);
+  --c-primary-border: var(--p-primary-200);
+  --c-surface-subtle: var(--p-surface-50);
+  --c-surface-muted: var(--p-surface-100);
 }
 
 html.my-app-dark {
-  background-color: var(--p-slate-900);
-  color: var(--p-slate-200);
+  background-color: var(--p-surface-ground);
+  color: var(--p-text-color);
 
   /* Design System Tokens - Elevation (Dark mode) */
   --elevation-xs: 0 1px 2px rgba(0, 0, 0, 0.15);
@@ -85,11 +104,11 @@ html.my-app-dark {
   --c-over-color: var(--p-blue-400);
   --c-info-bg: color-mix(in srgb, var(--p-blue-500) 15%, transparent);
   --c-info-color: var(--p-blue-400);
-  --c-primary-bg: color-mix(in srgb, var(--p-teal-500) 15%, transparent);
-  --c-primary-color: var(--p-teal-400);
-  --c-primary-border: color-mix(in srgb, var(--p-teal-500) 30%, transparent);
-  --c-surface-subtle: color-mix(in srgb, var(--p-slate-200) 3%, transparent);
-  --c-surface-muted: color-mix(in srgb, var(--p-slate-200) 8%, transparent);
+  --c-primary-bg: color-mix(in srgb, var(--p-primary-400) 15%, transparent);
+  --c-primary-color: var(--p-primary-400);
+  --c-primary-border: color-mix(in srgb, var(--p-primary-400) 30%, transparent);
+  --c-surface-subtle: color-mix(in srgb, var(--p-surface-200) 3%, transparent);
+  --c-surface-muted: color-mix(in srgb, var(--p-surface-200) 8%, transparent);
 }
 
 body {
@@ -98,6 +117,17 @@ body {
   transition:
     background-color 0.3s,
     color 0.3s;
+}
+
+/*
+ * The routed page is inserted as a sibling of <router-outlet>, so it is not
+ * part of the App component's template and cannot be reached from app.scss.
+ * Stretch it here so page content fills the space left by the header.
+ */
+.app-container router-outlet + * {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Enhanced input states */

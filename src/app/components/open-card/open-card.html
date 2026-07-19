@@ -48,6 +48,73 @@
       </p-card>
     }
 
+    <!-- Stats ring variant (today hero) -->
+    @case ("stats-ring") {
+      <p-card
+        class="stats-card"
+        [ngClass]="statsModifier() ? 'stats-card--' + statsModifier() : ''"
+      >
+        <div class="stats-card__ring-layout">
+          <div class="stats-card__ring" aria-hidden="true">
+            <svg viewBox="0 0 120 120">
+              <circle
+                class="stats-card__ring-track"
+                cx="60"
+                cy="60"
+                r="52"
+                fill="none"
+                stroke-width="10"
+              />
+              <circle
+                class="stats-card__ring-value"
+                cx="60"
+                cy="60"
+                r="52"
+                fill="none"
+                stroke-width="10"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="ringCircumference"
+                [attr.stroke-dashoffset]="ringOffset()"
+                transform="rotate(-90 60 60)"
+              />
+            </svg>
+            <span class="stats-card__ring-label">{{ progress() }}%</span>
+          </div>
+          <div class="stats-card__ring-body">
+            <div class="stats-card__header">
+              @if (icon()) {
+                <i [class]="'pi ' + icon()"></i>
+              }
+              @if (iconLabel()) {
+                <span>{{ iconLabel() }}</span>
+              }
+            </div>
+            <div class="stats-card__time">
+              <span class="stats-card__worked">{{ worked() }}</span>
+              <span class="stats-card__separator">/</span>
+              <span class="stats-card__target">{{ target() }}</span>
+            </div>
+            <!--
+              The ring is decorative, so the progress semantics live here.
+            -->
+            <div
+              role="progressbar"
+              [attr.aria-label]="progressLabel()"
+              [attr.aria-valuenow]="progress()"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-valuetext]="progress() + '%'"
+            ></div>
+            @if (remaining()) {
+              <div class="stats-card__remaining">
+                {{ remaining() }}
+              </div>
+            }
+          </div>
+        </div>
+      </p-card>
+    }
+
     <!-- Stats count variant (tasks) -->
     @case ("stats-count") {
       <p-card class="stats-card stats-card--tasks">

@@ -1,88 +1,74 @@
-<p-table [value]="tasks()" [loading]="loading()">
-  <ng-template pTemplate="header">
-    <tr>
-      <th scope="col">{{ "table.name" | translate }}</th>
-      <th scope="col">{{ "table.project" | translate }}</th>
-      <th scope="col">{{ "table.status" | translate }}</th>
-      <th scope="col">{{ "table.estimatedHours" | translate }}</th>
-      <th scope="col">{{ "table.tags" | translate }}</th>
-      <th scope="col" class="task-table__actions-col">
-        {{ "table.actions" | translate }}
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-task>
-    <tr>
-      <td>
-        <span class="task-table__task-name">{{ task.name }}</span>
-        @if (task.description) {
-          <small class="task-table__task-description">{{
-            task.description
-          }}</small>
-        }
-      </td>
-      <td>{{ task.project?.name || ("table.unassigned" | translate) }}</td>
-      <td>
-        @if (task.status?.name) {
-          <p-tag
-            [value]="getStatusDisplayName(task.status.name)"
-            [severity]="getStatusSeverity(task.status.name)"
-          />
-        } @else {
-          <span class="task-table__no-data">{{
-            "table.noData" | translate
+@if (loading()) {
+  <p class="task-list__loading">{{ "home.loading" | translate }}</p>
+} @else if (tasks().length === 0) {
+  <p class="task-list__empty">{{ emptyMessage() | translate }}</p>
+} @else {
+  <ul class="task-list" role="list">
+    @for (task of tasks(); track task.id) {
+      <li
+        class="task-row"
+        [class]="'task-row--' + getStatusSeverity(task.status?.name)"
+      >
+        <div class="task-row__main">
+          <span class="task-row__name">{{ task.name }}</span>
+          @if (task.description) {
+            <span class="task-row__description">{{ task.description }}</span>
+          }
+          <span class="task-row__project">{{
+            task.project?.name || ("table.unassigned" | translate)
           }}</span>
-        }
-      </td>
-      <td>
-        @if (task.estimatedHours) {
-          {{ task.estimatedHours }}h
-        } @else {
-          {{ "table.noData" | translate }}
-        }
-      </td>
-      <td>
-        <div class="task-table__tags">
-          @for (taskTag of task.tags; track taskTag.tag.id) {
-            <p-chip [label]="taskTag.tag.name" class="task-table__tag" />
-          }
-          @if (!task.tags?.length) {
-            <span class="task-table__no-data">{{
-              "table.noData" | translate
-            }}</span>
-          }
         </div>
-      </td>
-      <td>
-        <p-button
-          icon="pi pi-eye"
-          [text]="true"
-          severity="info"
-          (onClick)="onView(task)"
-          [pTooltip]="'common.viewDetails' | translate"
-        />
-        <p-button
-          icon="pi pi-pencil"
-          [text]="true"
-          severity="secondary"
-          (onClick)="onEdit(task)"
-          [pTooltip]="'common.edit' | translate"
-        />
-        <p-button
-          icon="pi pi-trash"
-          [text]="true"
-          severity="danger"
-          (onClick)="onDelete(task)"
-          [pTooltip]="'common.delete' | translate"
-        />
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="emptymessage">
-    <tr>
-      <td colspan="6" class="task-table__empty">
-        {{ emptyMessage() | translate }}
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+
+        <div class="task-row__meta">
+          @for (taskTag of task.tags; track taskTag.tag.id) {
+            <p-chip [label]="taskTag.tag.name" class="task-row__tag" />
+          }
+          @if (task.estimatedHours) {
+            <span class="task-row__hours">{{ task.estimatedHours }}h</span>
+          }
+          @if (task.status?.name) {
+            <p-tag
+              [value]="getStatusDisplayName(task.status!.name)"
+              [severity]="getStatusSeverity(task.status?.name)"
+            />
+          }
+
+          <div class="task-row__actions">
+            <p-button
+              icon="pi pi-eye"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              size="small"
+              (onClick)="onView(task)"
+              [pTooltip]="'common.viewDetails' | translate"
+              [ariaLabel]="
+                ('common.viewDetails' | translate) + ': ' + task.name
+              "
+            />
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              size="small"
+              (onClick)="onEdit(task)"
+              [pTooltip]="'common.edit' | translate"
+              [ariaLabel]="('common.edit' | translate) + ': ' + task.name"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              [rounded]="true"
+              severity="danger"
+              size="small"
+              (onClick)="onDelete(task)"
+              [pTooltip]="'common.delete' | translate"
+              [ariaLabel]="('common.delete' | translate) + ': ' + task.name"
+            />
+          </div>
+        </div>
+      </li>
+    }
+  </ul>
+}
