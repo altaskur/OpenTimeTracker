@@ -57,3 +57,12 @@ electron/src/generated/
 *storybook.log
 storybook-static
 documentation.json
+
+# Graphify — the knowledge graph outputs (graph.json/html, GRAPH_REPORT.md,
+# manifest.json) ARE committed; ignore only the per-machine internals.
+graphify-out/cache/
+graphify-out/.graphify_*
+
+# Local Claude Code settings. `graphify claude install` writes machine-specific
+# absolute paths and per-tool hooks here, so keep it out of the shared repo.
+.claude/settings.json
