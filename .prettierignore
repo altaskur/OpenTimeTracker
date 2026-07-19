@@ -5,3 +5,4 @@ storybook-static/
 coverage/
 data/
 electron/src/generated/
+graphify-out/
