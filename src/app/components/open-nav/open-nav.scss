@@ -1,0 +1,128 @@
+.open-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 2rem;
+  background-color: var(--p-surface-card);
+  border-bottom: 1px solid var(--p-surface-border);
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Repo logo (public/icon.png, mirrored into src/assets for the renderer). */
+  &__logo {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+  }
+
+  &__wordmark {
+    font-family: var(--font-family-display);
+    font-weight: 800;
+    font-size: 1.357rem; /* 19px at the 14px root */
+    letter-spacing: -0.2px;
+    color: var(--p-text-color);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--p-surface-border);
+    background-color: var(--p-surface-ground);
+  }
+
+  &__tab {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--p-text-muted-color);
+    background-color: transparent;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+
+    &:hover {
+      color: var(--p-text-color);
+      background-color: var(--p-surface-hover);
+    }
+
+    &--active,
+    &--active:hover {
+      color: var(--p-primary-contrast-color);
+      background-color: var(--p-primary-color);
+    }
+  }
+
+  &__icons {
+    display: flex;
+    gap: 0.375rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--p-surface-border);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-lg);
+    color: var(--p-text-muted-color);
+    background-color: transparent;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+
+    &:hover {
+      color: var(--p-text-color);
+      background-color: var(--p-surface-hover);
+    }
+
+    &--active,
+    &--active:hover {
+      color: var(--p-primary-contrast-color);
+      background-color: var(--p-primary-color);
+    }
+  }
+
+  &__tab:focus-visible,
+  &__icon:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
+}
+
+/* The design keeps the header full-bleed while page content is centred. */
+@media (max-width: 720px) {
+  .open-nav {
+    padding: 0.75rem 1rem;
+
+    &__actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    &__tabs {
+      overflow-x: auto;
+    }
+  }
+}

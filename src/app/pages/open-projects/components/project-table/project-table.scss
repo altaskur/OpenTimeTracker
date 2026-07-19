@@ -1,37 +1,117 @@
-/* ==================== PROJECT TABLE ==================== */
-.project-table {
-  &__actions-col {
-    width: 180px;
+/* ==================== PROJECT LIST ==================== */
+.project-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+
+  &__loading,
+  &__empty {
+    margin: 0;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--p-text-muted-color);
+  }
+}
+
+.project-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.125rem;
+  background-color: var(--p-surface-card);
+  border: 1px solid var(--p-surface-border);
+  border-radius: var(--radius-xl);
+
+  &--closed {
+    opacity: 0.7;
   }
 
-  &__project-name {
+  &__icon {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: var(--radius-lg);
+    background-color: var(--c-primary-bg);
+
+    i {
+      color: var(--p-primary-color);
+      font-size: 1.1rem;
+    }
   }
 
-  &__closed-tag {
-    font-size: 0.7rem;
+  /* Closed projects lose the accent tint on the folder square. */
+  &--closed &__icon {
+    background-color: var(--c-surface-muted);
+
+    i {
+      color: var(--p-text-muted-color);
+    }
   }
 
-  &__project-description {
-    display: block;
-    color: var(--text-color-secondary);
-    max-width: 400px;
+  &__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  &__name {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-base);
+    color: var(--p-text-color);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  &__no-data {
-    color: var(--text-color-secondary);
-    font-style: italic;
+  &__closed-tag {
+    font-size: 0.7rem;
+    flex-shrink: 0;
   }
 
-  &__empty {
-    text-align: center;
-    color: var(--text-color-secondary);
-    padding: 2rem;
+  &__description {
+    font-size: var(--font-size-sm);
+    color: var(--p-text-muted-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__created {
+    font-size: var(--font-size-sm);
+    color: var(--p-text-muted-color);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .project-row {
+    flex-wrap: wrap;
+
+    &__created {
+      order: 3;
+      width: 100%;
+    }
   }
 }

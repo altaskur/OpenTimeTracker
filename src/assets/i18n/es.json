@@ -14,7 +14,9 @@
     "about": "Acerca de OpenTimeTracker",
     "language": "Idioma",
     "spanish": "Español",
-    "english": "English"
+    "english": "English",
+    "settings": "Configuración",
+    "mainNav": "Navegación principal"
   },
   "home": {
     "title": "Panel Principal",
@@ -46,7 +48,8 @@
       "title": "Proyecto",
       "namePlaceholder": "Nombre*",
       "descriptionPlaceholder": "Descripción"
-    }
+    },
+    "closedBadge": "Cerrado"
   },
   "tasks": {
     "title": "Tareas",
@@ -388,6 +391,13 @@
       "whatIsNew": "Novedades",
       "later": "Más tarde",
       "viewReleaseNotes": "Ver notas de la versión"
+    },
+    "nav": {
+      "tags": "Etiquetas",
+      "statuses": "Estados",
+      "dayTypes": "Tipos de día",
+      "updates": "Actualizaciones",
+      "title": "Configuración"
     }
   }
 }

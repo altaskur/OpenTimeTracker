@@ -1,6 +1,5 @@
 import { Component, input, output, inject } from '@angular/core';
 
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ChipModule } from 'primeng/chip';
@@ -10,12 +9,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TaskWithTags } from '../../../../interfaces';
 
 /**
- * Reusable task table component for displaying tasks
+ * Reusable task list component. Renders each task as a card-style row with a
+ * status-coloured accent border, replacing the previous PrimeNG data table.
  */
 @Component({
   selector: 'app-task-table',
   imports: [
-    TableModule,
     ButtonModule,
     TagModule,
     ChipModule,

@@ -103,5 +103,7 @@ export const getTemplateDatabasePath = (): string => {
       'template.db',
     );
   }
-  return path.join(__dirname, '..', '..', '..', 'prisma', 'template.db');
+  // __dirname is <root>/dist/main in dev (same basis as getAppPath's two
+  // levels up), so the template sits two levels up under prisma/, not three.
+  return path.join(__dirname, '..', '..', 'prisma', 'template.db');
 };

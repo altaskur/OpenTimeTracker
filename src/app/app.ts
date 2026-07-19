@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, NgZone, OnDestroy } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { UpdateBannerComponent } from './components/update-banner/update-banner.component';
+import { OpenNavComponent } from './components/open-nav/open-nav';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
@@ -19,7 +20,7 @@ import { UpdateService } from './services/update.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ToastModule, UpdateBannerComponent],
+  imports: [RouterOutlet, ToastModule, UpdateBannerComponent, OpenNavComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

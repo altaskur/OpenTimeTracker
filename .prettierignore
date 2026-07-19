@@ -1,0 +1,7 @@
+# Generated / vendored files that Prettier should never rewrite.
+package-lock.json
+dist/
+storybook-static/
+coverage/
+data/
+electron/src/generated/

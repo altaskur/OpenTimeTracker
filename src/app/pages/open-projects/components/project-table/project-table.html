@@ -1,80 +1,86 @@
-<p-table [value]="projects()" [loading]="loading()">
-  <ng-template pTemplate="header">
-    <tr>
-      <th scope="col">{{ "table.name" | translate }}</th>
-      <th scope="col">{{ "table.description" | translate }}</th>
-      <th scope="col">{{ "table.createdAt" | translate }}</th>
-      <th scope="col" class="project-table__actions-col">
-        {{ "table.actions" | translate }}
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-project>
-    <tr>
-      <td>
-        <span class="project-table__project-name">
-          {{ project.name }}
-          @if (showClosed()) {
-            <p-tag
-              value="Closed"
+@if (loading()) {
+  <p class="project-list__loading">{{ "home.loading" | translate }}</p>
+} @else if (projects().length === 0) {
+  <p class="project-list__empty">{{ emptyMessage() | translate }}</p>
+} @else {
+  <ul class="project-list" role="list">
+    @for (project of projects(); track project.id) {
+      <li class="project-row" [class.project-row--closed]="showClosed()">
+        <span class="project-row__icon" aria-hidden="true">
+          <i class="pi pi-folder"></i>
+        </span>
+
+        <div class="project-row__main">
+          <div class="project-row__title">
+            <span class="project-row__name">{{ project.name }}</span>
+            @if (showClosed()) {
+              <p-tag
+                [value]="'projects.closedBadge' | translate"
+                severity="secondary"
+                class="project-row__closed-tag"
+              />
+            }
+          </div>
+          @if (project.description) {
+            <span class="project-row__description">{{
+              project.description
+            }}</span>
+          }
+        </div>
+
+        <span class="project-row__created">
+          {{ "table.createdAt" | translate }}:
+          {{ project.createdAt | date: "dd/MM/yyyy" }}
+        </span>
+
+        <div class="project-row__actions">
+          @if (!showClosed()) {
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              [rounded]="true"
               severity="secondary"
-              class="project-table__closed-tag"
+              size="small"
+              (onClick)="onEdit(project)"
+              [pTooltip]="'common.edit' | translate"
+              [ariaLabel]="('common.edit' | translate) + ': ' + project.name"
+            />
+            <p-button
+              icon="pi pi-lock"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              size="small"
+              (onClick)="onClose(project)"
+              [pTooltip]="'projects.close' | translate"
+              [ariaLabel]="('projects.close' | translate) + ': ' + project.name"
+            />
+          } @else {
+            <p-button
+              icon="pi pi-lock-open"
+              [text]="true"
+              [rounded]="true"
+              severity="success"
+              size="small"
+              (onClick)="onReopen(project)"
+              [pTooltip]="'projects.reopen' | translate"
+              [ariaLabel]="
+                ('projects.reopen' | translate) + ': ' + project.name
+              "
             />
           }
-        </span>
-      </td>
-      <td>
-        @if (project.description) {
-          <span class="project-table__project-description">{{
-            project.description
-          }}</span>
-        } @else {
-          <span class="project-table__no-data">{{
-            "table.noData" | translate
-          }}</span>
-        }
-      </td>
-      <td>{{ project.createdAt | date: "dd/MM/yyyy" }}</td>
-      <td>
-        @if (!showClosed()) {
           <p-button
-            icon="pi pi-pencil"
+            icon="pi pi-trash"
             [text]="true"
-            severity="secondary"
-            (onClick)="onEdit(project)"
-            [pTooltip]="'common.edit' | translate"
+            [rounded]="true"
+            severity="danger"
+            size="small"
+            (onClick)="onDelete(project)"
+            [pTooltip]="'common.delete' | translate"
+            [ariaLabel]="('common.delete' | translate) + ': ' + project.name"
           />
-          <p-button
-            icon="pi pi-lock"
-            [text]="true"
-            severity="warn"
-            (onClick)="onClose(project)"
-            [pTooltip]="'projects.close' | translate"
-          />
-        } @else {
-          <p-button
-            icon="pi pi-lock-open"
-            [text]="true"
-            severity="success"
-            (onClick)="onReopen(project)"
-            [pTooltip]="'projects.reopen' | translate"
-          />
-        }
-        <p-button
-          icon="pi pi-trash"
-          [text]="true"
-          severity="danger"
-          (onClick)="onDelete(project)"
-          [pTooltip]="'common.delete' | translate"
-        />
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="emptymessage">
-    <tr>
-      <td colspan="4" class="project-table__empty">
-        {{ emptyMessage() | translate }}
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+        </div>
+      </li>
+    }
+  </ul>
+}

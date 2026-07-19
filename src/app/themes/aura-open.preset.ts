@@ -2,107 +2,105 @@ import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
 /**
- * Custom PrimeNG Aura preset for OpenTimeTracker with teal/cyan primary palette.
+ * Custom PrimeNG Aura preset for OpenTimeTracker — paleta "graphite + rose".
  *
  * Color Palette:
- * - Light Mode: Teal primary (#0D9488), Slate surface, Dark text
- * - Dark Mode: Teal primary (#14B8A6), Slate surface, Light text
+ * - Light Mode: Rose primary (#D98B8B), Graphite surface, Dark text
+ * - Dark Mode: Rose primary (#D98B8B), Graphite surface, Light text
  *
- * This preset uses ONLY the specified color palette without introducing
- * additional semantic colors. Green, red, blue, etc. are inherited from
- * the Aura base theme.
+ * Reemplaza la paleta teal/slate anterior. El acento es intercambiable:
+ * alternativas ya probadas en el rediseño: amber #D9A15B, violet #A98BD9, teal #5FB8AC.
  */
 export const AuraOpen = definePreset(Aura, {
   semantic: {
-    // Primary palette based on teal/cyan colors
     primary: {
-      50: '{teal.50}',
-      100: '{teal.100}',
-      200: '{teal.200}',
-      300: '{teal.300}',
-      400: '{teal.400}',
-      500: '{teal.500}',
-      600: '{teal.600}',
-      700: '{teal.700}',
-      800: '{teal.800}',
-      900: '{teal.900}',
-      950: '{teal.950}',
+      50: '#fbf1f0',
+      100: '#f5dcda',
+      200: '#eebdb9',
+      300: '#e29d97',
+      400: '#d98b8b',
+      500: '#d07571',
+      600: '#c15f5a',
+      700: '#a14b47',
+      800: '#813c39',
+      900: '#69312f',
+      950: '#381917',
     },
     colorScheme: {
       light: {
         primary: {
-          color: '{teal.600}', // #0D9488
+          color: '{primary.500}',
           contrastColor: '#ffffff',
-          hoverColor: '{teal.700}', // #0F766E
-          activeColor: '{teal.800}',
+          hoverColor: '{primary.600}',
+          activeColor: '{primary.700}',
         },
         highlight: {
-          background: '{teal.600}',
-          focusBackground: '{teal.700}',
+          background: '{primary.500}',
+          focusBackground: '{primary.600}',
           color: '#ffffff',
           focusColor: '#ffffff',
         },
         surface: {
           0: '#ffffff',
-          50: '{slate.50}', // #f8fafc - Background
-          100: '{slate.100}',
-          200: '{slate.200}', // #e2e8f0 - Surface
-          300: '{slate.300}',
-          400: '{slate.400}',
-          500: '{slate.500}',
-          600: '{slate.600}',
-          700: '{slate.700}',
-          800: '{slate.800}',
-          900: '{slate.900}', // #0f172a - Text Primary
-          950: '{slate.950}',
-          ground: '{slate.50}', // #F8FAFC - Background
+          50: '#faf9f8',
+          100: '#f0eeec',
+          200: '#e2dfdc',
+          300: '#c9c5c1',
+          400: '#a8a29c',
+          500: '#79746e',
+          600: '#57524d',
+          700: '#413d3a',
+          800: '#2c2926',
+          900: '#1c1a18',
+          950: '#0f0d0c',
+          ground: '#faf9f8',
           card: '{surface.0}',
-          border: '{slate.300}',
-          hover: '{slate.100}',
+          border: '#c9c5c1',
+          hover: '#f0eeec',
         },
         text: {
-          color: '{slate.900}', // #0F172A - Text Primary
-          hoverColor: '{slate.950}',
-          mutedColor: '{slate.600}', // #475569 - Text Secondary
-          hoverMutedColor: '{slate.700}',
+          color: '#1c1a18',
+          hoverColor: '#0f0d0c',
+          mutedColor: '#57524d',
+          hoverMutedColor: '#413d3a',
         },
       },
       dark: {
         primary: {
-          color: '{teal.500}', // #14B8A6
-          contrastColor: '{slate.900}',
-          hoverColor: '{teal.600}', // #0D9488
-          activeColor: '{teal.700}',
+          color: '{primary.400}',
+          contrastColor: '#241c12',
+          hoverColor: '{primary.300}',
+          activeColor: '{primary.200}',
         },
         highlight: {
-          background: 'color-mix(in srgb, {teal.500} 16%, transparent)',
-          focusBackground: 'color-mix(in srgb, {teal.500} 24%, transparent)',
-          color: '{teal.200}',
-          focusColor: '{teal.100}',
+          background: 'color-mix(in srgb, {primary.400} 16%, transparent)',
+          focusBackground: 'color-mix(in srgb, {primary.400} 24%, transparent)',
+          color: '{primary.200}',
+          focusColor: '{primary.100}',
         },
         surface: {
           0: '#ffffff',
-          50: '{slate.50}',
-          100: '{slate.100}',
-          200: '{slate.200}',
-          300: '{slate.300}',
-          400: '{slate.400}',
-          500: '{slate.500}',
-          600: '{slate.600}',
-          700: '{slate.700}',
-          800: '{slate.800}', // #1E293B - Surface
-          900: '{slate.900}', // #0F172A - Background
-          950: '{slate.950}',
-          ground: '{slate.900}', // #0F172A - Background
-          card: '{slate.800}',
-          border: '{slate.700}',
-          hover: '{slate.800}',
+          50: '#faf9f8',
+          100: '#f0eeec',
+          200: '#e2dfdc',
+          300: '#c9c5c1',
+          400: '#a8a29c',
+          500: '#79746e',
+          600: '#57524d',
+          700: '#413d3a',
+          800: '#332f2c', // tarjetas
+          900: '#211e1b', // fondo
+          950: '#141211',
+          ground: '#211e1b',
+          card: '#332f2c',
+          border: '#413d3a',
+          hover: '#3d3936',
         },
         text: {
-          color: '{slate.200}', // #E2E8F0 - Text Primary
-          hoverColor: '{slate.100}',
-          mutedColor: '{slate.400}', // #94A3B8 - Text Secondary
-          hoverMutedColor: '{slate.300}',
+          color: '#f0eeec',
+          hoverColor: '#faf9f8',
+          mutedColor: '#a8a29c',
+          hoverMutedColor: '#c9c5c1',
         },
       },
     },

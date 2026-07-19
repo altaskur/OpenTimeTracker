@@ -1,4 +1,5 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
 import { TranslateModule } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -96,6 +97,9 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App, TranslateModule.forRoot()],
       providers: [
+        // App now renders <app-open-nav>, which uses RouterLink and injects
+        // Router, so the shell test needs the router providers.
+        provideRouter([]),
         MessageService,
         { provide: ActionHistoryService, useValue: mockHistoryService },
         { provide: UpdateService, useValue: mockUpdateService },
@@ -212,6 +216,7 @@ describe('App without electronAPI', () => {
     await TestBed.configureTestingModule({
       imports: [App, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         MessageService,
         { provide: UpdateService, useValue: mockUpdateService },
       ],

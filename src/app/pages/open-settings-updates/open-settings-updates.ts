@@ -15,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { UpdateService } from '../../services/update.service';
 import { UpdateCheckResult } from '../../../types/electron';
 import { UpdateDialogComponent } from '../../components/update-dialog/update-dialog.component';
+import { OpenSettingsTabsComponent } from '../../components/open-settings-tabs/open-settings-tabs';
 
 @Component({
   selector: 'app-open-settings-updates',
@@ -28,10 +29,13 @@ import { UpdateDialogComponent } from '../../components/update-dialog/update-dia
     MessageModule,
     TranslateModule,
     UpdateDialogComponent,
+    OpenSettingsTabsComponent,
   ],
   template: `
     <div class="p-4">
       <h2 class="mb-4">{{ 'settings.updates.title' | translate }}</h2>
+
+      <app-open-settings-tabs />
 
       <div class="grid">
         <!-- Main Updates Card -->
