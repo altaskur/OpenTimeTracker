@@ -152,6 +152,7 @@
                 severity="danger"
                 size="small"
                 (onClick)="confirmDeleteTag($event, tag)"
+                [attr.aria-label]="'common.delete' | translate"
                 [pTooltip]="'common.delete' | translate"
                 class="tag-option__delete"
               />
@@ -174,6 +175,8 @@
                 severity="success"
                 (onClick)="createTag()"
                 [disabled]="!newTagName().trim()"
+                [attr.aria-label]="'settings.tags.add' | translate"
+                [pTooltip]="'settings.tags.add' | translate"
               />
             </p-inputGroup>
           </ng-template>

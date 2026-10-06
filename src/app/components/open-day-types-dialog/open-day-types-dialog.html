@@ -75,6 +75,7 @@
             [rounded]="true"
             (onClick)="onCreate()"
             [disabled]="!isNewFormValid()"
+            [attr.aria-label]="'dayTypes.add' | translate"
             [pTooltip]="'dayTypes.add' | translate"
           />
         </div>
@@ -121,6 +122,8 @@
                   [text]="true"
                   (onClick)="saveEdit()"
                   [disabled]="!isEditFormValid()"
+                  [attr.aria-label]="'common.save' | translate"
+                  [pTooltip]="'common.save' | translate"
                 />
                 <p-button
                   icon="pi pi-times"
@@ -128,6 +131,8 @@
                   [rounded]="true"
                   [text]="true"
                   (onClick)="cancelEdit()"
+                  [attr.aria-label]="'common.cancel' | translate"
+                  [pTooltip]="'common.cancel' | translate"
                 />
               </div>
             </div>
@@ -148,6 +153,7 @@
                   [rounded]="true"
                   [text]="true"
                   (onClick)="startEdit(dayType)"
+                  [attr.aria-label]="'common.edit' | translate"
                   [pTooltip]="'common.edit' | translate"
                 />
                 <p-button
@@ -156,6 +162,7 @@
                   [rounded]="true"
                   [text]="true"
                   (onClick)="onDelete(dayType.id)"
+                  [attr.aria-label]="'common.delete' | translate"
                   [pTooltip]="'common.delete' | translate"
                 />
               </div>

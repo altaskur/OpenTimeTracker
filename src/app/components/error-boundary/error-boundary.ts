@@ -42,9 +42,9 @@ import { ButtonModule } from 'primeng/button';
         justify-content: center;
         min-height: 200px;
         padding: 2rem;
-        background: var(--surface-ground);
+        background: var(--p-surface-ground);
         border-radius: 8px;
-        border: 1px solid var(--surface-border);
+        border: 1px solid var(--p-surface-border);
       }
 
       .error-content {
@@ -54,18 +54,18 @@ import { ButtonModule } from 'primeng/button';
 
       .error-icon {
         font-size: 3rem;
-        color: var(--red-500);
+        color: var(--p-red-500);
         margin-bottom: 1rem;
       }
 
       h3 {
         margin: 0 0 0.5rem 0;
-        color: var(--text-color);
+        color: var(--p-text-color);
       }
 
       p {
         margin: 0 0 1.5rem 0;
-        color: var(--text-color-secondary);
+        color: var(--p-text-muted-color);
       }
     `,
   ],
