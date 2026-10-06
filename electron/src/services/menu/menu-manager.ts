@@ -53,7 +53,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     maintenance: 'Mantenimiento',
     tags: 'Etiquetas',
     dayTypes: 'Tipos de Día',
-    taskStatuses: 'Tipos de Día',
+    taskStatuses: 'Estados de Tarea',
     checkForUpdates: 'Buscar Actualizaciones',
   },
   en: {
@@ -123,21 +123,21 @@ export class MenuManager {
     const template: MenuItemConstructorOptions[] = [
       ...(isMac
         ? [
-          {
-            label: app.name,
-            submenu: [
-              { role: 'about' as const },
-              { type: 'separator' as const },
-              { role: 'services' as const },
-              { type: 'separator' as const },
-              { role: 'hide' as const },
-              { role: 'hideOthers' as const },
-              { role: 'unhide' as const },
-              { type: 'separator' as const },
-              { role: 'quit' as const },
-            ],
-          },
-        ]
+            {
+              label: app.name,
+              submenu: [
+                { role: 'about' as const },
+                { type: 'separator' as const },
+                { role: 'services' as const },
+                { type: 'separator' as const },
+                { role: 'hide' as const },
+                { role: 'hideOthers' as const },
+                { role: 'unhide' as const },
+                { type: 'separator' as const },
+                { role: 'quit' as const },
+              ],
+            },
+          ]
         : []),
 
       {
@@ -174,13 +174,13 @@ export class MenuManager {
           ...(isMac
             ? []
             : [
-              { type: 'separator' as const },
-              {
-                label: this.t('exit'),
-                accelerator: 'Alt+F4',
-                role: 'quit' as const,
-              },
-            ]),
+                { type: 'separator' as const },
+                {
+                  label: this.t('exit'),
+                  accelerator: 'Alt+F4',
+                  role: 'quit' as const,
+                },
+              ]),
         ],
       },
 
