@@ -71,6 +71,8 @@ Supported platforms:
 - macOS (`.dmg`, Intel & Apple Silicon)
 - Linux (`.AppImage`, `.deb`)
 
+The Linux AppImage is also listed in the [AppImage catalog](https://appimage.github.io).
+
 ---
 
 ### Run from source (development)
