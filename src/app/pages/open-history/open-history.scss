@@ -58,6 +58,67 @@
   }
 }
 
+/* ==================== HISTORY LIST (card-style rows) ==================== */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-empty-card {
+  text-align: center;
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--p-surface-card);
+  border: 1px solid var(--p-surface-border);
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--transition-base);
+
+  &:hover {
+    box-shadow: var(--elevation-sm);
+  }
+
+  &--undone {
+    opacity: 0.55;
+  }
+
+  &__date {
+    flex-shrink: 0;
+    width: 8.5rem;
+    font-size: var(--font-size-sm);
+    color: var(--p-text-muted-color);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__entity {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+    width: 6rem;
+    font-size: var(--font-size-sm);
+    color: var(--p-text-muted-color);
+
+    i {
+      color: var(--p-primary-color);
+    }
+  }
+
+  &__description {
+    flex: 1;
+    min-width: 0;
+    color: var(--p-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .entity-cell {
   display: flex;
   align-items: center;
@@ -65,17 +126,6 @@
 
   i {
     color: var(--p-primary-color);
-  }
-}
-
-tr.undone {
-  opacity: 0.6;
-  background-color: var(--p-surface-100);
-}
-
-:host ::ng-deep {
-  .p-datatable .p-datatable-tbody > tr.undone > td {
-    background-color: var(--p-surface-100);
   }
 }
 

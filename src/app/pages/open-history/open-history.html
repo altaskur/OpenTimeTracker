@@ -39,82 +39,65 @@
     </header>
   </ng-template>
 
-  <p-card>
-    @if (loading()) {
-      <div class="history-loading">
-        <i class="pi pi-spin pi-spinner"></i>
-        {{ "common.loading" | translate }}
-      </div>
-    } @else if (historyRecords().length === 0) {
+  @if (loading()) {
+    <div class="history-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      {{ "common.loading" | translate }}
+    </div>
+  } @else if (historyRecords().length === 0) {
+    <p-card class="history-empty-card">
       <div class="history-empty">
         <i class="pi pi-inbox"></i>
         <p>{{ "history.empty" | translate }}</p>
       </div>
-    } @else {
-      <p-table
-        [value]="historyRecords()"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        styleClass="p-datatable-sm"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th>{{ "history.columns.date" | translate }}</th>
-            <th>{{ "history.columns.action" | translate }}</th>
-            <th>{{ "history.columns.entity" | translate }}</th>
-            <th>{{ "history.columns.description" | translate }}</th>
-            <th>{{ "history.columns.status" | translate }}</th>
-            <th style="width: 80px"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-record>
-          <tr [class.undone]="record.undone">
-            <td>
-              {{ record.createdAt | date: "dd/MM/yyyy HH:mm" }}
-            </td>
-            <td>
-              <p-tag
-                [value]="getActionLabel(record.actionType)"
-                [severity]="getActionSeverity(record.actionType)"
-                [icon]="getActionIcon(record.actionType)"
-              />
-            </td>
-            <td>
-              <span class="entity-cell">
-                <i [class]="getEntityIcon(record.entityType)"></i>
-                {{ getEntityLabel(record.entityType) }}
-              </span>
-            </td>
-            <td>{{ record.description }}</td>
-            <td>
-              @if (record.undone) {
-                <p-tag
-                  [value]="'history.statusUndone' | translate"
-                  severity="warn"
-                  icon="pi pi-undo"
-                />
-              } @else {
-                <p-tag
-                  [value]="'history.statusDone' | translate"
-                  severity="success"
-                  icon="pi pi-check"
-                />
-              }
-            </td>
-            <td>
-              <p-button
-                icon="pi pi-eye"
-                [rounded]="true"
-                [text]="true"
-                severity="secondary"
-                (onClick)="onViewDetail(record)"
-                [pTooltip]="'history.viewDetail' | translate"
-              />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
-  </p-card>
+    </p-card>
+  } @else {
+    <div class="history-list" role="list">
+      @for (record of historyRecords(); track record.id) {
+        <div
+          class="history-row"
+          [class.history-row--undone]="record.undone"
+          role="listitem"
+        >
+          <span class="history-row__date">
+            {{ record.createdAt | date: "dd/MM/yyyy HH:mm" }}
+          </span>
+          <p-tag
+            [value]="getActionLabel(record.actionType)"
+            [severity]="getActionSeverity(record.actionType)"
+            [icon]="getActionIcon(record.actionType)"
+          />
+          <span class="history-row__entity">
+            <i [class]="getEntityIcon(record.entityType)"></i>
+            {{ getEntityLabel(record.entityType) }}
+          </span>
+          <span class="history-row__description">{{ record.description }}</span>
+          @if (record.undone) {
+            <p-tag
+              [value]="'history.statusUndone' | translate"
+              severity="warn"
+              icon="pi pi-undo"
+            />
+          } @else {
+            <p-tag
+              [value]="'history.statusDone' | translate"
+              severity="success"
+              icon="pi pi-check"
+            />
+          }
+          <p-button
+            icon="pi pi-eye"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            (onClick)="onViewDetail(record)"
+            [attr.aria-label]="'history.viewDetail' | translate"
+            [pTooltip]="'history.viewDetail' | translate"
+          />
+        </div>
+      }
+    </div>
+  }
 
   <p-dialog
     [header]="'history.detailTitle' | translate"

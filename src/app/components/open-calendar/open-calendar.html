@@ -6,6 +6,7 @@
         [rounded]="true"
         [text]="true"
         (onClick)="previousMonth()"
+        [attr.aria-label]="'calendar.previousMonth' | translate"
         [pTooltip]="'calendar.previousMonth' | translate"
       />
       <h2 class="calendar__title">{{ monthYearLabel() }}</h2>
@@ -14,6 +15,7 @@
         [rounded]="true"
         [text]="true"
         (onClick)="nextMonth()"
+        [attr.aria-label]="'calendar.nextMonth' | translate"
         [pTooltip]="'calendar.nextMonth' | translate"
       />
     </div>
@@ -51,6 +53,7 @@
         [rounded]="true"
         [text]="true"
         (onClick)="onSettingsClick($event)"
+        [attr.aria-label]="'calendar.settings' | translate"
         [pTooltip]="'calendar.settings' | translate"
       />
       <p-button
@@ -110,6 +113,10 @@
                       size="small"
                       [style.color]="day.dayOverride?.dayType?.color"
                       (onClick)="onDayClick(day)"
+                      [attr.aria-label]="
+                        day.dayOverride?.dayType?.name ||
+                        ('calendar.addSpecialDay' | translate)
+                      "
                       [pTooltip]="
                         day.dayOverride?.dayType?.name ||
                         ('calendar.addSpecialDay' | translate)
@@ -121,6 +128,7 @@
                       [text]="true"
                       size="small"
                       (onClick)="onAddTimeClick(day, $event)"
+                      [attr.aria-label]="'calendar.addTime' | translate"
                       [pTooltip]="'calendar.addTime' | translate"
                     />
                   </div>

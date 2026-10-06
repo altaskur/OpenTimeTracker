@@ -163,16 +163,16 @@ import { SafeMarkdownPipe } from '../../pipes/safe-markdown.pipe';
         }
 
         :deep(a) {
-          color: var(--primary-color);
+          color: var(--p-primary-color);
           text-decoration: underline;
           cursor: pointer;
         }
 
         :deep(blockquote) {
-          border-left: 4px solid var(--primary-color);
+          border-left: 4px solid var(--p-primary-color);
           margin: 0.5rem 0;
           padding-left: 1rem;
-          color: var(--text-color-secondary);
+          color: var(--p-text-muted-color);
         }
       }
     `,

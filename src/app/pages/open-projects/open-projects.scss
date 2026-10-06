@@ -25,13 +25,12 @@
 /* ==================== SECTION TITLE ==================== */
 .projects-section-title {
   margin: 1rem 0 0.5rem;
-  padding: 0 1rem;
   font-size: 1.1rem;
-  color: var(--primary-color);
+  color: var(--p-primary-color);
 
   &--closed {
     margin-top: 2rem;
-    color: var(--text-color-secondary);
+    color: var(--p-text-muted-color);
   }
 }
 
@@ -54,7 +53,7 @@
 
   &__project-description {
     display: block;
-    color: var(--text-color-secondary);
+    color: var(--p-text-muted-color);
     margin-top: 0.25rem;
     max-width: 400px;
     overflow: hidden;
@@ -63,13 +62,13 @@
   }
 
   &__no-data {
-    color: var(--text-color-secondary);
+    color: var(--p-text-muted-color);
     font-style: italic;
   }
 
   &__empty {
     text-align: center;
-    color: var(--text-color-secondary);
+    color: var(--p-text-muted-color);
     padding: 2rem;
   }
 }

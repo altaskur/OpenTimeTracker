@@ -12,7 +12,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -35,7 +34,6 @@ import { ActionHistory, Task } from '../../../types/electron';
     ToastModule,
     CardModule,
     ButtonModule,
-    TableModule,
     TagModule,
     TooltipModule,
     ConfirmDialogModule,

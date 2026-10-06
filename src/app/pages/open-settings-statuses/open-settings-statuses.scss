@@ -21,13 +21,13 @@
     font-weight: 600;
 
     i {
-      color: var(--primary-color);
+      color: var(--p-primary-color);
     }
   }
 
   &__subtitle {
     margin: 0;
-    color: var(--text-color-secondary);
+    color: var(--p-text-muted-color);
     font-size: 0.875rem;
   }
 
@@ -53,7 +53,7 @@
     gap: 0.5rem;
     padding: 2rem;
     text-align: center;
-    color: var(--text-color-secondary);
+    color: var(--p-text-muted-color);
 
     i {
       font-size: 3rem;
@@ -73,8 +73,8 @@
 
   &__item {
     padding: 0.75rem;
-    background: var(--surface-ground);
-    border-radius: var(--border-radius);
+    background: var(--p-surface-ground);
+    border-radius: var(--radius-md);
   }
 
   &__item-view,
@@ -100,7 +100,7 @@
 
     i.pi-lock {
       font-size: 0.75rem;
-      color: var(--text-color-secondary);
+      color: var(--p-text-muted-color);
     }
   }
 
