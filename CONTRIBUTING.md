@@ -59,6 +59,27 @@ The main branch is `main`, and active development happens on the `develop` branc
    npm run dev          # Build and run Angular + Electron in dev mode
    ```
 
+### Knowledge graph (Graphify) — optional
+
+The repo ships a queryable knowledge graph of the codebase in `graphify-out/`
+(`graph.json`, an interactive `graph.html`, and `GRAPH_REPORT.md`). AI coding
+assistants pick it up automatically (see the `## graphify` section in
+`CLAUDE.md`), and you can open `graph.html` in any browser to explore the
+architecture — **no setup required to just read it.**
+
+To **regenerate or update** the graph you need the Graphify CLI once per
+machine (it is a global tool, not an npm dependency, so it is not installed by
+`npm install`):
+
+```bash
+uv tool install graphifyy      # or: pipx install graphifyy
+graphify update .              # refresh the graph after code changes (AST-only, no API cost)
+```
+
+Optional, per-developer: `graphify claude install` wires auto-hooks into your
+**local** `.claude/settings.json` (git-ignored — it contains machine-specific
+paths, so don't commit it).
+
 ## Development Workflow
 
 ### Creating a Branch

@@ -1,0 +1,8 @@
+# Graphify knowledge-graph outputs are generated. Keep them out of textual
+# diffs and mark them as generated so they don't skew language stats or bloat
+# PR reviews. They are regenerable, so on a merge conflict just rebuild:
+#   graphify update .
+graphify-out/graph.json      -diff linguist-generated=true
+graphify-out/graph.html      -diff linguist-generated=true
+graphify-out/GRAPH_REPORT.md linguist-generated=true
+graphify-out/manifest.json   -diff linguist-generated=true
