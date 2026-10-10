@@ -53,7 +53,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
     maintenance: 'Mantenimiento',
     tags: 'Etiquetas',
     dayTypes: 'Tipos de Día',
-    taskStatuses: 'Tipos de Día',
+    taskStatuses: 'Estados de Tarea',
     checkForUpdates: 'Buscar Actualizaciones',
   },
   en: {
