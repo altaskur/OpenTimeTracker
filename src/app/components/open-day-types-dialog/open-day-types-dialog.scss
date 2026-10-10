@@ -2,6 +2,10 @@
 
 @include dialog-polish;
 
+:host {
+  display: block;
+}
+
 .day-types {
   display: flex;
   flex-direction: column;
@@ -10,7 +14,8 @@
 
 .day-types__form {
   padding: 1rem;
-  background: var(--p-surface-50);
+  background: var(--c-surface-subtle);
+  border: 1px solid var(--p-surface-border);
   border-radius: var(--radius-md);
 }
 
@@ -64,13 +69,13 @@
 
 .day-types__item {
   padding: 0.75rem 1rem;
-  background: var(--p-surface-0);
-  border: 1px solid var(--p-surface-200);
+  background: var(--p-surface-card);
+  border: 1px solid var(--p-surface-border);
   border-radius: var(--p-border-radius);
   transition: background-color 0.2s;
 
   &:hover {
-    background: var(--p-surface-50);
+    background: var(--p-surface-hover);
   }
 }
 
